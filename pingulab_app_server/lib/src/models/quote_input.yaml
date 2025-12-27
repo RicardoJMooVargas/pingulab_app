@@ -1,0 +1,20 @@
+class: QuoteInput
+fields:
+  # Basic quote information
+  gramsPrinted: double
+  printHours: double
+  postProcessingCost: double?
+  measurements: String?
+  marginPercent: double
+  imageUrl: String?
+  status: QuoteStatus?
+  
+  # References
+  printerId: int?
+  shippingId: int?
+  
+  # Filaments used (list of filament IDs and grams)
+  filamentUsages: List<FilamentUsage>?
+  
+  # Extra supplies used (list of supply IDs and quantities)
+  supplyUsages: List<SupplyUsage>?

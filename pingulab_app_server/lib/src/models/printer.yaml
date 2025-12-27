@@ -1,0 +1,6 @@
+class: Printer
+table: printers
+fields:
+  name: String
+  powerConsumptionWatts: int
+  available: bool

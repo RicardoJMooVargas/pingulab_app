@@ -1,0 +1,5 @@
+class: ElectricityRate
+table: electricity_rates
+fields:
+  costPerKwh: double
+  active: bool

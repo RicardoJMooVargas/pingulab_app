@@ -1,0 +1,7 @@
+class: QuoteFilament
+table: quote_filaments
+fields:
+  quoteId: int
+  filamentId: int
+  gramsUsed: double
+  cost: double

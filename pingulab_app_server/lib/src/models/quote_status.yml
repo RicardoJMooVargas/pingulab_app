@@ -1,0 +1,6 @@
+enum: QuoteStatus
+values:
+  - PENDIENTE
+  - PROCESO
+  - FINALIZADO
+  - CANCELADO

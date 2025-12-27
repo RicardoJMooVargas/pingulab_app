@@ -1,0 +1,5 @@
+class: QuoteFilamentDetail
+fields:
+  filament: Filament
+  gramsUsed: double
+  cost: double

@@ -1,0 +1,229 @@
+# ============================================
+# Archivos Sensibles - NUNCA SUBIR
+# ============================================
+**/passwords.yaml
+**/config/passwords.yaml
+**/.env
+**/.env.*
+*.key
+*.pem
+*.p12
+*.jks
+
+# ============================================
+# Dart & Flutter
+# ============================================
+
+# Archivos de build
+**/build/
+**/dist/
+**/.dart_tool/
+**/.packages
+**/.pub-cache/
+**/.pub/
+**/pubspec.lock
+
+# Flutter/Dart específico
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.metadata
+
+# Cobertura de tests
+**/coverage/
+**/test/.test_coverage.dart
+**/lcov.info
+
+# ============================================
+# Serverpod
+# ============================================
+
+# Archivos generados por Serverpod
+**/generated/
+**/lib/src/generated/
+**/lib/generated/
+
+# Migraciones (opcional - comentar si quieres versionarlas)
+# **/migrations/
+
+# ============================================
+# Docker & Base de Datos
+# ============================================
+
+# Volúmenes de Docker
+**/docker-compose.override.yml
+**/.docker/
+**/postgres-data/
+**/redis-data/
+
+# Respaldos de base de datos
+**/*.sql.backup
+**/*.dump
+**/*.backup
+
+# ============================================
+# IDEs & Editores
+# ============================================
+
+# Visual Studio Code
+**/.vscode/
+!**/.vscode/extensions.json
+!**/.vscode/launch.json
+!**/.vscode/settings.json.example
+
+# IntelliJ / Android Studio
+**/.idea/
+**/*.iml
+**/*.ipr
+**/*.iws
+**/.idea_modules/
+
+# ============================================
+# Sistema Operativo
+# ============================================
+
+# Windows
+**/Thumbs.db
+**/ehthumbs.db
+**/Desktop.ini
+**/$RECYCLE.BIN/
+**/*.lnk
+
+# macOS
+**/.DS_Store
+**/.AppleDouble
+**/.LSOverride
+**/.Spotlight-V100
+**/.Trashes
+
+# Linux
+**/*~
+**/.directory
+
+# ============================================
+# Flutter - Específico por Plataforma
+# ============================================
+
+# Android
+**/android/**/gradle-wrapper.jar
+**/android/.gradle/
+**/android/captures/
+**/android/gradlew
+**/android/gradlew.bat
+**/android/local.properties
+**/android/**/GeneratedPluginRegistrant.java
+**/android/key.properties
+**/*.jks
+
+# iOS
+**/ios/**/*.mode1v3
+**/ios/**/*.mode2v3
+**/ios/**/*.moved-aside
+**/ios/**/*.pbxuser
+**/ios/**/*.perspectivev3
+**/ios/**/*sync/
+**/ios/**/.sconsign.dblite
+**/ios/**/.tags*
+**/ios/**/.vagrant/
+**/ios/**/DerivedData/
+**/ios/**/Icon?
+**/ios/**/Pods/
+**/ios/**/.symlinks/
+**/ios/**/profile
+**/ios/**/xcuserdata
+**/ios/.generated/
+**/ios/Flutter/App.framework
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/ephemeral/
+**/ios/Flutter/app.flx
+**/ios/Flutter/app.zip
+**/ios/Flutter/flutter_assets/
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/ServiceDefinitions.json
+**/ios/Runner/GeneratedPluginRegistrant.*
+
+# Web
+**/web/.dart_tool/
+
+# Windows
+**/windows/flutter/ephemeral/
+
+# Linux
+**/linux/flutter/ephemeral/
+
+# macOS
+**/macos/Flutter/ephemeral/
+**/macos/Flutter/GeneratedPluginRegistrant.swift
+
+# ============================================
+# Logs y Temporales
+# ============================================
+
+**/*.log
+**/*.tmp
+**/*.temp
+**/logs/
+**/tmp/
+**/temp/
+
+# ============================================
+# Dependencias Node (si usas)
+# ============================================
+
+**/node_modules/
+**/package-lock.json
+**/yarn.lock
+
+# ============================================
+# Archivos de Compilación y Cache
+# ============================================
+
+**/*.class
+**/*.pyc
+**/*.pyo
+**/*.so
+**/*.dylib
+**/*.dll
+**/*.exe
+
+# ============================================
+# Certificados y Firmas
+# ============================================
+
+**/*.cer
+**/*.der
+**/*.keystore
+**/*.mobileprovision
+**/*.p12
+**/*.pfx
+
+# ============================================
+# Respaldos
+# ============================================
+
+**/*.bak
+**/*.backup
+**/*.old
+**/*.orig
+**/*.swp
+**/*.swo
+
+# ============================================
+# Archivos Específicos del Proyecto
+# ============================================
+
+# Datos de prueba locales (opcional)
+# **/seed_data.sql
+# **/seed_quote.sql
+
+# Archivos de configuración local personalizados
+**/config/local.yaml
+**/config/custom.yaml
+
+# ============================================
+# Git
+# ============================================
+
+**/.git/
+**/.gitattributes

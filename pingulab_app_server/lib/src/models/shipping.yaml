@@ -1,0 +1,6 @@
+class: Shipping
+table: shippings
+fields:
+  shippingType: String
+  carrierName: String
+  cost: double

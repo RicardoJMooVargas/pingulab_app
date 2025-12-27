@@ -1,0 +1,5 @@
+class: ExtraSupply
+table: extra_supplies
+fields:
+  name: String
+  cost: double

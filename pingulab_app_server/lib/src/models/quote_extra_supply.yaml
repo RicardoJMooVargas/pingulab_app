@@ -1,0 +1,7 @@
+class: QuoteExtraSupply
+table: quote_extra_supplies
+fields:
+  quoteId: int
+  extraSupplyId: int
+  quantity: int
+  cost: double

@@ -1,0 +1,8 @@
+class: Filament
+table: filaments
+fields:
+  name: String
+  brand: String
+  materialType: String
+  spoolWeightKg: double
+  spoolCost: double

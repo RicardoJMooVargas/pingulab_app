@@ -1,0 +1,5 @@
+class: QuoteSupplyDetail
+fields:
+  supply: ExtraSupply
+  quantity: int
+  cost: double

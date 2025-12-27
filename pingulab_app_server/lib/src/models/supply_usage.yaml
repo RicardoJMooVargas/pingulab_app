@@ -1,0 +1,4 @@
+class: SupplyUsage
+fields:
+  extraSupplyId: int
+  quantity: int

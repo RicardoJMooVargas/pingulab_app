@@ -1,0 +1,4 @@
+class: FilamentUsage
+fields:
+  filamentId: int
+  gramsUsed: double

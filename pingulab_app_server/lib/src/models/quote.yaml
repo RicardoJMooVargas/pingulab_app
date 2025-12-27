@@ -1,0 +1,27 @@
+class: Quote
+table: quotes
+fields:
+  # Input fields
+  gramsPrinted: double
+  printHours: double
+  postProcessingCost: double?
+  measurements: String?  # Optional measurements
+  
+  # Calculated costs
+  filamentCost: double
+  electricityCost: double
+  suppliesCost: double
+  shippingCost: double?
+
+  # Totals
+  subtotal: double
+  marginPercent: double
+  total: double
+
+  # Status and metadata
+  status: QuoteStatus
+  imageUrl: String?
+  
+  # Foreign keys
+  printerId: int?
+  shippingId: int?

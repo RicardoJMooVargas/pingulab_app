@@ -1,0 +1,7 @@
+class: QuoteDetails
+fields:
+  quote: Quote
+  filamentDetails: List<QuoteFilamentDetail>?
+  supplyDetails: List<QuoteSupplyDetail>?
+  printer: Printer?
+  shipping: Shipping?
