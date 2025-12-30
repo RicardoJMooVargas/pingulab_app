@@ -3,8 +3,19 @@ FROM dart:3.5.0 AS build
 WORKDIR /app
 COPY . .
 
-# Install dependencies and compile the server executable
+# Install dependencies
 RUN dart pub get
+
+# Install Serverpod CLI globally
+RUN dart pub global activate serverpod_cli
+
+# Add Dart global bin to PATH
+ENV PATH="${PATH}:/root/.pub-cache/bin"
+
+# Generate Serverpod code
+RUN serverpod generate
+
+# Compile the server executable
 RUN dart compile exe bin/main.dart -o bin/server
 
 # Final stage
