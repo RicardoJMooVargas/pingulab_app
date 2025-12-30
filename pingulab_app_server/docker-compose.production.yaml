@@ -15,6 +15,8 @@ services:
       - serverid=default
       - logging=normal
       - role=monolith
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
     depends_on:
       - postgres
       - redis
