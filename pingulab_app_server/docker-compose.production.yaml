@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  # Serverpod API Server
+  serverpod:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pingulab_api
+    restart: unless-stopped
+    ports:
+      - "8080:8080"  # API
+      - "8081:8081"  # Insights
+      - "8082:8082"  # Web
+    environment:
+      - runmode=production
+      - serverid=default
+      - logging=normal
+      - role=monolith
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - pingulab_network
+    volumes:
+      - ./config:/app/config:ro
+      - ./migrations:/app/migrations:ro
+
+  # PostgreSQL Database
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: pingulab_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: pingulab_app
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - pingulab_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:6.2.6
+    container_name: pingulab_redis
+    restart: unless-stopped
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    environment:
+      - REDIS_REPLICATION_MODE=master
+    volumes:
+      - redis_data:/data
+    networks:
+      - pingulab_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  pingulab_network:
+    driver: bridge
