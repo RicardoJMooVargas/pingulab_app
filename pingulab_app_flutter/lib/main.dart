@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:pingulab_app_client/pingulab_app_client.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:serverpod_flutter/serverpod_flutter.dart';
 import 'screens/quotes_list_screen.dart';
@@ -15,6 +17,10 @@ late final Client client;
 late String serverUrl;
 
 void main() {
+  // Allow self-signed certificates for development/testing
+  // Remove this in production once SSL is properly configured
+  HttpOverrides.global = MyHttpOverrides();
+  
   // Production URL - change this when deploying
   // For development, use: http://$localhost:8080/
   // For production, use your deployed URL
@@ -34,6 +40,22 @@ void main() {
     ..connectivityMonitor = FlutterConnectivityMonitor();
 
   runApp(const MyApp());
+}
+
+/// Allows self-signed or invalid certificates
+/// WARNING: Only use this for development/testing
+/// Remove or comment out for production with valid SSL
+class MyHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback = (X509Certificate cert, String host, int port) {
+        if (kDebugMode) {
+          print('⚠️  Accepting certificate for $host:$port');
+        }
+        return true; // Accept all certificates
+      };
+  }
 }
 
 class MyApp extends StatelessWidget {
