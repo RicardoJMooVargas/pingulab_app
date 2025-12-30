@@ -1,13 +1,13 @@
 # Build stage
 FROM dart:3.5.0 AS build
 WORKDIR /app
-COPY . .
 
-# Install dependencies
+# Copy only pubspec files first for better caching
+COPY pubspec.* ./
 RUN dart pub get
 
-# Generate Serverpod code (without requiring Flutter)
-RUN dart run serverpod:generate --mode production
+# Copy the rest of the application
+COPY . .
 
 # Compile the server executable
 RUN dart compile exe bin/main.dart -o bin/server
