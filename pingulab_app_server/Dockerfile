@@ -48,10 +48,24 @@ EXPOSE 8080
 EXPOSE 8081
 EXPOSE 8082
 
-# Create entrypoint script that substitutes env vars
+# Create entrypoint script that substitutes env vars and applies migrations
 RUN echo '#!/bin/sh' > /entrypoint.sh && \
+    echo 'set -e' >> /entrypoint.sh && \
+    echo 'echo "🔧 Configuring passwords..."' >> /entrypoint.sh && \
     echo 'envsubst < config/passwords.yaml > config/passwords.tmp' >> /entrypoint.sh && \
     echo 'mv config/passwords.tmp config/passwords.yaml' >> /entrypoint.sh && \
+    echo '' >> /entrypoint.sh && \
+    echo 'echo "📦 Checking migrations..."' >> /entrypoint.sh && \
+    echo 'if [ ! -f /app/.migrations_applied ]; then' >> /entrypoint.sh && \
+    echo '  echo "⏳ Applying migrations for the first time..."' >> /entrypoint.sh && \
+    echo '  ./server --apply-migrations --mode=$runmode || echo "⚠️  Migration failed, continuing..."' >> /entrypoint.sh && \
+    echo '  touch /app/.migrations_applied' >> /entrypoint.sh && \
+    echo '  echo "✅ Migrations applied"' >> /entrypoint.sh && \
+    echo 'else' >> /entrypoint.sh && \
+    echo '  echo "✅ Migrations already applied"' >> /entrypoint.sh && \
+    echo 'fi' >> /entrypoint.sh && \
+    echo '' >> /entrypoint.sh && \
+    echo 'echo "🚀 Starting Serverpod..."' >> /entrypoint.sh && \
     echo 'exec ./server --mode=$runmode --server-id=$serverid --logging=$logging --role=$role' >> /entrypoint.sh && \
     chmod +x /entrypoint.sh
 
