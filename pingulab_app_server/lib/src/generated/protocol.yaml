@@ -1,0 +1,22 @@
+customer:
+  - searchCustomers:
+  - getAllCustomers:
+  - getCustomer:
+quote:
+  - createQuote:
+  - getQuote:
+  - getQuoteDetails:
+  - getAllQuotes:
+  - updateQuote:
+  - deleteQuote:
+  - updateQuoteStatus:
+resources:
+  - getAllPrinters:
+  - getAvailablePrinters:
+  - getAllFilaments:
+  - getAllExtraSupplies:
+  - getAllShippings:
+  - getActiveElectricityRate:
+  - getAllElectricityRates:
+greeting:
+  - hello:
