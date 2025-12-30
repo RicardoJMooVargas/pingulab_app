@@ -6,14 +6,8 @@ COPY . .
 # Install dependencies
 RUN dart pub get
 
-# Install Serverpod CLI globally
-RUN dart pub global activate serverpod_cli
-
-# Add Dart global bin to PATH
-ENV PATH="${PATH}:/root/.pub-cache/bin"
-
-# Generate Serverpod code
-RUN serverpod generate
+# Generate Serverpod code (without requiring Flutter)
+RUN dart run serverpod:generate --mode production
 
 # Compile the server executable
 RUN dart compile exe bin/main.dart -o bin/server
