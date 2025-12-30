@@ -16,13 +16,15 @@ import 'supply_usage.dart' as _i4;
 
 abstract class QuoteInput implements _i1.SerializableModel {
   QuoteInput._({
-    required this.gramsPrinted,
+    required this.name,
+    required this.pieceWeightGrams,
     required this.printHours,
     this.postProcessingCost,
     this.measurements,
     required this.marginPercent,
     this.imageUrl,
     this.status,
+    this.customerId,
     this.printerId,
     this.shippingId,
     this.filamentUsages,
@@ -30,13 +32,15 @@ abstract class QuoteInput implements _i1.SerializableModel {
   });
 
   factory QuoteInput({
-    required double gramsPrinted,
+    required String name,
+    required double pieceWeightGrams,
     required double printHours,
     double? postProcessingCost,
     String? measurements,
     required double marginPercent,
     String? imageUrl,
     _i2.QuoteStatus? status,
+    int? customerId,
     int? printerId,
     int? shippingId,
     List<_i3.FilamentUsage>? filamentUsages,
@@ -45,7 +49,9 @@ abstract class QuoteInput implements _i1.SerializableModel {
 
   factory QuoteInput.fromJson(Map<String, dynamic> jsonSerialization) {
     return QuoteInput(
-      gramsPrinted: (jsonSerialization['gramsPrinted'] as num).toDouble(),
+      name: jsonSerialization['name'] as String,
+      pieceWeightGrams:
+          (jsonSerialization['pieceWeightGrams'] as num).toDouble(),
       printHours: (jsonSerialization['printHours'] as num).toDouble(),
       postProcessingCost:
           (jsonSerialization['postProcessingCost'] as num?)?.toDouble(),
@@ -55,6 +61,7 @@ abstract class QuoteInput implements _i1.SerializableModel {
       status: jsonSerialization['status'] == null
           ? null
           : _i2.QuoteStatus.fromJson((jsonSerialization['status'] as int)),
+      customerId: jsonSerialization['customerId'] as int?,
       printerId: jsonSerialization['printerId'] as int?,
       shippingId: jsonSerialization['shippingId'] as int?,
       filamentUsages: (jsonSerialization['filamentUsages'] as List?)
@@ -66,7 +73,9 @@ abstract class QuoteInput implements _i1.SerializableModel {
     );
   }
 
-  double gramsPrinted;
+  String name;
+
+  double pieceWeightGrams;
 
   double printHours;
 
@@ -80,6 +89,8 @@ abstract class QuoteInput implements _i1.SerializableModel {
 
   _i2.QuoteStatus? status;
 
+  int? customerId;
+
   int? printerId;
 
   int? shippingId;
@@ -92,13 +103,15 @@ abstract class QuoteInput implements _i1.SerializableModel {
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
   QuoteInput copyWith({
-    double? gramsPrinted,
+    String? name,
+    double? pieceWeightGrams,
     double? printHours,
     double? postProcessingCost,
     String? measurements,
     double? marginPercent,
     String? imageUrl,
     _i2.QuoteStatus? status,
+    int? customerId,
     int? printerId,
     int? shippingId,
     List<_i3.FilamentUsage>? filamentUsages,
@@ -107,13 +120,15 @@ abstract class QuoteInput implements _i1.SerializableModel {
   @override
   Map<String, dynamic> toJson() {
     return {
-      'gramsPrinted': gramsPrinted,
+      'name': name,
+      'pieceWeightGrams': pieceWeightGrams,
       'printHours': printHours,
       if (postProcessingCost != null) 'postProcessingCost': postProcessingCost,
       if (measurements != null) 'measurements': measurements,
       'marginPercent': marginPercent,
       if (imageUrl != null) 'imageUrl': imageUrl,
       if (status != null) 'status': status?.toJson(),
+      if (customerId != null) 'customerId': customerId,
       if (printerId != null) 'printerId': printerId,
       if (shippingId != null) 'shippingId': shippingId,
       if (filamentUsages != null)
@@ -134,25 +149,29 @@ class _Undefined {}
 
 class _QuoteInputImpl extends QuoteInput {
   _QuoteInputImpl({
-    required double gramsPrinted,
+    required String name,
+    required double pieceWeightGrams,
     required double printHours,
     double? postProcessingCost,
     String? measurements,
     required double marginPercent,
     String? imageUrl,
     _i2.QuoteStatus? status,
+    int? customerId,
     int? printerId,
     int? shippingId,
     List<_i3.FilamentUsage>? filamentUsages,
     List<_i4.SupplyUsage>? supplyUsages,
   }) : super._(
-          gramsPrinted: gramsPrinted,
+          name: name,
+          pieceWeightGrams: pieceWeightGrams,
           printHours: printHours,
           postProcessingCost: postProcessingCost,
           measurements: measurements,
           marginPercent: marginPercent,
           imageUrl: imageUrl,
           status: status,
+          customerId: customerId,
           printerId: printerId,
           shippingId: shippingId,
           filamentUsages: filamentUsages,
@@ -164,20 +183,23 @@ class _QuoteInputImpl extends QuoteInput {
   @_i1.useResult
   @override
   QuoteInput copyWith({
-    double? gramsPrinted,
+    String? name,
+    double? pieceWeightGrams,
     double? printHours,
     Object? postProcessingCost = _Undefined,
     Object? measurements = _Undefined,
     double? marginPercent,
     Object? imageUrl = _Undefined,
     Object? status = _Undefined,
+    Object? customerId = _Undefined,
     Object? printerId = _Undefined,
     Object? shippingId = _Undefined,
     Object? filamentUsages = _Undefined,
     Object? supplyUsages = _Undefined,
   }) {
     return QuoteInput(
-      gramsPrinted: gramsPrinted ?? this.gramsPrinted,
+      name: name ?? this.name,
+      pieceWeightGrams: pieceWeightGrams ?? this.pieceWeightGrams,
       printHours: printHours ?? this.printHours,
       postProcessingCost: postProcessingCost is double?
           ? postProcessingCost
@@ -186,6 +208,7 @@ class _QuoteInputImpl extends QuoteInput {
       marginPercent: marginPercent ?? this.marginPercent,
       imageUrl: imageUrl is String? ? imageUrl : this.imageUrl,
       status: status is _i2.QuoteStatus? ? status : this.status,
+      customerId: customerId is int? ? customerId : this.customerId,
       printerId: printerId is int? ? printerId : this.printerId,
       shippingId: shippingId is int? ? shippingId : this.shippingId,
       filamentUsages: filamentUsages is List<_i3.FilamentUsage>?

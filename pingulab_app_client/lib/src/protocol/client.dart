@@ -11,17 +11,50 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod_client/serverpod_client.dart' as _i1;
 import 'dart:async' as _i2;
-import 'package:pingulab_app_client/src/protocol/quote.dart' as _i3;
-import 'package:pingulab_app_client/src/protocol/quote_input.dart' as _i4;
-import 'package:pingulab_app_client/src/protocol/quote_details.dart' as _i5;
-import 'package:pingulab_app_client/src/protocol/quote_status.dart' as _i6;
-import 'package:pingulab_app_client/src/protocol/printer.dart' as _i7;
-import 'package:pingulab_app_client/src/protocol/filament.dart' as _i8;
-import 'package:pingulab_app_client/src/protocol/extra_supply.dart' as _i9;
-import 'package:pingulab_app_client/src/protocol/shipping.dart' as _i10;
-import 'package:pingulab_app_client/src/protocol/electricity_rate.dart' as _i11;
-import 'package:pingulab_app_client/src/protocol/greeting.dart' as _i12;
-import 'protocol.dart' as _i13;
+import 'package:pingulab_app_client/src/protocol/customer.dart' as _i3;
+import 'package:pingulab_app_client/src/protocol/quote.dart' as _i4;
+import 'package:pingulab_app_client/src/protocol/quote_input.dart' as _i5;
+import 'package:pingulab_app_client/src/protocol/quote_details.dart' as _i6;
+import 'package:pingulab_app_client/src/protocol/quote_status.dart' as _i7;
+import 'package:pingulab_app_client/src/protocol/printer.dart' as _i8;
+import 'package:pingulab_app_client/src/protocol/filament.dart' as _i9;
+import 'package:pingulab_app_client/src/protocol/extra_supply.dart' as _i10;
+import 'package:pingulab_app_client/src/protocol/shipping.dart' as _i11;
+import 'package:pingulab_app_client/src/protocol/electricity_rate.dart' as _i12;
+import 'package:pingulab_app_client/src/protocol/greeting.dart' as _i13;
+import 'protocol.dart' as _i14;
+
+/// {@category Endpoint}
+class EndpointCustomer extends _i1.EndpointRef {
+  EndpointCustomer(_i1.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'customer';
+
+  /// Search customers by apodo, nombre or apellido
+  _i2.Future<List<_i3.Customer>> searchCustomers(String query) =>
+      caller.callServerEndpoint<List<_i3.Customer>>(
+        'customer',
+        'searchCustomers',
+        {'query': query},
+      );
+
+  /// Get all customers
+  _i2.Future<List<_i3.Customer>> getAllCustomers() =>
+      caller.callServerEndpoint<List<_i3.Customer>>(
+        'customer',
+        'getAllCustomers',
+        {},
+      );
+
+  /// Get customer by ID
+  _i2.Future<_i3.Customer?> getCustomer(int id) =>
+      caller.callServerEndpoint<_i3.Customer?>(
+        'customer',
+        'getCustomer',
+        {'id': id},
+      );
+}
 
 /// {@category Endpoint}
 class EndpointQuote extends _i1.EndpointRef {
@@ -31,43 +64,43 @@ class EndpointQuote extends _i1.EndpointRef {
   String get name => 'quote';
 
   /// Create a new quote from input data
-  _i2.Future<_i3.Quote> createQuote(_i4.QuoteInput input) =>
-      caller.callServerEndpoint<_i3.Quote>(
+  _i2.Future<_i4.Quote> createQuote(_i5.QuoteInput input) =>
+      caller.callServerEndpoint<_i4.Quote>(
         'quote',
         'createQuote',
         {'input': input},
       );
 
   /// Get a quote by ID with all relations
-  _i2.Future<_i3.Quote?> getQuote(int id) =>
-      caller.callServerEndpoint<_i3.Quote?>(
+  _i2.Future<_i4.Quote?> getQuote(int id) =>
+      caller.callServerEndpoint<_i4.Quote?>(
         'quote',
         'getQuote',
         {'id': id},
       );
 
   /// Get a quote with all its detailed information
-  _i2.Future<_i5.QuoteDetails?> getQuoteDetails(int id) =>
-      caller.callServerEndpoint<_i5.QuoteDetails?>(
+  _i2.Future<_i6.QuoteDetails?> getQuoteDetails(int id) =>
+      caller.callServerEndpoint<_i6.QuoteDetails?>(
         'quote',
         'getQuoteDetails',
         {'id': id},
       );
 
   /// Get all quotes
-  _i2.Future<List<_i3.Quote>> getAllQuotes() =>
-      caller.callServerEndpoint<List<_i3.Quote>>(
+  _i2.Future<List<_i4.Quote>> getAllQuotes() =>
+      caller.callServerEndpoint<List<_i4.Quote>>(
         'quote',
         'getAllQuotes',
         {},
       );
 
   /// Update an existing quote
-  _i2.Future<_i3.Quote> updateQuote(
+  _i2.Future<_i4.Quote> updateQuote(
     int quoteId,
-    _i4.QuoteInput input,
+    _i5.QuoteInput input,
   ) =>
-      caller.callServerEndpoint<_i3.Quote>(
+      caller.callServerEndpoint<_i4.Quote>(
         'quote',
         'updateQuote',
         {
@@ -84,11 +117,11 @@ class EndpointQuote extends _i1.EndpointRef {
       );
 
   /// Update quote status
-  _i2.Future<_i3.Quote> updateQuoteStatus(
+  _i2.Future<_i4.Quote> updateQuoteStatus(
     int id,
-    _i6.QuoteStatus status,
+    _i7.QuoteStatus status,
   ) =>
-      caller.callServerEndpoint<_i3.Quote>(
+      caller.callServerEndpoint<_i4.Quote>(
         'quote',
         'updateQuoteStatus',
         {
@@ -106,56 +139,56 @@ class EndpointResources extends _i1.EndpointRef {
   String get name => 'resources';
 
   /// Get all printers
-  _i2.Future<List<_i7.Printer>> getAllPrinters() =>
-      caller.callServerEndpoint<List<_i7.Printer>>(
+  _i2.Future<List<_i8.Printer>> getAllPrinters() =>
+      caller.callServerEndpoint<List<_i8.Printer>>(
         'resources',
         'getAllPrinters',
         {},
       );
 
   /// Get available printers only
-  _i2.Future<List<_i7.Printer>> getAvailablePrinters() =>
-      caller.callServerEndpoint<List<_i7.Printer>>(
+  _i2.Future<List<_i8.Printer>> getAvailablePrinters() =>
+      caller.callServerEndpoint<List<_i8.Printer>>(
         'resources',
         'getAvailablePrinters',
         {},
       );
 
   /// Get all filaments
-  _i2.Future<List<_i8.Filament>> getAllFilaments() =>
-      caller.callServerEndpoint<List<_i8.Filament>>(
+  _i2.Future<List<_i9.Filament>> getAllFilaments() =>
+      caller.callServerEndpoint<List<_i9.Filament>>(
         'resources',
         'getAllFilaments',
         {},
       );
 
   /// Get all extra supplies
-  _i2.Future<List<_i9.ExtraSupply>> getAllExtraSupplies() =>
-      caller.callServerEndpoint<List<_i9.ExtraSupply>>(
+  _i2.Future<List<_i10.ExtraSupply>> getAllExtraSupplies() =>
+      caller.callServerEndpoint<List<_i10.ExtraSupply>>(
         'resources',
         'getAllExtraSupplies',
         {},
       );
 
   /// Get all shipping options
-  _i2.Future<List<_i10.Shipping>> getAllShippings() =>
-      caller.callServerEndpoint<List<_i10.Shipping>>(
+  _i2.Future<List<_i11.Shipping>> getAllShippings() =>
+      caller.callServerEndpoint<List<_i11.Shipping>>(
         'resources',
         'getAllShippings',
         {},
       );
 
   /// Get active electricity rate
-  _i2.Future<_i11.ElectricityRate?> getActiveElectricityRate() =>
-      caller.callServerEndpoint<_i11.ElectricityRate?>(
+  _i2.Future<_i12.ElectricityRate?> getActiveElectricityRate() =>
+      caller.callServerEndpoint<_i12.ElectricityRate?>(
         'resources',
         'getActiveElectricityRate',
         {},
       );
 
   /// Get all electricity rates
-  _i2.Future<List<_i11.ElectricityRate>> getAllElectricityRates() =>
-      caller.callServerEndpoint<List<_i11.ElectricityRate>>(
+  _i2.Future<List<_i12.ElectricityRate>> getAllElectricityRates() =>
+      caller.callServerEndpoint<List<_i12.ElectricityRate>>(
         'resources',
         'getAllElectricityRates',
         {},
@@ -172,8 +205,8 @@ class EndpointGreeting extends _i1.EndpointRef {
   String get name => 'greeting';
 
   /// Returns a personalized greeting message: "Hello {name}".
-  _i2.Future<_i12.Greeting> hello(String name) =>
-      caller.callServerEndpoint<_i12.Greeting>(
+  _i2.Future<_i13.Greeting> hello(String name) =>
+      caller.callServerEndpoint<_i13.Greeting>(
         'greeting',
         'hello',
         {'name': name},
@@ -196,7 +229,7 @@ class Client extends _i1.ServerpodClientShared {
     bool? disconnectStreamsOnLostInternetConnection,
   }) : super(
           host,
-          _i13.Protocol(),
+          _i14.Protocol(),
           securityContext: securityContext,
           authenticationKeyManager: authenticationKeyManager,
           streamingConnectionTimeout: streamingConnectionTimeout,
@@ -206,10 +239,13 @@ class Client extends _i1.ServerpodClientShared {
           disconnectStreamsOnLostInternetConnection:
               disconnectStreamsOnLostInternetConnection,
         ) {
+    customer = EndpointCustomer(this);
     quote = EndpointQuote(this);
     resources = EndpointResources(this);
     greeting = EndpointGreeting(this);
   }
+
+  late final EndpointCustomer customer;
 
   late final EndpointQuote quote;
 
@@ -219,6 +255,7 @@ class Client extends _i1.ServerpodClientShared {
 
   @override
   Map<String, _i1.EndpointRef> get endpointRefLookup => {
+        'customer': customer,
         'quote': quote,
         'resources': resources,
         'greeting': greeting,

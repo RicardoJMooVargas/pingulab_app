@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:pingulab_app_client/pingulab_app_client.dart';
 import '../main.dart';
@@ -31,6 +33,7 @@ class _QuoteDetailsScreenState extends State<QuoteDetailsScreen> {
 
     try {
       final details = await client.quote.getQuoteDetails(widget.quoteId);
+      debugPrint('Loaded quote details: $details');
       setState(() {
         _quoteDetails = details;
         _isLoading = false;
@@ -190,6 +193,7 @@ class _QuoteDetailsScreenState extends State<QuoteDetailsScreen> {
     final quote = _quoteDetails!.quote;
     final filaments = _quoteDetails!.filamentDetails ?? [];
     final supplies = _quoteDetails!.supplyDetails ?? [];
+    final customer = _quoteDetails!.customer;
     final printer = _quoteDetails!.printer;
     final shipping = _quoteDetails!.shipping;
 
@@ -242,6 +246,42 @@ class _QuoteDetailsScreenState extends State<QuoteDetailsScreen> {
           ),
           const SizedBox(height: 16),
 
+          // Nombre Card
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  const Icon(Icons.label, color: Colors.teal),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Nombre',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          quote.name,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+
           // Total Card
           Card(
             color: Colors.teal.withOpacity(0.1),
@@ -272,7 +312,22 @@ class _QuoteDetailsScreenState extends State<QuoteDetailsScreen> {
           _buildSection(
             'Detalles de Impresión',
             [
-              _buildDetailRow('Gramos', '${quote.gramsPrinted}g'),
+              if (customer != null) ...[
+                _buildDetailRow('Cliente', customer.apodo),
+                if (customer.nombre != null || customer.apellido != null)
+                  _buildDetailRow(
+                    'Nombre completo',
+                    [customer.nombre, customer.apellido]
+                        .where((e) => e != null && e.isNotEmpty)
+                        .join(' '),
+                  ),
+                if (customer.numero != null)
+                  _buildDetailRow('Teléfono', customer.numero!),
+                if (customer.direccion != null)
+                  _buildDetailRow('Dirección', customer.direccion!),
+                const Divider(),
+              ],
+              _buildDetailRow('Gramos', '${quote.pieceWeightGrams}g'),
               _buildDetailRow('Horas de impresión', '${quote.printHours}hrs'),
               if (quote.measurements != null)
                 _buildDetailRow('Medidas', quote.measurements!),
@@ -361,8 +416,27 @@ class _QuoteDetailsScreenState extends State<QuoteDetailsScreen> {
                       style:
                           TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
-                    const SizedBox(height: 8),
-                    Text(quote.imageUrl!),
+                    const SizedBox(height: 12),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.memory(
+                        base64Decode(quote.imageUrl!),
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            padding: const EdgeInsets.all(16),
+                            color: Colors.grey[200],
+                            child: const Row(
+                              children: [
+                                Icon(Icons.error_outline, color: Colors.red),
+                                SizedBox(width: 8),
+                                Text('Error al cargar imagen'),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
                   ],
                 ),
               ),

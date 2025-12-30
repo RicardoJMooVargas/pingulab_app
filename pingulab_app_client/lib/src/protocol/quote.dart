@@ -15,7 +15,8 @@ import 'quote_status.dart' as _i2;
 abstract class Quote implements _i1.SerializableModel {
   Quote._({
     this.id,
-    required this.gramsPrinted,
+    required this.name,
+    required this.pieceWeightGrams,
     required this.printHours,
     this.postProcessingCost,
     this.measurements,
@@ -28,13 +29,15 @@ abstract class Quote implements _i1.SerializableModel {
     required this.total,
     required this.status,
     this.imageUrl,
+    this.customerId,
     this.printerId,
     this.shippingId,
   });
 
   factory Quote({
     int? id,
-    required double gramsPrinted,
+    required String name,
+    required double pieceWeightGrams,
     required double printHours,
     double? postProcessingCost,
     String? measurements,
@@ -47,6 +50,7 @@ abstract class Quote implements _i1.SerializableModel {
     required double total,
     required _i2.QuoteStatus status,
     String? imageUrl,
+    int? customerId,
     int? printerId,
     int? shippingId,
   }) = _QuoteImpl;
@@ -54,7 +58,9 @@ abstract class Quote implements _i1.SerializableModel {
   factory Quote.fromJson(Map<String, dynamic> jsonSerialization) {
     return Quote(
       id: jsonSerialization['id'] as int?,
-      gramsPrinted: (jsonSerialization['gramsPrinted'] as num).toDouble(),
+      name: jsonSerialization['name'] as String,
+      pieceWeightGrams:
+          (jsonSerialization['pieceWeightGrams'] as num).toDouble(),
       printHours: (jsonSerialization['printHours'] as num).toDouble(),
       postProcessingCost:
           (jsonSerialization['postProcessingCost'] as num?)?.toDouble(),
@@ -68,6 +74,7 @@ abstract class Quote implements _i1.SerializableModel {
       total: (jsonSerialization['total'] as num).toDouble(),
       status: _i2.QuoteStatus.fromJson((jsonSerialization['status'] as int)),
       imageUrl: jsonSerialization['imageUrl'] as String?,
+      customerId: jsonSerialization['customerId'] as int?,
       printerId: jsonSerialization['printerId'] as int?,
       shippingId: jsonSerialization['shippingId'] as int?,
     );
@@ -78,7 +85,9 @@ abstract class Quote implements _i1.SerializableModel {
   /// the id will be null.
   int? id;
 
-  double gramsPrinted;
+  String name;
+
+  double pieceWeightGrams;
 
   double printHours;
 
@@ -104,6 +113,8 @@ abstract class Quote implements _i1.SerializableModel {
 
   String? imageUrl;
 
+  int? customerId;
+
   int? printerId;
 
   int? shippingId;
@@ -113,7 +124,8 @@ abstract class Quote implements _i1.SerializableModel {
   @_i1.useResult
   Quote copyWith({
     int? id,
-    double? gramsPrinted,
+    String? name,
+    double? pieceWeightGrams,
     double? printHours,
     double? postProcessingCost,
     String? measurements,
@@ -126,6 +138,7 @@ abstract class Quote implements _i1.SerializableModel {
     double? total,
     _i2.QuoteStatus? status,
     String? imageUrl,
+    int? customerId,
     int? printerId,
     int? shippingId,
   });
@@ -133,7 +146,8 @@ abstract class Quote implements _i1.SerializableModel {
   Map<String, dynamic> toJson() {
     return {
       if (id != null) 'id': id,
-      'gramsPrinted': gramsPrinted,
+      'name': name,
+      'pieceWeightGrams': pieceWeightGrams,
       'printHours': printHours,
       if (postProcessingCost != null) 'postProcessingCost': postProcessingCost,
       if (measurements != null) 'measurements': measurements,
@@ -146,6 +160,7 @@ abstract class Quote implements _i1.SerializableModel {
       'total': total,
       'status': status.toJson(),
       if (imageUrl != null) 'imageUrl': imageUrl,
+      if (customerId != null) 'customerId': customerId,
       if (printerId != null) 'printerId': printerId,
       if (shippingId != null) 'shippingId': shippingId,
     };
@@ -162,7 +177,8 @@ class _Undefined {}
 class _QuoteImpl extends Quote {
   _QuoteImpl({
     int? id,
-    required double gramsPrinted,
+    required String name,
+    required double pieceWeightGrams,
     required double printHours,
     double? postProcessingCost,
     String? measurements,
@@ -175,11 +191,13 @@ class _QuoteImpl extends Quote {
     required double total,
     required _i2.QuoteStatus status,
     String? imageUrl,
+    int? customerId,
     int? printerId,
     int? shippingId,
   }) : super._(
           id: id,
-          gramsPrinted: gramsPrinted,
+          name: name,
+          pieceWeightGrams: pieceWeightGrams,
           printHours: printHours,
           postProcessingCost: postProcessingCost,
           measurements: measurements,
@@ -192,6 +210,7 @@ class _QuoteImpl extends Quote {
           total: total,
           status: status,
           imageUrl: imageUrl,
+          customerId: customerId,
           printerId: printerId,
           shippingId: shippingId,
         );
@@ -202,7 +221,8 @@ class _QuoteImpl extends Quote {
   @override
   Quote copyWith({
     Object? id = _Undefined,
-    double? gramsPrinted,
+    String? name,
+    double? pieceWeightGrams,
     double? printHours,
     Object? postProcessingCost = _Undefined,
     Object? measurements = _Undefined,
@@ -215,12 +235,14 @@ class _QuoteImpl extends Quote {
     double? total,
     _i2.QuoteStatus? status,
     Object? imageUrl = _Undefined,
+    Object? customerId = _Undefined,
     Object? printerId = _Undefined,
     Object? shippingId = _Undefined,
   }) {
     return Quote(
       id: id is int? ? id : this.id,
-      gramsPrinted: gramsPrinted ?? this.gramsPrinted,
+      name: name ?? this.name,
+      pieceWeightGrams: pieceWeightGrams ?? this.pieceWeightGrams,
       printHours: printHours ?? this.printHours,
       postProcessingCost: postProcessingCost is double?
           ? postProcessingCost
@@ -235,6 +257,7 @@ class _QuoteImpl extends Quote {
       total: total ?? this.total,
       status: status ?? this.status,
       imageUrl: imageUrl is String? ? imageUrl : this.imageUrl,
+      customerId: customerId is int? ? customerId : this.customerId,
       printerId: printerId is int? ? printerId : this.printerId,
       shippingId: shippingId is int? ? shippingId : this.shippingId,
     );

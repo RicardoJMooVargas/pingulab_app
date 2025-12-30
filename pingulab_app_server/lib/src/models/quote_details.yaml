@@ -3,5 +3,6 @@ fields:
   quote: Quote
   filamentDetails: List<QuoteFilamentDetail>?
   supplyDetails: List<QuoteSupplyDetail>?
+  customer: Customer?
   printer: Printer?
   shipping: Shipping?

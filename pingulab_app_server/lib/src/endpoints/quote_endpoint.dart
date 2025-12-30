@@ -6,13 +6,15 @@ class QuoteEndpoint extends Endpoint {
   Future<Quote> createQuote(Session session, QuoteInput input) async {
     // Create the quote object
     var quote = Quote(
-      gramsPrinted: input.gramsPrinted,
+      name: input.name,
+      pieceWeightGrams: input.pieceWeightGrams,
       printHours: input.printHours,
       postProcessingCost: input.postProcessingCost,
       measurements: input.measurements,
       marginPercent: input.marginPercent,
       imageUrl: input.imageUrl,
       status: input.status ?? QuoteStatus.PENDIENTE,
+      customerId: input.customerId,
       printerId: input.printerId,
       shippingId: input.shippingId,
       filamentCost: 0.0,
@@ -119,6 +121,12 @@ class QuoteEndpoint extends Endpoint {
     }
     
     // Get printer if set
+    Customer? customer;
+    if (quote.customerId != null) {
+      customer = await Customer.db.findById(session, quote.customerId!);
+    }
+    
+    // Get printer if set
     Printer? printer;
     if (quote.printerId != null) {
       printer = await Printer.db.findById(session, quote.printerId!);
@@ -134,6 +142,7 @@ class QuoteEndpoint extends Endpoint {
       quote: quote,
       filamentDetails: filamentDetails.isEmpty ? null : filamentDetails,
       supplyDetails: supplyDetails.isEmpty ? null : supplyDetails,
+      customer: customer,
       printer: printer,
       shipping: shipping,
     );
@@ -159,12 +168,14 @@ class QuoteEndpoint extends Endpoint {
     }
     
     // Update quote fields
-    quote.gramsPrinted = input.gramsPrinted;
+    quote.name = input.name;
+    quote.pieceWeightGrams = input.pieceWeightGrams;
     quote.printHours = input.printHours;
     quote.postProcessingCost = input.postProcessingCost;
     quote.measurements = input.measurements;
     quote.marginPercent = input.marginPercent;
     quote.imageUrl = input.imageUrl;
+    quote.customerId = input.customerId;
     quote.printerId = input.printerId;
     quote.shippingId = input.shippingId;
     

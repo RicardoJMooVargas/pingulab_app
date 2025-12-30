@@ -13,14 +13,16 @@ import 'package:serverpod_client/serverpod_client.dart' as _i1;
 import 'quote.dart' as _i2;
 import 'quote_filament_detail.dart' as _i3;
 import 'quote_supply_detail.dart' as _i4;
-import 'printer.dart' as _i5;
-import 'shipping.dart' as _i6;
+import 'customer.dart' as _i5;
+import 'printer.dart' as _i6;
+import 'shipping.dart' as _i7;
 
 abstract class QuoteDetails implements _i1.SerializableModel {
   QuoteDetails._({
     required this.quote,
     this.filamentDetails,
     this.supplyDetails,
+    this.customer,
     this.printer,
     this.shipping,
   });
@@ -29,8 +31,9 @@ abstract class QuoteDetails implements _i1.SerializableModel {
     required _i2.Quote quote,
     List<_i3.QuoteFilamentDetail>? filamentDetails,
     List<_i4.QuoteSupplyDetail>? supplyDetails,
-    _i5.Printer? printer,
-    _i6.Shipping? shipping,
+    _i5.Customer? customer,
+    _i6.Printer? printer,
+    _i7.Shipping? shipping,
   }) = _QuoteDetailsImpl;
 
   factory QuoteDetails.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -45,13 +48,17 @@ abstract class QuoteDetails implements _i1.SerializableModel {
           ?.map((e) =>
               _i4.QuoteSupplyDetail.fromJson((e as Map<String, dynamic>)))
           .toList(),
+      customer: jsonSerialization['customer'] == null
+          ? null
+          : _i5.Customer.fromJson(
+              (jsonSerialization['customer'] as Map<String, dynamic>)),
       printer: jsonSerialization['printer'] == null
           ? null
-          : _i5.Printer.fromJson(
+          : _i6.Printer.fromJson(
               (jsonSerialization['printer'] as Map<String, dynamic>)),
       shipping: jsonSerialization['shipping'] == null
           ? null
-          : _i6.Shipping.fromJson(
+          : _i7.Shipping.fromJson(
               (jsonSerialization['shipping'] as Map<String, dynamic>)),
     );
   }
@@ -62,9 +69,11 @@ abstract class QuoteDetails implements _i1.SerializableModel {
 
   List<_i4.QuoteSupplyDetail>? supplyDetails;
 
-  _i5.Printer? printer;
+  _i5.Customer? customer;
 
-  _i6.Shipping? shipping;
+  _i6.Printer? printer;
+
+  _i7.Shipping? shipping;
 
   /// Returns a shallow copy of this [QuoteDetails]
   /// with some or all fields replaced by the given arguments.
@@ -73,8 +82,9 @@ abstract class QuoteDetails implements _i1.SerializableModel {
     _i2.Quote? quote,
     List<_i3.QuoteFilamentDetail>? filamentDetails,
     List<_i4.QuoteSupplyDetail>? supplyDetails,
-    _i5.Printer? printer,
-    _i6.Shipping? shipping,
+    _i5.Customer? customer,
+    _i6.Printer? printer,
+    _i7.Shipping? shipping,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -85,6 +95,7 @@ abstract class QuoteDetails implements _i1.SerializableModel {
             filamentDetails?.toJson(valueToJson: (v) => v.toJson()),
       if (supplyDetails != null)
         'supplyDetails': supplyDetails?.toJson(valueToJson: (v) => v.toJson()),
+      if (customer != null) 'customer': customer?.toJson(),
       if (printer != null) 'printer': printer?.toJson(),
       if (shipping != null) 'shipping': shipping?.toJson(),
     };
@@ -103,12 +114,14 @@ class _QuoteDetailsImpl extends QuoteDetails {
     required _i2.Quote quote,
     List<_i3.QuoteFilamentDetail>? filamentDetails,
     List<_i4.QuoteSupplyDetail>? supplyDetails,
-    _i5.Printer? printer,
-    _i6.Shipping? shipping,
+    _i5.Customer? customer,
+    _i6.Printer? printer,
+    _i7.Shipping? shipping,
   }) : super._(
           quote: quote,
           filamentDetails: filamentDetails,
           supplyDetails: supplyDetails,
+          customer: customer,
           printer: printer,
           shipping: shipping,
         );
@@ -121,6 +134,7 @@ class _QuoteDetailsImpl extends QuoteDetails {
     _i2.Quote? quote,
     Object? filamentDetails = _Undefined,
     Object? supplyDetails = _Undefined,
+    Object? customer = _Undefined,
     Object? printer = _Undefined,
     Object? shipping = _Undefined,
   }) {
@@ -132,9 +146,11 @@ class _QuoteDetailsImpl extends QuoteDetails {
       supplyDetails: supplyDetails is List<_i4.QuoteSupplyDetail>?
           ? supplyDetails
           : this.supplyDetails?.map((e0) => e0.copyWith()).toList(),
-      printer: printer is _i5.Printer? ? printer : this.printer?.copyWith(),
+      customer:
+          customer is _i5.Customer? ? customer : this.customer?.copyWith(),
+      printer: printer is _i6.Printer? ? printer : this.printer?.copyWith(),
       shipping:
-          shipping is _i6.Shipping? ? shipping : this.shipping?.copyWith(),
+          shipping is _i7.Shipping? ? shipping : this.shipping?.copyWith(),
     );
   }
 }

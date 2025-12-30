@@ -158,9 +158,9 @@ class _QuotesListScreenState extends State<QuotesListScreen> {
                 ),
               ),
               title: Text(
-                '\$${quote.total.toStringAsFixed(2)}',
+                quote.name,
                 style: const TextStyle(
-                  fontSize: 20,
+                  fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -168,7 +168,16 @@ class _QuotesListScreenState extends State<QuotesListScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 4),
-                  Text('${quote.gramsPrinted}g • ${quote.printHours}hrs'),
+                  Text(
+                    '\$${quote.total.toStringAsFixed(2)}',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.teal,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text('${quote.pieceWeightGrams}g • ${quote.printHours}hrs'),
                   const SizedBox(height: 4),
                   Container(
                     padding:

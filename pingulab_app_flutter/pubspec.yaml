@@ -25,6 +25,7 @@ dependencies:
   flutter:
     sdk: flutter
   serverpod_flutter: 2.9.2
+  image_picker: ^1.2.1
   pingulab_app_client:
     path: ../pingulab_app_client
 

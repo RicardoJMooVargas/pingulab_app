@@ -14,17 +14,18 @@
 import 'package:serverpod_test/serverpod_test.dart' as _i1;
 import 'package:serverpod/serverpod.dart' as _i2;
 import 'dart:async' as _i3;
-import 'package:pingulab_app_server/src/generated/quote.dart' as _i4;
-import 'package:pingulab_app_server/src/generated/quote_input.dart' as _i5;
-import 'package:pingulab_app_server/src/generated/quote_details.dart' as _i6;
-import 'package:pingulab_app_server/src/generated/quote_status.dart' as _i7;
-import 'package:pingulab_app_server/src/generated/printer.dart' as _i8;
-import 'package:pingulab_app_server/src/generated/filament.dart' as _i9;
-import 'package:pingulab_app_server/src/generated/extra_supply.dart' as _i10;
-import 'package:pingulab_app_server/src/generated/shipping.dart' as _i11;
+import 'package:pingulab_app_server/src/generated/customer.dart' as _i4;
+import 'package:pingulab_app_server/src/generated/quote.dart' as _i5;
+import 'package:pingulab_app_server/src/generated/quote_input.dart' as _i6;
+import 'package:pingulab_app_server/src/generated/quote_details.dart' as _i7;
+import 'package:pingulab_app_server/src/generated/quote_status.dart' as _i8;
+import 'package:pingulab_app_server/src/generated/printer.dart' as _i9;
+import 'package:pingulab_app_server/src/generated/filament.dart' as _i10;
+import 'package:pingulab_app_server/src/generated/extra_supply.dart' as _i11;
+import 'package:pingulab_app_server/src/generated/shipping.dart' as _i12;
 import 'package:pingulab_app_server/src/generated/electricity_rate.dart'
-    as _i12;
-import 'package:pingulab_app_server/src/generated/greeting.dart' as _i13;
+    as _i13;
+import 'package:pingulab_app_server/src/generated/greeting.dart' as _i14;
 import 'package:pingulab_app_server/src/generated/protocol.dart';
 import 'package:pingulab_app_server/src/generated/endpoints.dart';
 export 'package:serverpod_test/serverpod_test_public_exports.dart';
@@ -111,6 +112,8 @@ void withServerpod(
 }
 
 class TestEndpoints {
+  late final _CustomerEndpoint customer;
+
   late final _QuoteEndpoint quote;
 
   late final _ResourcesEndpoint resources;
@@ -125,6 +128,10 @@ class _InternalTestEndpoints extends TestEndpoints
     _i2.SerializationManager serializationManager,
     _i2.EndpointDispatch endpoints,
   ) {
+    customer = _CustomerEndpoint(
+      endpoints,
+      serializationManager,
+    );
     quote = _QuoteEndpoint(
       endpoints,
       serializationManager,
@@ -140,6 +147,102 @@ class _InternalTestEndpoints extends TestEndpoints
   }
 }
 
+class _CustomerEndpoint {
+  _CustomerEndpoint(
+    this._endpointDispatch,
+    this._serializationManager,
+  );
+
+  final _i2.EndpointDispatch _endpointDispatch;
+
+  final _i2.SerializationManager _serializationManager;
+
+  _i3.Future<List<_i4.Customer>> searchCustomers(
+    _i1.TestSessionBuilder sessionBuilder,
+    String query,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+        endpoint: 'customer',
+        method: 'searchCustomers',
+      );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'customer',
+          methodName: 'searchCustomers',
+          parameters: _i1.testObjectToJson({'query': query}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue = await (_localCallContext.method.call(
+          _localUniqueSession,
+          _localCallContext.arguments,
+        ) as _i3.Future<List<_i4.Customer>>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<List<_i4.Customer>> getAllCustomers(
+      _i1.TestSessionBuilder sessionBuilder) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+        endpoint: 'customer',
+        method: 'getAllCustomers',
+      );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'customer',
+          methodName: 'getAllCustomers',
+          parameters: _i1.testObjectToJson({}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue = await (_localCallContext.method.call(
+          _localUniqueSession,
+          _localCallContext.arguments,
+        ) as _i3.Future<List<_i4.Customer>>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<_i4.Customer?> getCustomer(
+    _i1.TestSessionBuilder sessionBuilder,
+    int id,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+        endpoint: 'customer',
+        method: 'getCustomer',
+      );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'customer',
+          methodName: 'getCustomer',
+          parameters: _i1.testObjectToJson({'id': id}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue = await (_localCallContext.method.call(
+          _localUniqueSession,
+          _localCallContext.arguments,
+        ) as _i3.Future<_i4.Customer?>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+}
+
 class _QuoteEndpoint {
   _QuoteEndpoint(
     this._endpointDispatch,
@@ -150,9 +253,9 @@ class _QuoteEndpoint {
 
   final _i2.SerializationManager _serializationManager;
 
-  _i3.Future<_i4.Quote> createQuote(
+  _i3.Future<_i5.Quote> createQuote(
     _i1.TestSessionBuilder sessionBuilder,
-    _i5.QuoteInput input,
+    _i6.QuoteInput input,
   ) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -171,7 +274,7 @@ class _QuoteEndpoint {
         var _localReturnValue = await (_localCallContext.method.call(
           _localUniqueSession,
           _localCallContext.arguments,
-        ) as _i3.Future<_i4.Quote>);
+        ) as _i3.Future<_i5.Quote>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -179,7 +282,7 @@ class _QuoteEndpoint {
     });
   }
 
-  _i3.Future<_i4.Quote?> getQuote(
+  _i3.Future<_i5.Quote?> getQuote(
     _i1.TestSessionBuilder sessionBuilder,
     int id,
   ) async {
@@ -200,7 +303,7 @@ class _QuoteEndpoint {
         var _localReturnValue = await (_localCallContext.method.call(
           _localUniqueSession,
           _localCallContext.arguments,
-        ) as _i3.Future<_i4.Quote?>);
+        ) as _i3.Future<_i5.Quote?>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -208,7 +311,7 @@ class _QuoteEndpoint {
     });
   }
 
-  _i3.Future<_i6.QuoteDetails?> getQuoteDetails(
+  _i3.Future<_i7.QuoteDetails?> getQuoteDetails(
     _i1.TestSessionBuilder sessionBuilder,
     int id,
   ) async {
@@ -229,7 +332,7 @@ class _QuoteEndpoint {
         var _localReturnValue = await (_localCallContext.method.call(
           _localUniqueSession,
           _localCallContext.arguments,
-        ) as _i3.Future<_i6.QuoteDetails?>);
+        ) as _i3.Future<_i7.QuoteDetails?>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -237,7 +340,7 @@ class _QuoteEndpoint {
     });
   }
 
-  _i3.Future<List<_i4.Quote>> getAllQuotes(
+  _i3.Future<List<_i5.Quote>> getAllQuotes(
       _i1.TestSessionBuilder sessionBuilder) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -256,7 +359,7 @@ class _QuoteEndpoint {
         var _localReturnValue = await (_localCallContext.method.call(
           _localUniqueSession,
           _localCallContext.arguments,
-        ) as _i3.Future<List<_i4.Quote>>);
+        ) as _i3.Future<List<_i5.Quote>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -264,10 +367,10 @@ class _QuoteEndpoint {
     });
   }
 
-  _i3.Future<_i4.Quote> updateQuote(
+  _i3.Future<_i5.Quote> updateQuote(
     _i1.TestSessionBuilder sessionBuilder,
     int quoteId,
-    _i5.QuoteInput input,
+    _i6.QuoteInput input,
   ) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -289,7 +392,7 @@ class _QuoteEndpoint {
         var _localReturnValue = await (_localCallContext.method.call(
           _localUniqueSession,
           _localCallContext.arguments,
-        ) as _i3.Future<_i4.Quote>);
+        ) as _i3.Future<_i5.Quote>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -326,10 +429,10 @@ class _QuoteEndpoint {
     });
   }
 
-  _i3.Future<_i4.Quote> updateQuoteStatus(
+  _i3.Future<_i5.Quote> updateQuoteStatus(
     _i1.TestSessionBuilder sessionBuilder,
     int id,
-    _i7.QuoteStatus status,
+    _i8.QuoteStatus status,
   ) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -351,7 +454,7 @@ class _QuoteEndpoint {
         var _localReturnValue = await (_localCallContext.method.call(
           _localUniqueSession,
           _localCallContext.arguments,
-        ) as _i3.Future<_i4.Quote>);
+        ) as _i3.Future<_i5.Quote>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -370,7 +473,7 @@ class _ResourcesEndpoint {
 
   final _i2.SerializationManager _serializationManager;
 
-  _i3.Future<List<_i8.Printer>> getAllPrinters(
+  _i3.Future<List<_i9.Printer>> getAllPrinters(
       _i1.TestSessionBuilder sessionBuilder) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -389,7 +492,7 @@ class _ResourcesEndpoint {
         var _localReturnValue = await (_localCallContext.method.call(
           _localUniqueSession,
           _localCallContext.arguments,
-        ) as _i3.Future<List<_i8.Printer>>);
+        ) as _i3.Future<List<_i9.Printer>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -397,7 +500,7 @@ class _ResourcesEndpoint {
     });
   }
 
-  _i3.Future<List<_i8.Printer>> getAvailablePrinters(
+  _i3.Future<List<_i9.Printer>> getAvailablePrinters(
       _i1.TestSessionBuilder sessionBuilder) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -416,7 +519,7 @@ class _ResourcesEndpoint {
         var _localReturnValue = await (_localCallContext.method.call(
           _localUniqueSession,
           _localCallContext.arguments,
-        ) as _i3.Future<List<_i8.Printer>>);
+        ) as _i3.Future<List<_i9.Printer>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -424,7 +527,7 @@ class _ResourcesEndpoint {
     });
   }
 
-  _i3.Future<List<_i9.Filament>> getAllFilaments(
+  _i3.Future<List<_i10.Filament>> getAllFilaments(
       _i1.TestSessionBuilder sessionBuilder) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -443,7 +546,7 @@ class _ResourcesEndpoint {
         var _localReturnValue = await (_localCallContext.method.call(
           _localUniqueSession,
           _localCallContext.arguments,
-        ) as _i3.Future<List<_i9.Filament>>);
+        ) as _i3.Future<List<_i10.Filament>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -451,7 +554,7 @@ class _ResourcesEndpoint {
     });
   }
 
-  _i3.Future<List<_i10.ExtraSupply>> getAllExtraSupplies(
+  _i3.Future<List<_i11.ExtraSupply>> getAllExtraSupplies(
       _i1.TestSessionBuilder sessionBuilder) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -470,7 +573,7 @@ class _ResourcesEndpoint {
         var _localReturnValue = await (_localCallContext.method.call(
           _localUniqueSession,
           _localCallContext.arguments,
-        ) as _i3.Future<List<_i10.ExtraSupply>>);
+        ) as _i3.Future<List<_i11.ExtraSupply>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -478,7 +581,7 @@ class _ResourcesEndpoint {
     });
   }
 
-  _i3.Future<List<_i11.Shipping>> getAllShippings(
+  _i3.Future<List<_i12.Shipping>> getAllShippings(
       _i1.TestSessionBuilder sessionBuilder) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -497,7 +600,7 @@ class _ResourcesEndpoint {
         var _localReturnValue = await (_localCallContext.method.call(
           _localUniqueSession,
           _localCallContext.arguments,
-        ) as _i3.Future<List<_i11.Shipping>>);
+        ) as _i3.Future<List<_i12.Shipping>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -505,7 +608,7 @@ class _ResourcesEndpoint {
     });
   }
 
-  _i3.Future<_i12.ElectricityRate?> getActiveElectricityRate(
+  _i3.Future<_i13.ElectricityRate?> getActiveElectricityRate(
       _i1.TestSessionBuilder sessionBuilder) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -524,7 +627,7 @@ class _ResourcesEndpoint {
         var _localReturnValue = await (_localCallContext.method.call(
           _localUniqueSession,
           _localCallContext.arguments,
-        ) as _i3.Future<_i12.ElectricityRate?>);
+        ) as _i3.Future<_i13.ElectricityRate?>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -532,7 +635,7 @@ class _ResourcesEndpoint {
     });
   }
 
-  _i3.Future<List<_i12.ElectricityRate>> getAllElectricityRates(
+  _i3.Future<List<_i13.ElectricityRate>> getAllElectricityRates(
       _i1.TestSessionBuilder sessionBuilder) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -551,7 +654,7 @@ class _ResourcesEndpoint {
         var _localReturnValue = await (_localCallContext.method.call(
           _localUniqueSession,
           _localCallContext.arguments,
-        ) as _i3.Future<List<_i12.ElectricityRate>>);
+        ) as _i3.Future<List<_i13.ElectricityRate>>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -570,7 +673,7 @@ class _GreetingEndpoint {
 
   final _i2.SerializationManager _serializationManager;
 
-  _i3.Future<_i13.Greeting> hello(
+  _i3.Future<_i14.Greeting> hello(
     _i1.TestSessionBuilder sessionBuilder,
     String name,
   ) async {
@@ -591,7 +694,7 @@ class _GreetingEndpoint {
         var _localReturnValue = await (_localCallContext.method.call(
           _localUniqueSession,
           _localCallContext.arguments,
-        ) as _i3.Future<_i13.Greeting>);
+        ) as _i3.Future<_i14.Greeting>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();

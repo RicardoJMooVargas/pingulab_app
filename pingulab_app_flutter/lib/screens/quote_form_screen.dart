@@ -1,7 +1,10 @@
+import 'dart:convert';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:pingulab_app_client/pingulab_app_client.dart';
 import '../main.dart';
+import '../models/create_quote_req.module.dart';
 
 class QuoteFormScreen extends StatefulWidget {
   final int? quoteId;
@@ -17,27 +20,32 @@ class _QuoteFormScreenState extends State<QuoteFormScreen> {
   bool _isLoading = false;
   bool _isLoadingData = true;
 
-  // Form fields
-  final _gramsPrintedController = TextEditingController();
+  // Controllers
+  final _nameController = TextEditingController();
+  final _pieceWeightGramsController = TextEditingController();
   final _printHoursController = TextEditingController();
   final _postProcessingCostController = TextEditingController();
   final _measurementsController = TextEditingController();
   final _marginPercentController = TextEditingController(text: '0.30');
-  final _imageUrlController = TextEditingController();
 
+  // Imagen
+  Uint8List? _selectedImage;
+
+  int? _selectedCustomerId;
+  String? _selectedCustomerName;
   int? _selectedPrinterId;
   int? _selectedShippingId;
   QuoteStatus _selectedStatus = QuoteStatus.PENDIENTE;
 
-  // Available options
+  // Data
   List<Printer>? _printers;
   List<Filament>? _filaments;
   List<ExtraSupply>? _supplies;
   List<Shipping>? _shippings;
 
-  // Selected items
-  final Map<int, double> _selectedFilaments = {}; // filamentId -> grams
-  final Map<int, int> _selectedSupplies = {}; // supplyId -> quantity
+  // Selected
+  final Map<int, double> _selectedFilaments = {};
+  final Map<int, int> _selectedSupplies = {};
 
   @override
   void initState() {
@@ -46,14 +54,11 @@ class _QuoteFormScreenState extends State<QuoteFormScreen> {
   }
 
   Future<void> _loadData() async {
-    setState(() => _isLoadingData = true);
-
     try {
-      // Load all available options from database
-      final printers = await _loadPrinters();
-      final filaments = await _loadFilaments();
-      final supplies = await _loadSupplies();
-      final shippings = await _loadShippings();
+      final printers = await client.resources.getAllPrinters();
+      final filaments = await client.resources.getAllFilaments();
+      final supplies = await client.resources.getAllExtraSupplies();
+      final shippings = await client.resources.getAllShippings();
 
       setState(() {
         _printers = printers;
@@ -63,89 +68,57 @@ class _QuoteFormScreenState extends State<QuoteFormScreen> {
         _isLoadingData = false;
       });
 
-      // If editing, load quote data
       if (widget.quoteId != null) {
         await _loadQuoteData();
       }
     } catch (e) {
       setState(() => _isLoadingData = false);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error cargando datos: $e')),
-        );
-      }
-    }
-  }
-
-  Future<List<Printer>> _loadPrinters() async {
-    try {
-      return await client.resources.getAllPrinters();
-    } catch (e) {
-      print('Error loading printers: $e');
-      return [];
-    }
-  }
-
-  Future<List<Filament>> _loadFilaments() async {
-    try {
-      return await client.resources.getAllFilaments();
-    } catch (e) {
-      print('Error loading filaments: $e');
-      return [];
-    }
-  }
-
-  Future<List<ExtraSupply>> _loadSupplies() async {
-    try {
-      return await client.resources.getAllExtraSupplies();
-    } catch (e) {
-      print('Error loading supplies: $e');
-      return [];
-    }
-  }
-
-  Future<List<Shipping>> _loadShippings() async {
-    try {
-      return await client.resources.getAllShippings();
-    } catch (e) {
-      print('Error loading shippings: $e');
-      return [];
     }
   }
 
   Future<void> _loadQuoteData() async {
-    // Load existing quote data for editing
     final details = await client.quote.getQuoteDetails(widget.quoteId!);
     if (details == null) return;
-    
+
     final quote = details.quote;
 
     setState(() {
-      _gramsPrintedController.text = quote.gramsPrinted.toString();
+      _nameController.text = quote.name;
+      _pieceWeightGramsController.text = quote.pieceWeightGrams.toString();
       _printHoursController.text = quote.printHours.toString();
       _postProcessingCostController.text =
           quote.postProcessingCost?.toString() ?? '';
       _measurementsController.text = quote.measurements ?? '';
       _marginPercentController.text = quote.marginPercent.toString();
-      _imageUrlController.text = quote.imageUrl ?? '';
+      _selectedCustomerId = quote.customerId;
+      if (details.customer != null) {
+        _selectedCustomerName = details.customer!.apodo;
+      }
       _selectedPrinterId = quote.printerId;
       _selectedShippingId = quote.shippingId;
       _selectedStatus = quote.status;
 
-      // Load filaments
       if (details.filamentDetails != null) {
-        for (var detail in details.filamentDetails!) {
-          _selectedFilaments[detail.filament.id!] = detail.gramsUsed;
+        for (var d in details.filamentDetails!) {
+          _selectedFilaments[d.filament.id!] = d.gramsUsed;
         }
       }
 
-      // Load supplies
       if (details.supplyDetails != null) {
-        for (var detail in details.supplyDetails!) {
-          _selectedSupplies[detail.supply.id!] = detail.quantity;
+        for (var d in details.supplyDetails!) {
+          _selectedSupplies[d.supply.id!] = d.quantity;
         }
       }
     });
+  }
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final file = await picker.pickImage(source: ImageSource.gallery);
+    if (file != null) {
+      _selectedImage = await file.readAsBytes();
+      setState(() {});
+    }
   }
 
   Future<void> _saveQuote() async {
@@ -161,28 +134,32 @@ class _QuoteFormScreenState extends State<QuoteFormScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final input = QuoteInput(
-        gramsPrinted: double.parse(_gramsPrintedController.text),
+      final model = CreateQuoteReqModel(
+        name: _nameController.text,
+        pieceWeightGrams: double.parse(_pieceWeightGramsController.text),
         printHours: double.parse(_printHoursController.text),
         postProcessingCost: _postProcessingCostController.text.isEmpty
             ? null
             : double.parse(_postProcessingCostController.text),
-        measurements: _measurementsController.text.isEmpty
-            ? null
-            : _measurementsController.text,
+        measurements:
+            _measurementsController.text.isEmpty ? null : _measurementsController.text,
         marginPercent: double.parse(_marginPercentController.text),
-        imageUrl:
-            _imageUrlController.text.isEmpty ? null : _imageUrlController.text,
-        status: _selectedStatus,
+        customerId: _selectedCustomerId,
         printerId: _selectedPrinterId,
         shippingId: _selectedShippingId,
-        filamentUsages: _selectedFilaments.entries
-            .map((e) => FilamentUsage(filamentId: e.key, gramsUsed: e.value))
-            .toList(),
-        supplyUsages: _selectedSupplies.entries
-            .map((e) => SupplyUsage(extraSupplyId: e.key, quantity: e.value))
-            .toList(),
+        status: _selectedStatus,
+        imageBytes: _selectedImage,
+        filamentUsages: _selectedFilaments,
+        supplyUsages: _selectedSupplies,
       );
+
+      // Convertir imagen a base64 si existe
+      String? imageBase64;
+      if (_selectedImage != null) {
+        imageBase64 = base64Encode(_selectedImage!);
+      }
+      
+      final input = await model.toQuoteInput(imageBase64: imageBase64);
 
       if (widget.quoteId == null) {
         await client.quote.createQuote(input);
@@ -194,17 +171,15 @@ class _QuoteFormScreenState extends State<QuoteFormScreen> {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text(widget.quoteId == null
-                  ? 'Cotización creada'
-                  : 'Cotización actualizada')),
+            content: Text(widget.quoteId == null
+                ? 'Cotización creada'
+                : 'Cotización actualizada'),
+          ),
         );
       }
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
-      }
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Error: $e')));
     } finally {
       setState(() => _isLoading = false);
     }
@@ -214,8 +189,8 @@ class _QuoteFormScreenState extends State<QuoteFormScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-            widget.quoteId == null ? 'Nueva Cotización' : 'Editar Cotización'),
+        title:
+            Text(widget.quoteId == null ? 'Nueva Cotización' : 'Editar Cotización'),
         backgroundColor: Colors.teal,
       ),
       body: _isLoadingData
@@ -225,231 +200,170 @@ class _QuoteFormScreenState extends State<QuoteFormScreen> {
               child: ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
-                  // Basic Info Section
-                  _buildSectionTitle('Información Básica'),
-                  _buildTextField(
-                    controller: _gramsPrintedController,
-                    label: 'Gramos a imprimir',
-                    keyboardType: TextInputType.number,
-                    suffix: 'g',
-                    validator: (v) =>
-                        v == null || v.isEmpty ? 'Campo requerido' : null,
-                  ),
+                  _section('Información Básica'),
+                  
+                  _field(_nameController, 'Nombre de la cotización *', true,
+                      hint: 'Ej: Pieza para cliente X'),
+                  
+                  // Peso con conversión a kg
+                  _field(_pieceWeightGramsController, 'Peso de la pieza', false,
+                      isNumeric: true, suffix: 'g'),
+                  if (_pieceWeightGramsController.text.isNotEmpty &&
+                      double.tryParse(_pieceWeightGramsController.text) != null)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 16, bottom: 12),
+                      child: Text(
+                        '≈ ${(double.parse(_pieceWeightGramsController.text) / 1000).toStringAsFixed(3)} kg',
+                        style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                      ),
+                    ),
+                  
+                  _field(_printHoursController, 'Horas de impresión *', true,
+                      isNumeric: true, suffix: 'hrs'),
+                  _field(_measurementsController, 'Medidas', false,
+                      suffix: 'cm', hint: 'Ej: 10 x 20 x 5'),
+                  _field(_postProcessingCostController, 'Costo de post-procesado', false,
+                      isNumeric: true, suffix: '\$'),
+                  
                   const SizedBox(height: 12),
-                  _buildTextField(
-                    controller: _printHoursController,
-                    label: 'Horas de impresión',
-                    keyboardType: TextInputType.number,
-                    suffix: 'hrs',
-                    validator: (v) =>
-                        v == null || v.isEmpty ? 'Campo requerido' : null,
-                  ),
-                  const SizedBox(height: 12),
-                  _buildTextField(
-                    controller: _measurementsController,
-                    label: 'Medidas (opcional)',
-                    hint: 'Ej: 10x10x5 cm',
-                  ),
-                  const SizedBox(height: 12),
-                  _buildTextField(
-                    controller: _postProcessingCostController,
-                    label: 'Costo de post-procesado (opcional)',
-                    keyboardType: TextInputType.number,
-                    prefix: '\$',
-                  ),
-                  const SizedBox(height: 12),
-                  _buildTextField(
-                    controller: _imageUrlController,
-                    label: 'URL de imagen (opcional)',
-                    hint: 'https://...',
+                  
+                  // Preview de imagen
+                  if (_selectedImage != null) ...[
+                    Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Column(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.memory(
+                                _selectedImage!,
+                                height: 150,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            TextButton.icon(
+                              onPressed: () => setState(() => _selectedImage = null),
+                              icon: const Icon(Icons.delete, size: 18),
+                              label: const Text('Eliminar imagen'),
+                              style: TextButton.styleFrom(
+                                foregroundColor: Colors.red,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                  ],
+                  
+                  ElevatedButton.icon(
+                    onPressed: _pickImage,
+                    icon: const Icon(Icons.image),
+                    label: Text(
+                        _selectedImage == null ? 'Seleccionar imagen' : 'Cambiar imagen'),
                   ),
 
                   const SizedBox(height: 24),
-                  _buildSectionTitle('Impresora'),
+                  _section('Cliente'),
+                  
+                  // Customer search field
+                  if (_selectedCustomerId != null && _selectedCustomerName != null) ...[
+                    Card(
+                      color: Colors.teal.withOpacity(0.1),
+                      child: ListTile(
+                        leading: const CircleAvatar(
+                          backgroundColor: Colors.teal,
+                          child: Icon(Icons.person, color: Colors.white),
+                        ),
+                        title: Text(_selectedCustomerName!),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () => setState(() {
+                            _selectedCustomerId = null;
+                            _selectedCustomerName = null;
+                          }),
+                        ),
+                      ),
+                    ),
+                  ] else ...[
+                    OutlinedButton.icon(
+                      onPressed: _showCustomerSearchDialog,
+                      icon: const Icon(Icons.search),
+                      label: const Text('Buscar cliente'),
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size(double.infinity, 48),
+                      ),
+                    ),
+                  ],
+
+                  const SizedBox(height: 24),
+                  _section('Impresora'),
                   DropdownButtonFormField<int>(
                     value: _selectedPrinterId,
                     decoration: const InputDecoration(
                       labelText: 'Seleccionar impresora',
                       border: OutlineInputBorder(),
                     ),
-                    items: _printers?.map((p) {
-                          return DropdownMenuItem(
-                            value: p.id,
-                            child: Text('${p.name} (${p.powerConsumptionWatts}W)'),
-                          );
-                        }).toList() ??
+                    items: _printers
+                            ?.map((p) => DropdownMenuItem(
+                                  value: p.id,
+                                  child: Text(p.name),
+                                ))
+                            .toList() ??
                         [],
-                    onChanged: (value) =>
-                        setState(() => _selectedPrinterId = value),
+                    onChanged: (v) => setState(() => _selectedPrinterId = v),
                   ),
 
                   const SizedBox(height: 24),
-                  _buildSectionTitle('Filamentos'),
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Column(
-                        children: [
-                          if (_selectedFilaments.isEmpty)
-                            const Padding(
-                              padding: EdgeInsets.all(16.0),
-                              child: Text('No hay filamentos seleccionados'),
-                            )
-                          else
-                            ..._selectedFilaments.entries.map((entry) {
-                              final filament = _filaments
-                                  ?.firstWhere((f) => f.id == entry.key);
-                              if (filament == null) return const SizedBox();
-                              
-                              final gramsUsed = entry.value;
-                              final totalGrams = filament.spoolWeightKg * 1000;
-                              final percentage = (gramsUsed / totalGrams * 100);
-                              final estimatedCost = (gramsUsed / totalGrams) * filament.spoolCost;
-                              
-                              return Card(
-                                margin: const EdgeInsets.only(bottom: 8),
-                                child: ListTile(
-                                  title: Text('${filament.name} (${filament.brand})'),
-                                  subtitle: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text('Usando: ${gramsUsed}g de ${totalGrams.toInt()}g (${percentage.toStringAsFixed(1)}%)'),
-                                      Text('Costo estimado: \$${estimatedCost.toStringAsFixed(2)}', 
-                                        style: const TextStyle(fontWeight: FontWeight.w500)),
-                                    ],
-                                  ),
-                                  trailing: IconButton(
-                                    icon: const Icon(Icons.delete),
-                                    onPressed: () {
-                                      setState(() {
-                                        _selectedFilaments.remove(entry.key);
-                                      });
-                                    },
-                                  ),
-                                ),
-                              );
-                            }),
-                          const SizedBox(height: 8),
-                          if (_filaments != null && _filaments!.isNotEmpty)
-                            ElevatedButton.icon(
-                              onPressed: () => _showAddFilamentDialog(),
-                              icon: const Icon(Icons.add),
-                              label: const Text('Agregar filamento'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.teal,
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
+                  _section('Filamentos'),
+                  _filamentSection(),
 
                   const SizedBox(height: 24),
-                  _buildSectionTitle('Insumos Extra'),
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Column(
-                        children: [
-                          if (_selectedSupplies.isEmpty)
-                            const Text('No hay insumos seleccionados')
-                          else
-                            ..._selectedSupplies.entries.map((entry) {
-                              final supply = _supplies
-                                  ?.firstWhere((s) => s.id == entry.key);
-                              return ListTile(
-                                title: Text(supply?.name ?? 'Desconocido'),
-                                subtitle: Text('Cantidad: ${entry.value}'),
-                                trailing: IconButton(
-                                  icon: const Icon(Icons.delete),
-                                  onPressed: () {
-                                    setState(() {
-                                      _selectedSupplies.remove(entry.key);
-                                    });
-                                  },
-                                ),
-                              );
-                            }),
-                          if (_supplies != null && _supplies!.isNotEmpty)
-                            ElevatedButton.icon(
-                              onPressed: () => _showAddSupplyDialog(),
-                              icon: const Icon(Icons.add),
-                              label: const Text('Agregar insumo'),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
+                  _section('Insumos'),
+                  _supplySection(),
 
                   const SizedBox(height: 24),
-                  _buildSectionTitle('Envío y Márgenes'),
+                  _section('Envío y Estado'),
                   DropdownButtonFormField<int>(
                     value: _selectedShippingId,
                     decoration: const InputDecoration(
-                      labelText: 'Método de envío (opcional)',
+                      labelText: 'Envío',
                       border: OutlineInputBorder(),
                     ),
-                    items: _shippings?.map((s) {
-                          return DropdownMenuItem(
-                            value: s.id,
-                            child: Text('${s.shippingType} - \$${s.cost}'),
-                          );
-                        }).toList() ??
+                    hint: const Text('Local - \$0.0'),
+                    items: _shippings
+                            ?.map((s) => DropdownMenuItem(
+                                  value: s.id,
+                                  child: Text('${s.shippingType} - \$${s.cost.toStringAsFixed(2)}'),
+                                ))
+                            .toList() ??
                         [],
-                    onChanged: (value) =>
-                        setState(() => _selectedShippingId = value),
+                    onChanged: (v) => setState(() => _selectedShippingId = v),
                   ),
                   const SizedBox(height: 12),
-                  _buildTextField(
-                    controller: _marginPercentController,
-                    label: 'Margen de ganancia',
-                    keyboardType: TextInputType.number,
-                    hint: '0.30 para 30%',
-                    validator: (v) =>
-                        v == null || v.isEmpty ? 'Campo requerido' : null,
-                  ),
-                  const SizedBox(height: 12),
+                  _field(_marginPercentController, 'Margen *', true,
+                      isNumeric: true, hint: '0.30 = 30%'),
                   DropdownButtonFormField<QuoteStatus>(
                     value: _selectedStatus,
                     decoration: const InputDecoration(
                       labelText: 'Estado',
                       border: OutlineInputBorder(),
                     ),
-                    items: const [
-                      DropdownMenuItem(
-                        value: QuoteStatus.PENDIENTE,
-                        child: Text('Pendiente'),
-                      ),
-                      DropdownMenuItem(
-                        value: QuoteStatus.PROCESO,
-                        child: Text('En Proceso'),
-                      ),
-                      DropdownMenuItem(
-                        value: QuoteStatus.FINALIZADO,
-                        child: Text('Finalizado'),
-                      ),
-                      DropdownMenuItem(
-                        value: QuoteStatus.CANCELADO,
-                        child: Text('Cancelado'),
-                      ),
-                    ],
-                    onChanged: (value) =>
-                        setState(() => _selectedStatus = value!),
+                    items: QuoteStatus.values
+                        .map((s) => DropdownMenuItem(
+                              value: s,
+                              child: Text(s.name),
+                            ))
+                        .toList(),
+                    onChanged: (v) => setState(() => _selectedStatus = v!),
                   ),
 
                   const SizedBox(height: 32),
                   ElevatedButton(
                     onPressed: _isLoading ? null : _saveQuote,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.teal,
-                      padding: const EdgeInsets.all(16),
-                    ),
-                    child: _isLoading
-                        ? const CircularProgressIndicator(color: Colors.white)
-                        : Text(
-                            widget.quoteId == null ? 'Crear Cotización' : 'Guardar Cambios',
-                            style: const TextStyle(fontSize: 16),
-                          ),
+                    child: const Text('Guardar'),
                   ),
                 ],
               ),
@@ -457,198 +371,477 @@ class _QuoteFormScreenState extends State<QuoteFormScreen> {
     );
   }
 
-  Widget _buildSectionTitle(String title) {
+  Widget _section(String t) =>
+      Text(t, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold));
+
+  Widget _field(
+      TextEditingController c, String l, bool required,
+      {bool isNumeric = false,
+      String? suffix,
+      String? hint,
+      int maxLines = 1}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: Text(
-        title,
-        style: const TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-          color: Colors.teal,
+      child: TextFormField(
+        controller: c,
+        maxLines: maxLines,
+        keyboardType: isNumeric
+            ? const TextInputType.numberWithOptions(decimal: true)
+            : TextInputType.text,
+        validator: (v) {
+          if (required && (v == null || v.isEmpty)) {
+            return 'Campo requerido';
+          }
+          if (isNumeric && v != null && v.isNotEmpty) {
+            if (double.tryParse(v) == null) {
+              return 'Ingrese un número válido';
+            }
+          }
+          return null;
+        },
+        decoration: InputDecoration(
+          labelText: l,
+          suffixText: suffix,
+          hintText: hint,
+          border: const OutlineInputBorder(),
         ),
       ),
     );
   }
 
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    String? hint,
-    String? prefix,
-    String? suffix,
-    TextInputType? keyboardType,
-    String? Function(String?)? validator,
-  }) {
-    return TextFormField(
-      controller: controller,
-      decoration: InputDecoration(
-        labelText: label,
-        hintText: hint,
-        prefixText: prefix,
-        suffixText: suffix,
-        border: const OutlineInputBorder(),
-      ),
-      keyboardType: keyboardType,
-      validator: validator,
-    );
-  }
+  Widget _filamentSection() => Column(
+        children: [
+          ..._selectedFilaments.entries.map((e) {
+            final filament = _filaments?.firstWhere((f) => f.id == e.key);
+            return Card(
+              margin: const EdgeInsets.only(bottom: 8),
+              child: ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: Colors.teal,
+                  child: Text(
+                    '${e.value.toStringAsFixed(0)}g',
+                    style: const TextStyle(color: Colors.white, fontSize: 12),
+                  ),
+                ),
+                title: Text(filament?.name ?? 'Filamento ID ${e.key}'),
+                subtitle: Text(
+                  '${e.value}g ≈ ${(e.value / 1000).toStringAsFixed(3)} kg',
+                  style: TextStyle(color: Colors.grey[600]),
+                ),
+                trailing: IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () =>
+                      setState(() => _selectedFilaments.remove(e.key)),
+                ),
+              ),
+            );
+          }),
+          const SizedBox(height: 8),
+          OutlinedButton.icon(
+            onPressed: _showAddFilamentDialog,
+            icon: const Icon(Icons.add),
+            label: const Text('Agregar filamento'),
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size(double.infinity, 48),
+            ),
+          ),
+        ],
+      );
+
+  Widget _supplySection() => Column(
+        children: [
+          ..._selectedSupplies.entries.map((e) {
+            final supply = _supplies?.firstWhere((s) => s.id == e.key);
+            return Card(
+              margin: const EdgeInsets.only(bottom: 8),
+              child: ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: Colors.orange,
+                  child: Text(
+                    '${e.value}',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ),
+                title: Text(supply?.name ?? 'Insumo ID ${e.key}'),
+                subtitle: Text(
+                  'Cantidad: ${e.value}',
+                  style: TextStyle(color: Colors.grey[600]),
+                ),
+                trailing: IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () =>
+                      setState(() => _selectedSupplies.remove(e.key)),
+                ),
+              ),
+            );
+          }),
+          const SizedBox(height: 8),
+          OutlinedButton.icon(
+            onPressed: _showAddSupplyDialog,
+            icon: const Icon(Icons.add),
+            label: const Text('Agregar insumo'),
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size(double.infinity, 48),
+            ),
+          ),
+        ],
+      );
+
+  // --- Diálogos (sin cambios de lógica) ---
 
   Future<void> _showAddFilamentDialog() async {
-    int? selectedFilamentId;
-    Filament? selectedFilament;
-    final gramsController = TextEditingController();
+    int? id;
+    final grams = TextEditingController();
 
     await showDialog(
       context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setDialogState) => AlertDialog(
-          title: const Text('Agregar Filamento'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              DropdownButtonFormField<int>(
-                decoration: const InputDecoration(labelText: 'Filamento'),
-                items: _filaments
-                        ?.where((f) => !_selectedFilaments.containsKey(f.id))
-                        .map((f) => DropdownMenuItem(
-                              value: f.id,
-                              child: Text('${f.name} - ${f.brand}'),
-                            ))
-                        .toList() ??
-                    [],
-                onChanged: (value) {
-                  setDialogState(() {
-                    selectedFilamentId = value;
-                    selectedFilament = _filaments?.firstWhere((f) => f.id == value);
-                  });
-                },
+      builder: (_) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          final selectedFilament =
+              id != null ? _filaments?.firstWhere((f) => f.id == id) : null;
+          final gramsValue = double.tryParse(grams.text);
+          
+          return AlertDialog(
+            title: const Text('Agregar filamento'),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  DropdownButtonFormField<int>(
+                    decoration: const InputDecoration(
+                      labelText: 'Seleccionar filamento',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: _filaments
+                            ?.where((f) => !_selectedFilaments.containsKey(f.id))
+                            .map((f) => DropdownMenuItem(
+                                  value: f.id,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(f.name),
+                                      Text(
+                                        '${f.brand} - ${f.materialType}',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey[600],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ))
+                            .toList() ??
+                        [],
+                    onChanged: (v) => setDialogState(() => id = v),
+                  ),
+                  
+                  if (selectedFilament != null) ...[
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Info del rollo:',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey[700],
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Peso: ${selectedFilament.spoolWeightKg} kg (${(selectedFilament.spoolWeightKg * 1000).toStringAsFixed(0)}g)',
+                            style: TextStyle(fontSize: 12, color: Colors.grey[700]),
+                          ),
+                          Text(
+                            'Costo: \$${selectedFilament.spoolCost.toStringAsFixed(2)}',
+                            style: TextStyle(fontSize: 12, color: Colors.grey[700]),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                  
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: grams,
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    decoration: const InputDecoration(
+                      labelText: 'Gramos a usar',
+                      suffixText: 'g',
+                      border: OutlineInputBorder(),
+                      hintText: 'Ej: 150',
+                    ),
+                    onChanged: (_) => setDialogState(() {}),
+                  ),
+                  
+                  if (gramsValue != null && gramsValue > 0) ...[
+                    const SizedBox(height: 8),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 12),
+                      child: Text(
+                        '≈ ${(gramsValue / 1000).toStringAsFixed(3)} kg',
+                        style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                      ),
+                    ),
+                  ],
+                ],
               ),
-              if (selectedFilament != null) ...[
-                const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.blue.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Rollo: ${selectedFilament!.spoolWeightKg} kg (${selectedFilament!.spoolWeightKg * 1000}g)',
-                        style: const TextStyle(fontSize: 12),
-                      ),
-                      Text(
-                        'Costo rollo: \$${selectedFilament!.spoolCost.toStringAsFixed(2)}',
-                        style: const TextStyle(fontSize: 12),
-                      ),
-                      Text(
-                        'Material: ${selectedFilament!.materialType}',
-                        style: const TextStyle(fontSize: 12),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-              const SizedBox(height: 16),
-              TextField(
-                controller: gramsController,
-                decoration: const InputDecoration(
-                  labelText: 'Gramos a usar en esta impresión',
-                  suffixText: 'g',
-                  helperText: 'Cantidad de filamento que consumirá',
-                ),
-                keyboardType: TextInputType.number,
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancelar'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  if (id != null && grams.text.isNotEmpty) {
+                    final value = double.tryParse(grams.text);
+                    if (value != null && value > 0) {
+                      setState(() => _selectedFilaments[id!] = value);
+                      Navigator.pop(context);
+                    }
+                  }
+                },
+                child: const Text('Agregar'),
               ),
             ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancelar'),
-            ),
-            TextButton(
-              onPressed: () {
-                if (selectedFilamentId != null &&
-                    gramsController.text.isNotEmpty) {
-                  setState(() {
-                    _selectedFilaments[selectedFilamentId!] =
-                        double.parse(gramsController.text);
-                  });
-                  Navigator.pop(context);
-                }
-              },
-              child: const Text('Agregar'),
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
 
   Future<void> _showAddSupplyDialog() async {
-    int? selectedSupplyId;
-    final quantityController = TextEditingController();
+    int? id;
+    final qty = TextEditingController();
 
     await showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Agregar Insumo'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            DropdownButtonFormField<int>(
-              decoration: const InputDecoration(labelText: 'Insumo'),
-              items: _supplies
-                      ?.where((s) => !_selectedSupplies.containsKey(s.id))
-                      .map((s) => DropdownMenuItem(
-                            value: s.id,
-                            child: Text('${s.name} - \$${s.cost}'),
-                          ))
-                      .toList() ??
-                  [],
-              onChanged: (value) => selectedSupplyId = value,
+      builder: (_) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          final selectedSupply =
+              id != null ? _supplies?.firstWhere((s) => s.id == id) : null;
+          
+          return AlertDialog(
+            title: const Text('Agregar insumo'),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  DropdownButtonFormField<int>(
+                    decoration: const InputDecoration(
+                      labelText: 'Seleccionar insumo',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: _supplies
+                            ?.where((s) => !_selectedSupplies.containsKey(s.id))
+                            .map((s) => DropdownMenuItem(
+                                  value: s.id,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(s.name),
+                                      Text(
+                                        'Costo: \$${s.cost.toStringAsFixed(2)}',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey[600],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ))
+                            .toList() ??
+                        [],
+                    onChanged: (v) => setDialogState(() => id = v),
+                  ),
+                  
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: qty,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      labelText: 'Cantidad',
+                      border: OutlineInputBorder(),
+                      hintText: 'Ej: 3',
+                    ),
+                    onChanged: (_) => setDialogState(() {}),
+                  ),
+                  
+                  if (selectedSupply != null && qty.text.isNotEmpty) ...[
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.blue[50],
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text('Total:'),
+                          Text(
+                            '\$${(selectedSupply.cost * (int.tryParse(qty.text) ?? 0)).toStringAsFixed(2)}',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ],
+              ),
             ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: quantityController,
-              decoration: const InputDecoration(labelText: 'Cantidad'),
-              keyboardType: TextInputType.number,
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancelar'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  if (id != null && qty.text.isNotEmpty) {
+                    final value = int.tryParse(qty.text);
+                    if (value != null && value > 0) {
+                      setState(() => _selectedSupplies[id!] = value);
+                      Navigator.pop(context);
+                    }
+                  }
+                },
+                child: const Text('Agregar'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Future<void> _showCustomerSearchDialog() async {
+    final searchController = TextEditingController();
+    List<Customer> searchResults = [];
+    bool isSearching = false;
+
+    await showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          return AlertDialog(
+            title: const Text('Buscar cliente'),
+            content: SizedBox(
+              width: double.maxFinite,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: searchController,
+                    decoration: const InputDecoration(
+                      labelText: 'Buscar por apodo o nombre',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.search),
+                      hintText: 'Escribe para buscar...',
+                    ),
+                    onChanged: (query) async {
+                      if (query.length < 2) {
+                        setDialogState(() {
+                          searchResults = [];
+                        });
+                        return;
+                      }
+
+                      setDialogState(() => isSearching = true);
+
+                      try {
+                        final results = await client.customer.searchCustomers(query);
+                        setDialogState(() {
+                          searchResults = results;
+                          isSearching = false;
+                        });
+                      } catch (e) {
+                        setDialogState(() => isSearching = false);
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  if (isSearching)
+                    const CircularProgressIndicator()
+                  else if (searchResults.isEmpty && searchController.text.length >= 2)
+                    const Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Text('No se encontraron clientes'),
+                    )
+                  else if (searchResults.isNotEmpty)
+                    SizedBox(
+                      height: 300,
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: searchResults.length,
+                        itemBuilder: (context, index) {
+                          final customer = searchResults[index];
+                          final fullName = [
+                            customer.nombre,
+                            customer.apellido,
+                          ].where((e) => e != null && e.isNotEmpty).join(' ');
+                          
+                          return ListTile(
+                            leading: CircleAvatar(
+                              backgroundColor: Colors.teal,
+                              child: Text(
+                                customer.apodo[0].toUpperCase(),
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                            ),
+                            title: Text(customer.apodo),
+                            subtitle: fullName.isNotEmpty
+                                ? Text(fullName)
+                                : (customer.numero != null
+                                    ? Text(customer.numero!)
+                                    : null),
+                            onTap: () {
+                              setState(() {
+                                _selectedCustomerId = customer.id;
+                                _selectedCustomerName = customer.apodo;
+                              });
+                              Navigator.pop(context);
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                ],
+              ),
             ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () {
-              if (selectedSupplyId != null &&
-                  quantityController.text.isNotEmpty) {
-                setState(() {
-                  _selectedSupplies[selectedSupplyId!] =
-                      int.parse(quantityController.text);
-                });
-                Navigator.pop(context);
-              }
-            },
-            child: const Text('Agregar'),
-          ),
-        ],
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancelar'),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
 
   @override
   void dispose() {
-    _gramsPrintedController.dispose();
+    _nameController.dispose();
+    _pieceWeightGramsController.dispose();
     _printHoursController.dispose();
     _postProcessingCostController.dispose();
     _measurementsController.dispose();
     _marginPercentController.dispose();
-    _imageUrlController.dispose();
     super.dispose();
   }
 }

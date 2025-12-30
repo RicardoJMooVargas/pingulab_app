@@ -1,7 +1,8 @@
 class: QuoteInput
 fields:
   # Basic quote information
-  gramsPrinted: double
+  name: String
+  pieceWeightGrams: double
   printHours: double
   postProcessingCost: double?
   measurements: String?
@@ -10,6 +11,7 @@ fields:
   status: QuoteStatus?
   
   # References
+  customerId: int?
   printerId: int?
   shippingId: int?
   

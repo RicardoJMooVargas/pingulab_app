@@ -1,0 +1,11 @@
+class: Customer
+table: customers
+fields:
+  apodo: String  # Nickname/alias (required)
+  nombre: String?  # First name (optional)
+  apellido: String?  # Last name (optional)
+  numero: String?  # Phone number (optional)
+  direccion: String?  # Address (optional)
+  notes: String?  # Notes (optional)
+  created: DateTime
+  updated: DateTime?
