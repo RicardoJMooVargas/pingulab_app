@@ -27,13 +27,16 @@ import 'quote_status.dart' as _i15;
 import 'quote_supply_detail.dart' as _i16;
 import 'shipping.dart' as _i17;
 import 'supply_usage.dart' as _i18;
-import 'package:pingulab_app_client/src/protocol/customer.dart' as _i19;
-import 'package:pingulab_app_client/src/protocol/quote.dart' as _i20;
-import 'package:pingulab_app_client/src/protocol/printer.dart' as _i21;
+import 'user.dart' as _i19;
+import 'user_role.dart' as _i20;
+import 'package:pingulab_app_client/src/protocol/user.dart' as _i21;
 import 'package:pingulab_app_client/src/protocol/filament.dart' as _i22;
-import 'package:pingulab_app_client/src/protocol/extra_supply.dart' as _i23;
+import 'package:pingulab_app_client/src/protocol/printer.dart' as _i23;
 import 'package:pingulab_app_client/src/protocol/shipping.dart' as _i24;
-import 'package:pingulab_app_client/src/protocol/electricity_rate.dart' as _i25;
+import 'package:pingulab_app_client/src/protocol/customer.dart' as _i25;
+import 'package:pingulab_app_client/src/protocol/electricity_rate.dart' as _i26;
+import 'package:pingulab_app_client/src/protocol/extra_supply.dart' as _i27;
+import 'package:pingulab_app_client/src/protocol/quote.dart' as _i28;
 export 'greeting.dart';
 export 'customer.dart';
 export 'electricity_rate.dart';
@@ -51,6 +54,8 @@ export 'quote_status.dart';
 export 'quote_supply_detail.dart';
 export 'shipping.dart';
 export 'supply_usage.dart';
+export 'user.dart';
+export 'user_role.dart';
 export 'client.dart';
 
 class Protocol extends _i1.SerializationManager {
@@ -117,6 +122,12 @@ class Protocol extends _i1.SerializationManager {
     if (t == _i18.SupplyUsage) {
       return _i18.SupplyUsage.fromJson(data) as T;
     }
+    if (t == _i19.User) {
+      return _i19.User.fromJson(data) as T;
+    }
+    if (t == _i20.UserRole) {
+      return _i20.UserRole.fromJson(data) as T;
+    }
     if (t == _i1.getType<_i2.Greeting?>()) {
       return (data != null ? _i2.Greeting.fromJson(data) : null) as T;
     }
@@ -169,6 +180,12 @@ class Protocol extends _i1.SerializationManager {
     if (t == _i1.getType<_i18.SupplyUsage?>()) {
       return (data != null ? _i18.SupplyUsage.fromJson(data) : null) as T;
     }
+    if (t == _i1.getType<_i19.User?>()) {
+      return (data != null ? _i19.User.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i20.UserRole?>()) {
+      return (data != null ? _i20.UserRole.fromJson(data) : null) as T;
+    }
     if (t == _i1.getType<List<_i13.QuoteFilamentDetail>?>()) {
       return (data != null
           ? (data as List)
@@ -195,35 +212,38 @@ class Protocol extends _i1.SerializationManager {
           ? (data as List).map((e) => deserialize<_i18.SupplyUsage>(e)).toList()
           : null) as T;
     }
-    if (t == List<_i19.Customer>) {
-      return (data as List).map((e) => deserialize<_i19.Customer>(e)).toList()
-          as T;
-    }
-    if (t == List<_i20.Quote>) {
-      return (data as List).map((e) => deserialize<_i20.Quote>(e)).toList()
-          as T;
-    }
-    if (t == List<_i21.Printer>) {
-      return (data as List).map((e) => deserialize<_i21.Printer>(e)).toList()
-          as T;
+    if (t == List<_i21.User>) {
+      return (data as List).map((e) => deserialize<_i21.User>(e)).toList() as T;
     }
     if (t == List<_i22.Filament>) {
       return (data as List).map((e) => deserialize<_i22.Filament>(e)).toList()
           as T;
     }
-    if (t == List<_i23.ExtraSupply>) {
-      return (data as List)
-          .map((e) => deserialize<_i23.ExtraSupply>(e))
-          .toList() as T;
+    if (t == List<_i23.Printer>) {
+      return (data as List).map((e) => deserialize<_i23.Printer>(e)).toList()
+          as T;
     }
     if (t == List<_i24.Shipping>) {
       return (data as List).map((e) => deserialize<_i24.Shipping>(e)).toList()
           as T;
     }
-    if (t == List<_i25.ElectricityRate>) {
+    if (t == List<_i25.Customer>) {
+      return (data as List).map((e) => deserialize<_i25.Customer>(e)).toList()
+          as T;
+    }
+    if (t == List<_i26.ElectricityRate>) {
       return (data as List)
-          .map((e) => deserialize<_i25.ElectricityRate>(e))
+          .map((e) => deserialize<_i26.ElectricityRate>(e))
           .toList() as T;
+    }
+    if (t == List<_i27.ExtraSupply>) {
+      return (data as List)
+          .map((e) => deserialize<_i27.ExtraSupply>(e))
+          .toList() as T;
+    }
+    if (t == List<_i28.Quote>) {
+      return (data as List).map((e) => deserialize<_i28.Quote>(e)).toList()
+          as T;
     }
     return super.deserialize<T>(data, t);
   }
@@ -282,6 +302,12 @@ class Protocol extends _i1.SerializationManager {
     }
     if (data is _i18.SupplyUsage) {
       return 'SupplyUsage';
+    }
+    if (data is _i19.User) {
+      return 'User';
+    }
+    if (data is _i20.UserRole) {
+      return 'UserRole';
     }
     return null;
   }
@@ -342,6 +368,12 @@ class Protocol extends _i1.SerializationManager {
     }
     if (dataClassName == 'SupplyUsage') {
       return deserialize<_i18.SupplyUsage>(data['data']);
+    }
+    if (dataClassName == 'User') {
+      return deserialize<_i19.User>(data['data']);
+    }
+    if (dataClassName == 'UserRole') {
+      return deserialize<_i20.UserRole>(data['data']);
     }
     return super.deserializeByClassName(data);
   }

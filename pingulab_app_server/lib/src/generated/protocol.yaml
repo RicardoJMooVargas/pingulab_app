@@ -1,7 +1,48 @@
+auth:
+  - register:
+  - login:
+  - changePassword:
+  - getUserById:
+  - getAllUsers:
+  - updateUser:
+  - deactivateUser:
+  - activateUser:
+  - resetPassword:
+catalogs:
+  - getFilaments:
+  - createFilament:
+  - updateFilament:
+  - deleteFilament:
+  - getPrinters:
+  - createPrinter:
+  - updatePrinter:
+  - deletePrinter:
+  - getShippings:
+  - createShipping:
+  - updateShipping:
+  - deleteShipping:
+  - getCustomers:
+  - createCustomer:
+  - updateCustomer:
+  - deleteCustomer:
+  - getElectricityRates:
+  - createElectricityRate:
+  - updateElectricityRate:
+  - deleteElectricityRate:
+  - getExtraSupplies:
+  - createExtraSupply:
+  - updateExtraSupply:
+  - deleteExtraSupply:
 customer:
   - searchCustomers:
   - getAllCustomers:
   - getCustomer:
+  - createCustomer:
+  - updateCustomer:
+  - deleteCustomer:
+init:
+  - initializeDatabase:
+  - isDatabaseInitialized:
 quote:
   - createQuote:
   - getQuote:
@@ -13,10 +54,25 @@ quote:
 resources:
   - getAllPrinters:
   - getAvailablePrinters:
+  - createPrinter:
+  - updatePrinter:
+  - deletePrinter:
   - getAllFilaments:
+  - createFilament:
+  - updateFilament:
+  - deleteFilament:
   - getAllExtraSupplies:
+  - createExtraSupply:
+  - updateExtraSupply:
+  - deleteExtraSupply:
   - getAllShippings:
+  - createShipping:
+  - updateShipping:
+  - deleteShipping:
   - getActiveElectricityRate:
   - getAllElectricityRates:
+  - createElectricityRate:
+  - updateElectricityRate:
+  - deleteElectricityRate:
 greeting:
   - hello:

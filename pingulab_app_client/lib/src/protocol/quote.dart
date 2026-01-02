@@ -16,6 +16,7 @@ abstract class Quote implements _i1.SerializableModel {
   Quote._({
     this.id,
     required this.name,
+    required this.quantity,
     required this.pieceWeightGrams,
     required this.printHours,
     this.postProcessingCost,
@@ -23,6 +24,7 @@ abstract class Quote implements _i1.SerializableModel {
     required this.filamentCost,
     required this.electricityCost,
     required this.suppliesCost,
+    required this.depreciationCost,
     this.shippingCost,
     required this.subtotal,
     required this.marginPercent,
@@ -32,11 +34,14 @@ abstract class Quote implements _i1.SerializableModel {
     this.customerId,
     this.printerId,
     this.shippingId,
+    this.createdBy,
+    this.updatedBy,
   });
 
   factory Quote({
     int? id,
     required String name,
+    required int quantity,
     required double pieceWeightGrams,
     required double printHours,
     double? postProcessingCost,
@@ -44,6 +49,7 @@ abstract class Quote implements _i1.SerializableModel {
     required double filamentCost,
     required double electricityCost,
     required double suppliesCost,
+    required double depreciationCost,
     double? shippingCost,
     required double subtotal,
     required double marginPercent,
@@ -53,12 +59,15 @@ abstract class Quote implements _i1.SerializableModel {
     int? customerId,
     int? printerId,
     int? shippingId,
+    int? createdBy,
+    int? updatedBy,
   }) = _QuoteImpl;
 
   factory Quote.fromJson(Map<String, dynamic> jsonSerialization) {
     return Quote(
       id: jsonSerialization['id'] as int?,
       name: jsonSerialization['name'] as String,
+      quantity: jsonSerialization['quantity'] as int,
       pieceWeightGrams:
           (jsonSerialization['pieceWeightGrams'] as num).toDouble(),
       printHours: (jsonSerialization['printHours'] as num).toDouble(),
@@ -68,6 +77,8 @@ abstract class Quote implements _i1.SerializableModel {
       filamentCost: (jsonSerialization['filamentCost'] as num).toDouble(),
       electricityCost: (jsonSerialization['electricityCost'] as num).toDouble(),
       suppliesCost: (jsonSerialization['suppliesCost'] as num).toDouble(),
+      depreciationCost:
+          (jsonSerialization['depreciationCost'] as num).toDouble(),
       shippingCost: (jsonSerialization['shippingCost'] as num?)?.toDouble(),
       subtotal: (jsonSerialization['subtotal'] as num).toDouble(),
       marginPercent: (jsonSerialization['marginPercent'] as num).toDouble(),
@@ -77,6 +88,8 @@ abstract class Quote implements _i1.SerializableModel {
       customerId: jsonSerialization['customerId'] as int?,
       printerId: jsonSerialization['printerId'] as int?,
       shippingId: jsonSerialization['shippingId'] as int?,
+      createdBy: jsonSerialization['createdBy'] as int?,
+      updatedBy: jsonSerialization['updatedBy'] as int?,
     );
   }
 
@@ -86,6 +99,8 @@ abstract class Quote implements _i1.SerializableModel {
   int? id;
 
   String name;
+
+  int quantity;
 
   double pieceWeightGrams;
 
@@ -100,6 +115,8 @@ abstract class Quote implements _i1.SerializableModel {
   double electricityCost;
 
   double suppliesCost;
+
+  double depreciationCost;
 
   double? shippingCost;
 
@@ -119,12 +136,17 @@ abstract class Quote implements _i1.SerializableModel {
 
   int? shippingId;
 
+  int? createdBy;
+
+  int? updatedBy;
+
   /// Returns a shallow copy of this [Quote]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
   Quote copyWith({
     int? id,
     String? name,
+    int? quantity,
     double? pieceWeightGrams,
     double? printHours,
     double? postProcessingCost,
@@ -132,6 +154,7 @@ abstract class Quote implements _i1.SerializableModel {
     double? filamentCost,
     double? electricityCost,
     double? suppliesCost,
+    double? depreciationCost,
     double? shippingCost,
     double? subtotal,
     double? marginPercent,
@@ -141,12 +164,15 @@ abstract class Quote implements _i1.SerializableModel {
     int? customerId,
     int? printerId,
     int? shippingId,
+    int? createdBy,
+    int? updatedBy,
   });
   @override
   Map<String, dynamic> toJson() {
     return {
       if (id != null) 'id': id,
       'name': name,
+      'quantity': quantity,
       'pieceWeightGrams': pieceWeightGrams,
       'printHours': printHours,
       if (postProcessingCost != null) 'postProcessingCost': postProcessingCost,
@@ -154,6 +180,7 @@ abstract class Quote implements _i1.SerializableModel {
       'filamentCost': filamentCost,
       'electricityCost': electricityCost,
       'suppliesCost': suppliesCost,
+      'depreciationCost': depreciationCost,
       if (shippingCost != null) 'shippingCost': shippingCost,
       'subtotal': subtotal,
       'marginPercent': marginPercent,
@@ -163,6 +190,8 @@ abstract class Quote implements _i1.SerializableModel {
       if (customerId != null) 'customerId': customerId,
       if (printerId != null) 'printerId': printerId,
       if (shippingId != null) 'shippingId': shippingId,
+      if (createdBy != null) 'createdBy': createdBy,
+      if (updatedBy != null) 'updatedBy': updatedBy,
     };
   }
 
@@ -178,6 +207,7 @@ class _QuoteImpl extends Quote {
   _QuoteImpl({
     int? id,
     required String name,
+    required int quantity,
     required double pieceWeightGrams,
     required double printHours,
     double? postProcessingCost,
@@ -185,6 +215,7 @@ class _QuoteImpl extends Quote {
     required double filamentCost,
     required double electricityCost,
     required double suppliesCost,
+    required double depreciationCost,
     double? shippingCost,
     required double subtotal,
     required double marginPercent,
@@ -194,9 +225,12 @@ class _QuoteImpl extends Quote {
     int? customerId,
     int? printerId,
     int? shippingId,
+    int? createdBy,
+    int? updatedBy,
   }) : super._(
           id: id,
           name: name,
+          quantity: quantity,
           pieceWeightGrams: pieceWeightGrams,
           printHours: printHours,
           postProcessingCost: postProcessingCost,
@@ -204,6 +238,7 @@ class _QuoteImpl extends Quote {
           filamentCost: filamentCost,
           electricityCost: electricityCost,
           suppliesCost: suppliesCost,
+          depreciationCost: depreciationCost,
           shippingCost: shippingCost,
           subtotal: subtotal,
           marginPercent: marginPercent,
@@ -213,6 +248,8 @@ class _QuoteImpl extends Quote {
           customerId: customerId,
           printerId: printerId,
           shippingId: shippingId,
+          createdBy: createdBy,
+          updatedBy: updatedBy,
         );
 
   /// Returns a shallow copy of this [Quote]
@@ -222,6 +259,7 @@ class _QuoteImpl extends Quote {
   Quote copyWith({
     Object? id = _Undefined,
     String? name,
+    int? quantity,
     double? pieceWeightGrams,
     double? printHours,
     Object? postProcessingCost = _Undefined,
@@ -229,6 +267,7 @@ class _QuoteImpl extends Quote {
     double? filamentCost,
     double? electricityCost,
     double? suppliesCost,
+    double? depreciationCost,
     Object? shippingCost = _Undefined,
     double? subtotal,
     double? marginPercent,
@@ -238,10 +277,13 @@ class _QuoteImpl extends Quote {
     Object? customerId = _Undefined,
     Object? printerId = _Undefined,
     Object? shippingId = _Undefined,
+    Object? createdBy = _Undefined,
+    Object? updatedBy = _Undefined,
   }) {
     return Quote(
       id: id is int? ? id : this.id,
       name: name ?? this.name,
+      quantity: quantity ?? this.quantity,
       pieceWeightGrams: pieceWeightGrams ?? this.pieceWeightGrams,
       printHours: printHours ?? this.printHours,
       postProcessingCost: postProcessingCost is double?
@@ -251,6 +293,7 @@ class _QuoteImpl extends Quote {
       filamentCost: filamentCost ?? this.filamentCost,
       electricityCost: electricityCost ?? this.electricityCost,
       suppliesCost: suppliesCost ?? this.suppliesCost,
+      depreciationCost: depreciationCost ?? this.depreciationCost,
       shippingCost: shippingCost is double? ? shippingCost : this.shippingCost,
       subtotal: subtotal ?? this.subtotal,
       marginPercent: marginPercent ?? this.marginPercent,
@@ -260,6 +303,8 @@ class _QuoteImpl extends Quote {
       customerId: customerId is int? ? customerId : this.customerId,
       printerId: printerId is int? ? printerId : this.printerId,
       shippingId: shippingId is int? ? shippingId : this.shippingId,
+      createdBy: createdBy is int? ? createdBy : this.createdBy,
+      updatedBy: updatedBy is int? ? updatedBy : this.updatedBy,
     );
   }
 }

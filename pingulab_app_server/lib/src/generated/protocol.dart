@@ -28,14 +28,17 @@ import 'quote_status.dart' as _i16;
 import 'quote_supply_detail.dart' as _i17;
 import 'shipping.dart' as _i18;
 import 'supply_usage.dart' as _i19;
-import 'package:pingulab_app_server/src/generated/customer.dart' as _i20;
-import 'package:pingulab_app_server/src/generated/quote.dart' as _i21;
-import 'package:pingulab_app_server/src/generated/printer.dart' as _i22;
+import 'user.dart' as _i20;
+import 'user_role.dart' as _i21;
+import 'package:pingulab_app_server/src/generated/user.dart' as _i22;
 import 'package:pingulab_app_server/src/generated/filament.dart' as _i23;
-import 'package:pingulab_app_server/src/generated/extra_supply.dart' as _i24;
+import 'package:pingulab_app_server/src/generated/printer.dart' as _i24;
 import 'package:pingulab_app_server/src/generated/shipping.dart' as _i25;
+import 'package:pingulab_app_server/src/generated/customer.dart' as _i26;
 import 'package:pingulab_app_server/src/generated/electricity_rate.dart'
-    as _i26;
+    as _i27;
+import 'package:pingulab_app_server/src/generated/extra_supply.dart' as _i28;
+import 'package:pingulab_app_server/src/generated/quote.dart' as _i29;
 export 'greeting.dart';
 export 'customer.dart';
 export 'electricity_rate.dart';
@@ -53,6 +56,8 @@ export 'quote_status.dart';
 export 'quote_supply_detail.dart';
 export 'shipping.dart';
 export 'supply_usage.dart';
+export 'user.dart';
+export 'user_role.dart';
 
 class Protocol extends _i1.SerializationManagerServer {
   Protocol._();
@@ -262,6 +267,12 @@ class Protocol extends _i1.SerializationManagerServer {
           dartType: 'String',
         ),
         _i2.ColumnDefinition(
+          name: 'color',
+          columnType: _i2.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _i2.ColumnDefinition(
           name: 'spoolWeightKg',
           columnType: _i2.ColumnType.doublePrecision,
           isNullable: false,
@@ -316,6 +327,18 @@ class Protocol extends _i1.SerializationManagerServer {
           columnType: _i2.ColumnType.bigint,
           isNullable: false,
           dartType: 'int',
+        ),
+        _i2.ColumnDefinition(
+          name: 'purchaseCost',
+          columnType: _i2.ColumnType.doublePrecision,
+          isNullable: false,
+          dartType: 'double',
+        ),
+        _i2.ColumnDefinition(
+          name: 'imageBase64',
+          columnType: _i2.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
         ),
         _i2.ColumnDefinition(
           name: 'available',
@@ -474,6 +497,12 @@ class Protocol extends _i1.SerializationManagerServer {
           dartType: 'String',
         ),
         _i2.ColumnDefinition(
+          name: 'quantity',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _i2.ColumnDefinition(
           name: 'pieceWeightGrams',
           columnType: _i2.ColumnType.doublePrecision,
           isNullable: false,
@@ -511,6 +540,12 @@ class Protocol extends _i1.SerializationManagerServer {
         ),
         _i2.ColumnDefinition(
           name: 'suppliesCost',
+          columnType: _i2.ColumnType.doublePrecision,
+          isNullable: false,
+          dartType: 'double',
+        ),
+        _i2.ColumnDefinition(
+          name: 'depreciationCost',
           columnType: _i2.ColumnType.doublePrecision,
           isNullable: false,
           dartType: 'double',
@@ -565,6 +600,18 @@ class Protocol extends _i1.SerializationManagerServer {
         ),
         _i2.ColumnDefinition(
           name: 'shippingId',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: true,
+          dartType: 'int?',
+        ),
+        _i2.ColumnDefinition(
+          name: 'createdBy',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: true,
+          dartType: 'int?',
+        ),
+        _i2.ColumnDefinition(
+          name: 'updatedBy',
           columnType: _i2.ColumnType.bigint,
           isNullable: true,
           dartType: 'int?',
@@ -638,6 +685,99 @@ class Protocol extends _i1.SerializationManagerServer {
       ],
       managed: true,
     ),
+    _i2.TableDefinition(
+      name: 'users',
+      dartName: 'User',
+      schema: 'public',
+      module: 'pingulab_app',
+      columns: [
+        _i2.ColumnDefinition(
+          name: 'id',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'nextval(\'users_id_seq\'::regclass)',
+        ),
+        _i2.ColumnDefinition(
+          name: 'email',
+          columnType: _i2.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _i2.ColumnDefinition(
+          name: 'passwordHash',
+          columnType: _i2.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _i2.ColumnDefinition(
+          name: 'nombre',
+          columnType: _i2.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _i2.ColumnDefinition(
+          name: 'apellido',
+          columnType: _i2.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _i2.ColumnDefinition(
+          name: 'rol',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'protocol:UserRole',
+        ),
+        _i2.ColumnDefinition(
+          name: 'activo',
+          columnType: _i2.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+        ),
+        _i2.ColumnDefinition(
+          name: 'created',
+          columnType: _i2.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+        _i2.ColumnDefinition(
+          name: 'updated',
+          columnType: _i2.ColumnType.timestampWithoutTimeZone,
+          isNullable: true,
+          dartType: 'DateTime?',
+        ),
+      ],
+      foreignKeys: [],
+      indexes: [
+        _i2.IndexDefinition(
+          indexName: 'users_pkey',
+          tableSpace: null,
+          elements: [
+            _i2.IndexElementDefinition(
+              type: _i2.IndexElementDefinitionType.column,
+              definition: 'id',
+            )
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: true,
+        ),
+        _i2.IndexDefinition(
+          indexName: 'email_unique',
+          tableSpace: null,
+          elements: [
+            _i2.IndexElementDefinition(
+              type: _i2.IndexElementDefinitionType.column,
+              definition: 'email',
+            )
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
     ..._i2.Protocol.targetTableDefinitions,
   ];
 
@@ -698,6 +838,12 @@ class Protocol extends _i1.SerializationManagerServer {
     if (t == _i19.SupplyUsage) {
       return _i19.SupplyUsage.fromJson(data) as T;
     }
+    if (t == _i20.User) {
+      return _i20.User.fromJson(data) as T;
+    }
+    if (t == _i21.UserRole) {
+      return _i21.UserRole.fromJson(data) as T;
+    }
     if (t == _i1.getType<_i3.Greeting?>()) {
       return (data != null ? _i3.Greeting.fromJson(data) : null) as T;
     }
@@ -750,6 +896,12 @@ class Protocol extends _i1.SerializationManagerServer {
     if (t == _i1.getType<_i19.SupplyUsage?>()) {
       return (data != null ? _i19.SupplyUsage.fromJson(data) : null) as T;
     }
+    if (t == _i1.getType<_i20.User?>()) {
+      return (data != null ? _i20.User.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i21.UserRole?>()) {
+      return (data != null ? _i21.UserRole.fromJson(data) : null) as T;
+    }
     if (t == _i1.getType<List<_i14.QuoteFilamentDetail>?>()) {
       return (data != null
           ? (data as List)
@@ -776,35 +928,38 @@ class Protocol extends _i1.SerializationManagerServer {
           ? (data as List).map((e) => deserialize<_i19.SupplyUsage>(e)).toList()
           : null) as T;
     }
-    if (t == List<_i20.Customer>) {
-      return (data as List).map((e) => deserialize<_i20.Customer>(e)).toList()
-          as T;
-    }
-    if (t == List<_i21.Quote>) {
-      return (data as List).map((e) => deserialize<_i21.Quote>(e)).toList()
-          as T;
-    }
-    if (t == List<_i22.Printer>) {
-      return (data as List).map((e) => deserialize<_i22.Printer>(e)).toList()
-          as T;
+    if (t == List<_i22.User>) {
+      return (data as List).map((e) => deserialize<_i22.User>(e)).toList() as T;
     }
     if (t == List<_i23.Filament>) {
       return (data as List).map((e) => deserialize<_i23.Filament>(e)).toList()
           as T;
     }
-    if (t == List<_i24.ExtraSupply>) {
-      return (data as List)
-          .map((e) => deserialize<_i24.ExtraSupply>(e))
-          .toList() as T;
+    if (t == List<_i24.Printer>) {
+      return (data as List).map((e) => deserialize<_i24.Printer>(e)).toList()
+          as T;
     }
     if (t == List<_i25.Shipping>) {
       return (data as List).map((e) => deserialize<_i25.Shipping>(e)).toList()
           as T;
     }
-    if (t == List<_i26.ElectricityRate>) {
+    if (t == List<_i26.Customer>) {
+      return (data as List).map((e) => deserialize<_i26.Customer>(e)).toList()
+          as T;
+    }
+    if (t == List<_i27.ElectricityRate>) {
       return (data as List)
-          .map((e) => deserialize<_i26.ElectricityRate>(e))
+          .map((e) => deserialize<_i27.ElectricityRate>(e))
           .toList() as T;
+    }
+    if (t == List<_i28.ExtraSupply>) {
+      return (data as List)
+          .map((e) => deserialize<_i28.ExtraSupply>(e))
+          .toList() as T;
+    }
+    if (t == List<_i29.Quote>) {
+      return (data as List).map((e) => deserialize<_i29.Quote>(e)).toList()
+          as T;
     }
     try {
       return _i2.Protocol().deserialize<T>(data, t);
@@ -866,6 +1021,12 @@ class Protocol extends _i1.SerializationManagerServer {
     }
     if (data is _i19.SupplyUsage) {
       return 'SupplyUsage';
+    }
+    if (data is _i20.User) {
+      return 'User';
+    }
+    if (data is _i21.UserRole) {
+      return 'UserRole';
     }
     className = _i2.Protocol().getClassNameForObject(data);
     if (className != null) {
@@ -931,6 +1092,12 @@ class Protocol extends _i1.SerializationManagerServer {
     if (dataClassName == 'SupplyUsage') {
       return deserialize<_i19.SupplyUsage>(data['data']);
     }
+    if (dataClassName == 'User') {
+      return deserialize<_i20.User>(data['data']);
+    }
+    if (dataClassName == 'UserRole') {
+      return deserialize<_i21.UserRole>(data['data']);
+    }
     if (dataClassName.startsWith('serverpod.')) {
       data['className'] = dataClassName.substring(10);
       return _i2.Protocol().deserializeByClassName(data);
@@ -965,6 +1132,8 @@ class Protocol extends _i1.SerializationManagerServer {
         return _i13.QuoteFilament.t;
       case _i18.Shipping:
         return _i18.Shipping.t;
+      case _i20.User:
+        return _i20.User.t;
     }
     return null;
   }

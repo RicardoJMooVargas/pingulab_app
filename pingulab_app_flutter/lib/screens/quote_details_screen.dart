@@ -312,6 +312,7 @@ class _QuoteDetailsScreenState extends State<QuoteDetailsScreen> {
           _buildSection(
             'Detalles de Impresión',
             [
+              _buildDetailRow('Cantidad', '${quote.quantity} ${quote.quantity == 1 ? 'pieza' : 'piezas'}'),
               if (customer != null) ...[
                 _buildDetailRow('Cliente', customer.apodo),
                 if (customer.nombre != null || customer.apellido != null)

@@ -2,6 +2,7 @@ class: QuoteInput
 fields:
   # Basic quote information
   name: String
+  quantity: int  # Number of pieces to produce
   pieceWeightGrams: double
   printHours: double
   postProcessingCost: double?

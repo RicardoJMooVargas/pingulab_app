@@ -3,6 +3,7 @@ import 'package:pingulab_app_client/pingulab_app_client.dart';
 
 class CreateQuoteReqModel {
   String name;
+  int quantity;
   double pieceWeightGrams;
   double printHours;
   double? postProcessingCost;
@@ -23,6 +24,7 @@ class CreateQuoteReqModel {
 
   CreateQuoteReqModel({
     required this.name,
+    this.quantity = 1,
     required this.pieceWeightGrams,
     required this.printHours,
     required this.marginPercent,
@@ -44,6 +46,7 @@ class CreateQuoteReqModel {
   }) async {
     return QuoteInput(
       name: name,
+      quantity: quantity,
       pieceWeightGrams: pieceWeightGrams,
       printHours: printHours,
       postProcessingCost: postProcessingCost,

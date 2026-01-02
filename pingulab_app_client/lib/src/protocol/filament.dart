@@ -17,6 +17,7 @@ abstract class Filament implements _i1.SerializableModel {
     required this.name,
     required this.brand,
     required this.materialType,
+    required this.color,
     required this.spoolWeightKg,
     required this.spoolCost,
   });
@@ -26,6 +27,7 @@ abstract class Filament implements _i1.SerializableModel {
     required String name,
     required String brand,
     required String materialType,
+    required String color,
     required double spoolWeightKg,
     required double spoolCost,
   }) = _FilamentImpl;
@@ -36,6 +38,7 @@ abstract class Filament implements _i1.SerializableModel {
       name: jsonSerialization['name'] as String,
       brand: jsonSerialization['brand'] as String,
       materialType: jsonSerialization['materialType'] as String,
+      color: jsonSerialization['color'] as String,
       spoolWeightKg: (jsonSerialization['spoolWeightKg'] as num).toDouble(),
       spoolCost: (jsonSerialization['spoolCost'] as num).toDouble(),
     );
@@ -52,6 +55,8 @@ abstract class Filament implements _i1.SerializableModel {
 
   String materialType;
 
+  String color;
+
   double spoolWeightKg;
 
   double spoolCost;
@@ -64,6 +69,7 @@ abstract class Filament implements _i1.SerializableModel {
     String? name,
     String? brand,
     String? materialType,
+    String? color,
     double? spoolWeightKg,
     double? spoolCost,
   });
@@ -74,6 +80,7 @@ abstract class Filament implements _i1.SerializableModel {
       'name': name,
       'brand': brand,
       'materialType': materialType,
+      'color': color,
       'spoolWeightKg': spoolWeightKg,
       'spoolCost': spoolCost,
     };
@@ -93,6 +100,7 @@ class _FilamentImpl extends Filament {
     required String name,
     required String brand,
     required String materialType,
+    required String color,
     required double spoolWeightKg,
     required double spoolCost,
   }) : super._(
@@ -100,6 +108,7 @@ class _FilamentImpl extends Filament {
           name: name,
           brand: brand,
           materialType: materialType,
+          color: color,
           spoolWeightKg: spoolWeightKg,
           spoolCost: spoolCost,
         );
@@ -113,6 +122,7 @@ class _FilamentImpl extends Filament {
     String? name,
     String? brand,
     String? materialType,
+    String? color,
     double? spoolWeightKg,
     double? spoolCost,
   }) {
@@ -121,6 +131,7 @@ class _FilamentImpl extends Filament {
       name: name ?? this.name,
       brand: brand ?? this.brand,
       materialType: materialType ?? this.materialType,
+      color: color ?? this.color,
       spoolWeightKg: spoolWeightKg ?? this.spoolWeightKg,
       spoolCost: spoolCost ?? this.spoolCost,
     );

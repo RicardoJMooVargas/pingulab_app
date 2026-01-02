@@ -16,6 +16,8 @@ abstract class Printer implements _i1.SerializableModel {
     this.id,
     required this.name,
     required this.powerConsumptionWatts,
+    required this.purchaseCost,
+    this.imageBase64,
     required this.available,
   });
 
@@ -23,6 +25,8 @@ abstract class Printer implements _i1.SerializableModel {
     int? id,
     required String name,
     required int powerConsumptionWatts,
+    required double purchaseCost,
+    String? imageBase64,
     required bool available,
   }) = _PrinterImpl;
 
@@ -31,6 +35,8 @@ abstract class Printer implements _i1.SerializableModel {
       id: jsonSerialization['id'] as int?,
       name: jsonSerialization['name'] as String,
       powerConsumptionWatts: jsonSerialization['powerConsumptionWatts'] as int,
+      purchaseCost: (jsonSerialization['purchaseCost'] as num).toDouble(),
+      imageBase64: jsonSerialization['imageBase64'] as String?,
       available: jsonSerialization['available'] as bool,
     );
   }
@@ -44,6 +50,10 @@ abstract class Printer implements _i1.SerializableModel {
 
   int powerConsumptionWatts;
 
+  double purchaseCost;
+
+  String? imageBase64;
+
   bool available;
 
   /// Returns a shallow copy of this [Printer]
@@ -53,6 +63,8 @@ abstract class Printer implements _i1.SerializableModel {
     int? id,
     String? name,
     int? powerConsumptionWatts,
+    double? purchaseCost,
+    String? imageBase64,
     bool? available,
   });
   @override
@@ -61,6 +73,8 @@ abstract class Printer implements _i1.SerializableModel {
       if (id != null) 'id': id,
       'name': name,
       'powerConsumptionWatts': powerConsumptionWatts,
+      'purchaseCost': purchaseCost,
+      if (imageBase64 != null) 'imageBase64': imageBase64,
       'available': available,
     };
   }
@@ -78,11 +92,15 @@ class _PrinterImpl extends Printer {
     int? id,
     required String name,
     required int powerConsumptionWatts,
+    required double purchaseCost,
+    String? imageBase64,
     required bool available,
   }) : super._(
           id: id,
           name: name,
           powerConsumptionWatts: powerConsumptionWatts,
+          purchaseCost: purchaseCost,
+          imageBase64: imageBase64,
           available: available,
         );
 
@@ -94,6 +112,8 @@ class _PrinterImpl extends Printer {
     Object? id = _Undefined,
     String? name,
     int? powerConsumptionWatts,
+    double? purchaseCost,
+    Object? imageBase64 = _Undefined,
     bool? available,
   }) {
     return Printer(
@@ -101,6 +121,8 @@ class _PrinterImpl extends Printer {
       name: name ?? this.name,
       powerConsumptionWatts:
           powerConsumptionWatts ?? this.powerConsumptionWatts,
+      purchaseCost: purchaseCost ?? this.purchaseCost,
+      imageBase64: imageBase64 is String? ? imageBase64 : this.imageBase64,
       available: available ?? this.available,
     );
   }

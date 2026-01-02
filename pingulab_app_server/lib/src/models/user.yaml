@@ -1,0 +1,15 @@
+class: User
+table: users
+fields:
+  email: String
+  passwordHash: String
+  nombre: String
+  apellido: String?
+  rol: UserRole
+  activo: bool
+  created: DateTime
+  updated: DateTime?
+indexes:
+  email_unique:
+    fields: email
+    unique: true

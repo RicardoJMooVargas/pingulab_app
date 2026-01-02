@@ -3,10 +3,11 @@ import '../generated/protocol.dart';
 
 class QuoteEndpoint extends Endpoint {
   /// Create a new quote from input data
-  Future<Quote> createQuote(Session session, QuoteInput input) async {
+  Future<Quote> createQuote(Session session, QuoteInput input, {int? userId}) async {
     // Create the quote object
     var quote = Quote(
       name: input.name,
+      quantity: input.quantity,
       pieceWeightGrams: input.pieceWeightGrams,
       printHours: input.printHours,
       postProcessingCost: input.postProcessingCost,
@@ -17,9 +18,11 @@ class QuoteEndpoint extends Endpoint {
       customerId: input.customerId,
       printerId: input.printerId,
       shippingId: input.shippingId,
+      createdBy: userId,
       filamentCost: 0.0,
       electricityCost: 0.0,
       suppliesCost: 0.0,
+      depreciationCost: 0.0,
       subtotal: 0.0,
       total: 0.0,
     );
@@ -160,7 +163,7 @@ class QuoteEndpoint extends Endpoint {
   }
 
   /// Update an existing quote
-  Future<Quote> updateQuote(Session session, int quoteId, QuoteInput input) async {
+  Future<Quote> updateQuote(Session session, int quoteId, QuoteInput input, {int? userId}) async {
     // Get existing quote
     var quote = await Quote.db.findById(session, quoteId);
     if (quote == null) {
@@ -169,6 +172,7 @@ class QuoteEndpoint extends Endpoint {
     
     // Update quote fields
     quote.name = input.name;
+    quote.quantity = input.quantity;
     quote.pieceWeightGrams = input.pieceWeightGrams;
     quote.printHours = input.printHours;
     quote.postProcessingCost = input.postProcessingCost;
@@ -178,6 +182,7 @@ class QuoteEndpoint extends Endpoint {
     quote.customerId = input.customerId;
     quote.printerId = input.printerId;
     quote.shippingId = input.shippingId;
+    quote.updatedBy = userId;
     
     if (input.status != null) {
       quote.status = input.status!;
@@ -262,6 +267,7 @@ class QuoteEndpoint extends Endpoint {
     double filamentCost = 0.0;
     double electricityCost = 0.0;
     double suppliesCost = 0.0;
+    double depreciationCost = 0.0;
     double shippingCost = 0.0;
 
     // Calculate filament cost from related QuoteFilament records
@@ -274,7 +280,7 @@ class QuoteEndpoint extends Endpoint {
       filamentCost += qf.cost;
     }
 
-    // Calculate electricity cost
+    // Calculate electricity cost and depreciation
     if (quote.printerId != null && quote.printHours > 0) {
       final printer = await Printer.db.findById(session, quote.printerId!);
       if (printer != null) {
@@ -289,6 +295,11 @@ class QuoteEndpoint extends Endpoint {
           final kwh = (printer.powerConsumptionWatts / 1000) * quote.printHours;
           electricityCost = kwh * electricityRate.costPerKwh;
         }
+        
+        // Calculate depreciation cost
+        // Assuming printer lifespan of 5000 hours and purchase cost
+        const double estimatedLifespanHours = 5000.0;
+        depreciationCost = (printer.purchaseCost / estimatedLifespanHours) * quote.printHours;
       }
     }
 
@@ -311,17 +322,18 @@ class QuoteEndpoint extends Endpoint {
     }
 
     // Calculate subtotal (before margin and shipping)
-    final subtotal = filamentCost + electricityCost + suppliesCost + (quote.postProcessingCost ?? 0.0);
+    final subtotal = filamentCost + electricityCost + suppliesCost + depreciationCost + (quote.postProcessingCost ?? 0.0);
 
-    // Calculate total with margin and shipping
-    final total = subtotal * (1 + quote.marginPercent) + shippingCost;
+    // Calculate total with margin and shipping (multiply by quantity)
+    final total = (subtotal * (1 + quote.marginPercent) + shippingCost) * quote.quantity;
 
     // Update quote with calculated values
-    quote.filamentCost = filamentCost;
-    quote.electricityCost = electricityCost;
-    quote.suppliesCost = suppliesCost;
+    quote.filamentCost = filamentCost * quote.quantity;
+    quote.electricityCost = electricityCost * quote.quantity;
+    quote.suppliesCost = suppliesCost * quote.quantity;
+    quote.depreciationCost = depreciationCost * quote.quantity;
     quote.shippingCost = shippingCost;
-    quote.subtotal = subtotal;
+    quote.subtotal = subtotal * quote.quantity;
     quote.total = total;
 
     return quote;

@@ -4,5 +4,6 @@ fields:
   name: String
   brand: String
   materialType: String
+  color: String  # Hex color code (e.g., #FF5733)
   spoolWeightKg: double
   spoolCost: double

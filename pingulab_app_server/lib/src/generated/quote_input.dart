@@ -18,6 +18,7 @@ abstract class QuoteInput
     implements _i1.SerializableModel, _i1.ProtocolSerialization {
   QuoteInput._({
     required this.name,
+    required this.quantity,
     required this.pieceWeightGrams,
     required this.printHours,
     this.postProcessingCost,
@@ -34,6 +35,7 @@ abstract class QuoteInput
 
   factory QuoteInput({
     required String name,
+    required int quantity,
     required double pieceWeightGrams,
     required double printHours,
     double? postProcessingCost,
@@ -51,6 +53,7 @@ abstract class QuoteInput
   factory QuoteInput.fromJson(Map<String, dynamic> jsonSerialization) {
     return QuoteInput(
       name: jsonSerialization['name'] as String,
+      quantity: jsonSerialization['quantity'] as int,
       pieceWeightGrams:
           (jsonSerialization['pieceWeightGrams'] as num).toDouble(),
       printHours: (jsonSerialization['printHours'] as num).toDouble(),
@@ -75,6 +78,8 @@ abstract class QuoteInput
   }
 
   String name;
+
+  int quantity;
 
   double pieceWeightGrams;
 
@@ -105,6 +110,7 @@ abstract class QuoteInput
   @_i1.useResult
   QuoteInput copyWith({
     String? name,
+    int? quantity,
     double? pieceWeightGrams,
     double? printHours,
     double? postProcessingCost,
@@ -122,6 +128,7 @@ abstract class QuoteInput
   Map<String, dynamic> toJson() {
     return {
       'name': name,
+      'quantity': quantity,
       'pieceWeightGrams': pieceWeightGrams,
       'printHours': printHours,
       if (postProcessingCost != null) 'postProcessingCost': postProcessingCost,
@@ -144,6 +151,7 @@ abstract class QuoteInput
   Map<String, dynamic> toJsonForProtocol() {
     return {
       'name': name,
+      'quantity': quantity,
       'pieceWeightGrams': pieceWeightGrams,
       'printHours': printHours,
       if (postProcessingCost != null) 'postProcessingCost': postProcessingCost,
@@ -174,6 +182,7 @@ class _Undefined {}
 class _QuoteInputImpl extends QuoteInput {
   _QuoteInputImpl({
     required String name,
+    required int quantity,
     required double pieceWeightGrams,
     required double printHours,
     double? postProcessingCost,
@@ -188,6 +197,7 @@ class _QuoteInputImpl extends QuoteInput {
     List<_i4.SupplyUsage>? supplyUsages,
   }) : super._(
           name: name,
+          quantity: quantity,
           pieceWeightGrams: pieceWeightGrams,
           printHours: printHours,
           postProcessingCost: postProcessingCost,
@@ -208,6 +218,7 @@ class _QuoteInputImpl extends QuoteInput {
   @override
   QuoteInput copyWith({
     String? name,
+    int? quantity,
     double? pieceWeightGrams,
     double? printHours,
     Object? postProcessingCost = _Undefined,
@@ -223,6 +234,7 @@ class _QuoteInputImpl extends QuoteInput {
   }) {
     return QuoteInput(
       name: name ?? this.name,
+      quantity: quantity ?? this.quantity,
       pieceWeightGrams: pieceWeightGrams ?? this.pieceWeightGrams,
       printHours: printHours ?? this.printHours,
       postProcessingCost: postProcessingCost is double?

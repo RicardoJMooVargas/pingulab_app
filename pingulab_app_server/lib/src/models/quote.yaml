@@ -3,6 +3,7 @@ table: quotes
 fields:
   # Input fields
   name: String
+  quantity: int  # Number of pieces to produce
   pieceWeightGrams: double
   printHours: double
   postProcessingCost: double?
@@ -12,6 +13,7 @@ fields:
   filamentCost: double
   electricityCost: double
   suppliesCost: double
+  depreciationCost: double  # Printer depreciation cost
   shippingCost: double?
 
   # Totals
@@ -27,3 +29,5 @@ fields:
   customerId: int?
   printerId: int?
   shippingId: int?
+  createdBy: int?  # User ID who created the quote
+  updatedBy: int?  # User ID who last updated the quote

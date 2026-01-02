@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:pingulab_app_client/pingulab_app_client.dart';
+import 'package:provider/provider.dart';
 import '../main.dart';
+import '../services/auth_service.dart';
 import 'quote_form_screen.dart';
 import 'quote_details_screen.dart';
+import 'catalogs_screen.dart';
 
 class QuotesListScreen extends StatefulWidget {
   const QuotesListScreen({super.key});
@@ -70,10 +73,63 @@ class _QuotesListScreenState extends State<QuotesListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final authService = context.watch<AuthService>();
+    
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Cotizaciones'),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Cotizaciones'),
+            if (authService.currentUser != null)
+              Text(
+                authService.currentUser!.email,
+                style: const TextStyle(fontSize: 12),
+              ),
+          ],
+        ),
         backgroundColor: Colors.teal,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.category),
+            tooltip: 'Gestionar Catálogos',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const CatalogsScreen(),
+                ),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Cerrar sesión',
+            onPressed: () async {
+              final confirm = await showDialog<bool>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('¿Cerrar sesión?'),
+                  content: const Text('¿Estás seguro de que deseas cerrar sesión?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: const Text('Cancelar'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      child: const Text('Cerrar sesión'),
+                    ),
+                  ],
+                ),
+              );
+              
+              if (confirm == true && mounted) {
+                await authService.logout();
+              }
+            },
+          ),
+        ],
       ),
       body: _buildBody(),
       floatingActionButton: FloatingActionButton(

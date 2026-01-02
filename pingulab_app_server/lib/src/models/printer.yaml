@@ -3,4 +3,6 @@ table: printers
 fields:
   name: String
   powerConsumptionWatts: int
+  purchaseCost: double  # Purchase cost of the printer for depreciation calculation
+  imageBase64: String?  # Base64 encoded image (will be replaced with URL later)
   available: bool

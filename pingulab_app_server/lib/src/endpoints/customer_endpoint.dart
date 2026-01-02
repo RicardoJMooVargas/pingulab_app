@@ -35,4 +35,74 @@ class CustomerEndpoint extends Endpoint {
   Future<Customer?> getCustomer(Session session, int id) async {
     return await Customer.db.findById(session, id);
   }
+  
+  /// Create a new customer
+  Future<Customer> createCustomer(
+    Session session,
+    String apodo,
+    String? nombre,
+    String? apellido,
+    String? numero,
+    String? direccion,
+    String? notes,
+  ) async {
+    final customer = Customer(
+      apodo: apodo,
+      nombre: nombre,
+      apellido: apellido,
+      numero: numero,
+      direccion: direccion,
+      notes: notes,
+      created: DateTime.now(),
+    );
+    
+    return await Customer.db.insertRow(session, customer);
+  }
+  
+  /// Update an existing customer
+  Future<Customer> updateCustomer(
+    Session session,
+    int customerId,
+    String apodo,
+    String? nombre,
+    String? apellido,
+    String? numero,
+    String? direccion,
+    String? notes,
+  ) async {
+    final customer = await Customer.db.findById(session, customerId);
+    
+    if (customer == null) {
+      throw Exception('Customer not found');
+    }
+    
+    customer.apodo = apodo;
+    customer.nombre = nombre;
+    customer.apellido = apellido;
+    customer.numero = numero;
+    customer.direccion = direccion;
+    customer.notes = notes;
+    customer.updated = DateTime.now();
+    
+    return await Customer.db.updateRow(session, customer);
+  }
+  
+  /// Delete a customer
+  Future<void> deleteCustomer(Session session, int customerId) async {
+    // Check if customer is used in any quotes
+    final quotesWithCustomer = await Quote.db.find(
+      session,
+      where: (t) => t.customerId.equals(customerId),
+      limit: 1,
+    );
+    
+    if (quotesWithCustomer.isNotEmpty) {
+      throw Exception('Cannot delete customer: used in existing quotes');
+    }
+    
+    await Customer.db.deleteWhere(
+      session,
+      where: (t) => t.id.equals(customerId),
+    );
+  }
 }

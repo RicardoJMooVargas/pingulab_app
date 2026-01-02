@@ -17,6 +17,8 @@ abstract class Printer
     this.id,
     required this.name,
     required this.powerConsumptionWatts,
+    required this.purchaseCost,
+    this.imageBase64,
     required this.available,
   });
 
@@ -24,6 +26,8 @@ abstract class Printer
     int? id,
     required String name,
     required int powerConsumptionWatts,
+    required double purchaseCost,
+    String? imageBase64,
     required bool available,
   }) = _PrinterImpl;
 
@@ -32,6 +36,8 @@ abstract class Printer
       id: jsonSerialization['id'] as int?,
       name: jsonSerialization['name'] as String,
       powerConsumptionWatts: jsonSerialization['powerConsumptionWatts'] as int,
+      purchaseCost: (jsonSerialization['purchaseCost'] as num).toDouble(),
+      imageBase64: jsonSerialization['imageBase64'] as String?,
       available: jsonSerialization['available'] as bool,
     );
   }
@@ -47,6 +53,10 @@ abstract class Printer
 
   int powerConsumptionWatts;
 
+  double purchaseCost;
+
+  String? imageBase64;
+
   bool available;
 
   @override
@@ -59,6 +69,8 @@ abstract class Printer
     int? id,
     String? name,
     int? powerConsumptionWatts,
+    double? purchaseCost,
+    String? imageBase64,
     bool? available,
   });
   @override
@@ -67,6 +79,8 @@ abstract class Printer
       if (id != null) 'id': id,
       'name': name,
       'powerConsumptionWatts': powerConsumptionWatts,
+      'purchaseCost': purchaseCost,
+      if (imageBase64 != null) 'imageBase64': imageBase64,
       'available': available,
     };
   }
@@ -77,6 +91,8 @@ abstract class Printer
       if (id != null) 'id': id,
       'name': name,
       'powerConsumptionWatts': powerConsumptionWatts,
+      'purchaseCost': purchaseCost,
+      if (imageBase64 != null) 'imageBase64': imageBase64,
       'available': available,
     };
   }
@@ -118,11 +134,15 @@ class _PrinterImpl extends Printer {
     int? id,
     required String name,
     required int powerConsumptionWatts,
+    required double purchaseCost,
+    String? imageBase64,
     required bool available,
   }) : super._(
           id: id,
           name: name,
           powerConsumptionWatts: powerConsumptionWatts,
+          purchaseCost: purchaseCost,
+          imageBase64: imageBase64,
           available: available,
         );
 
@@ -134,6 +154,8 @@ class _PrinterImpl extends Printer {
     Object? id = _Undefined,
     String? name,
     int? powerConsumptionWatts,
+    double? purchaseCost,
+    Object? imageBase64 = _Undefined,
     bool? available,
   }) {
     return Printer(
@@ -141,6 +163,8 @@ class _PrinterImpl extends Printer {
       name: name ?? this.name,
       powerConsumptionWatts:
           powerConsumptionWatts ?? this.powerConsumptionWatts,
+      purchaseCost: purchaseCost ?? this.purchaseCost,
+      imageBase64: imageBase64 is String? ? imageBase64 : this.imageBase64,
       available: available ?? this.available,
     );
   }
@@ -156,6 +180,14 @@ class PrinterTable extends _i1.Table<int?> {
       'powerConsumptionWatts',
       this,
     );
+    purchaseCost = _i1.ColumnDouble(
+      'purchaseCost',
+      this,
+    );
+    imageBase64 = _i1.ColumnString(
+      'imageBase64',
+      this,
+    );
     available = _i1.ColumnBool(
       'available',
       this,
@@ -166,6 +198,10 @@ class PrinterTable extends _i1.Table<int?> {
 
   late final _i1.ColumnInt powerConsumptionWatts;
 
+  late final _i1.ColumnDouble purchaseCost;
+
+  late final _i1.ColumnString imageBase64;
+
   late final _i1.ColumnBool available;
 
   @override
@@ -173,6 +209,8 @@ class PrinterTable extends _i1.Table<int?> {
         id,
         name,
         powerConsumptionWatts,
+        purchaseCost,
+        imageBase64,
         available,
       ];
 }

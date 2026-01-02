@@ -3,8 +3,10 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pingulab_app_client/pingulab_app_client.dart';
+import 'package:provider/provider.dart';
 import '../main.dart';
 import '../models/create_quote_req.module.dart';
+import '../services/auth_service.dart';
 
 class QuoteFormScreen extends StatefulWidget {
   final int? quoteId;
@@ -22,6 +24,7 @@ class _QuoteFormScreenState extends State<QuoteFormScreen> {
 
   // Controllers
   final _nameController = TextEditingController();
+  final _quantityController = TextEditingController(text: '1');
   final _pieceWeightGramsController = TextEditingController();
   final _printHoursController = TextEditingController();
   final _postProcessingCostController = TextEditingController();
@@ -84,6 +87,7 @@ class _QuoteFormScreenState extends State<QuoteFormScreen> {
 
     setState(() {
       _nameController.text = quote.name;
+      _quantityController.text = quote.quantity.toString();
       _pieceWeightGramsController.text = quote.pieceWeightGrams.toString();
       _printHoursController.text = quote.printHours.toString();
       _postProcessingCostController.text =
@@ -134,8 +138,16 @@ class _QuoteFormScreenState extends State<QuoteFormScreen> {
     setState(() => _isLoading = true);
 
     try {
+      final authService = context.read<AuthService>();
+      final userId = authService.userId;
+
+      if (userId == null) {
+        throw Exception('No hay usuario autenticado');
+      }
+
       final model = CreateQuoteReqModel(
         name: _nameController.text,
+        quantity: int.parse(_quantityController.text),
         pieceWeightGrams: double.parse(_pieceWeightGramsController.text),
         printHours: double.parse(_printHoursController.text),
         postProcessingCost: _postProcessingCostController.text.isEmpty
@@ -162,9 +174,9 @@ class _QuoteFormScreenState extends State<QuoteFormScreen> {
       final input = await model.toQuoteInput(imageBase64: imageBase64);
 
       if (widget.quoteId == null) {
-        await client.quote.createQuote(input);
+        await client.quote.createQuote(input, userId: userId);
       } else {
-        await client.quote.updateQuote(widget.quoteId!, input);
+        await client.quote.updateQuote(widget.quoteId!, input, userId: userId);
       }
 
       if (mounted) {
@@ -204,6 +216,9 @@ class _QuoteFormScreenState extends State<QuoteFormScreen> {
                   
                   _field(_nameController, 'Nombre de la cotización *', true,
                       hint: 'Ej: Pieza para cliente X'),
+                  
+                  _field(_quantityController, 'Cantidad *', true,
+                      isNumeric: true, hint: 'Número de piezas'),
                   
                   // Peso con conversión a kg
                   _field(_pieceWeightGramsController, 'Peso de la pieza', false,
@@ -517,17 +532,22 @@ class _QuoteFormScreenState extends State<QuoteFormScreen> {
                             ?.where((f) => !_selectedFilaments.containsKey(f.id))
                             .map((f) => DropdownMenuItem(
                                   value: f.id,
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                  child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      Text(f.name),
-                                      Text(
-                                        '${f.brand} - ${f.materialType}',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.grey[600],
+                                      Container(
+                                        width: 20,
+                                        height: 20,
+                                        decoration: BoxDecoration(
+                                          color: _parseColor(f.color),
+                                          border: Border.all(color: Colors.grey[300]!),
+                                          borderRadius: BorderRadius.circular(4),
                                         ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        '${f.name} (${f.brand})',
+                                        overflow: TextOverflow.ellipsis,
                                       ),
                                     ],
                                   ),
@@ -834,9 +854,23 @@ class _QuoteFormScreenState extends State<QuoteFormScreen> {
     );
   }
 
+  /// Parse hex color string to Color object
+  Color _parseColor(String hexColor) {
+    try {
+      String hex = hexColor.replaceAll('#', '');
+      if (hex.length == 6) {
+        hex = 'FF$hex'; // Add alpha if not present
+      }
+      return Color(int.parse(hex, radix: 16));
+    } catch (e) {
+      return Colors.grey; // Default color if parsing fails
+    }
+  }
+
   @override
   void dispose() {
     _nameController.dispose();
+    _quantityController.dispose();
     _pieceWeightGramsController.dispose();
     _printHoursController.dispose();
     _postProcessingCostController.dispose();
