@@ -23,9 +23,11 @@ void main() async {
   // Ensure Flutter bindings are initialized
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Allow self-signed certificates for development/testing
-  // Remove this in production once SSL is properly configured
-  HttpOverrides.global = MyHttpOverrides();
+  // Allow self-signed certificates ONLY for development
+  // In production, rely on system certificates
+  if (kDebugMode) {
+    HttpOverrides.global = MyHttpOverrides();
+  }
   
   // Production URL - change this when deploying
   // For development, use: http://$localhost:8080/

@@ -2,6 +2,9 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:pingulab_app_client/pingulab_app_client.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
 import '../main.dart';
 import 'quote_form_screen.dart';
 
@@ -130,6 +133,305 @@ class _QuoteDetailsScreenState extends State<QuoteDetailsScreen> {
     }
   }
 
+  Future<void> _generatePdf() async {
+    if (_quoteDetails == null) return;
+
+    final quote = _quoteDetails!.quote;
+    final filaments = _quoteDetails!.filamentDetails ?? [];
+    final supplies = _quoteDetails!.supplyDetails ?? [];
+    final customer = _quoteDetails!.customer;
+    final printer = _quoteDetails!.printer;
+    final shipping = _quoteDetails!.shipping;
+
+    final pdf = pw.Document();
+
+    pdf.addPage(
+      pw.MultiPage(
+        pageFormat: PdfPageFormat.letter,
+        margin: const pw.EdgeInsets.all(32),
+        build: (context) => [
+          // Header
+          pw.Header(
+            level: 0,
+            child: pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+              children: [
+                pw.Text(
+                  'COTIZACIÓN #${widget.quoteId}',
+                  style: pw.TextStyle(
+                    fontSize: 24,
+                    fontWeight: pw.FontWeight.bold,
+                    color: PdfColors.teal,
+                  ),
+                ),
+                pw.Container(
+                  padding: const pw.EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: pw.BoxDecoration(
+                    color: _getPdfStatusColor(quote.status),
+                    borderRadius: pw.BorderRadius.circular(4),
+                  ),
+                  child: pw.Text(
+                    _getStatusText(quote.status),
+                    style: const pw.TextStyle(
+                      color: PdfColors.white,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          pw.SizedBox(height: 20),
+
+          // Nombre del proyecto
+          pw.Container(
+            padding: const pw.EdgeInsets.all(12),
+            decoration: pw.BoxDecoration(
+              border: pw.Border.all(color: PdfColors.grey300),
+              borderRadius: pw.BorderRadius.circular(4),
+            ),
+            child: pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Text(
+                  'Nombre del Proyecto',
+                  style: pw.TextStyle(
+                    fontSize: 10,
+                    color: PdfColors.grey700,
+                  ),
+                ),
+                pw.SizedBox(height: 4),
+                pw.Text(
+                  quote.name,
+                  style: pw.TextStyle(
+                    fontSize: 16,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          pw.SizedBox(height: 20),
+
+          // Total
+          pw.Container(
+            padding: const pw.EdgeInsets.all(16),
+            decoration: pw.BoxDecoration(
+              color: PdfColors.teal50,
+              borderRadius: pw.BorderRadius.circular(4),
+            ),
+            child: pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+              children: [
+                pw.Text(
+                  'TOTAL',
+                  style: pw.TextStyle(
+                    fontSize: 20,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
+                ),
+                pw.Text(
+                  '\$${quote.total.toStringAsFixed(2)}',
+                  style: pw.TextStyle(
+                    fontSize: 28,
+                    fontWeight: pw.FontWeight.bold,
+                    color: PdfColors.teal,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          pw.SizedBox(height: 20),
+
+          // Detalles de impresión
+          _buildPdfSection('Detalles de Impresión', [
+            _buildPdfRow('Cantidad', '${quote.quantity} ${quote.quantity == 1 ? 'pieza' : 'piezas'}'),
+            if (customer != null) ...[
+              _buildPdfRow('Cliente', customer.apodo),
+              if (customer.nombre != null || customer.apellido != null)
+                _buildPdfRow(
+                  'Nombre completo',
+                  [customer.nombre, customer.apellido]
+                      .where((e) => e != null && e.isNotEmpty)
+                      .join(' '),
+                ),
+              if (customer.numero != null)
+                _buildPdfRow('Teléfono', customer.numero!),
+              if (customer.direccion != null)
+                _buildPdfRow('Dirección', customer.direccion!),
+              pw.Divider(),
+            ],
+            _buildPdfRow('Gramos', '${quote.pieceWeightGrams}g'),
+            _buildPdfRow('Horas de impresión', '${quote.printHours}hrs'),
+            if (quote.measurements != null)
+              _buildPdfRow('Medidas', quote.measurements!),
+            if (printer != null)
+              _buildPdfRow('Impresora', printer.name),
+          ]),
+
+          // Filamentos
+          if (filaments.isNotEmpty) ...[
+            pw.SizedBox(height: 16),
+            _buildPdfSection(
+              'Filamentos Utilizados',
+              filaments.map((detail) {
+                return _buildPdfRow(
+                  '${detail.filament.name} (${detail.filament.brand})',
+                  '${detail.gramsUsed}g - \$${detail.cost.toStringAsFixed(2)}',
+                );
+              }).toList(),
+            ),
+          ],
+
+          // Insumos
+          if (supplies.isNotEmpty) ...[
+            pw.SizedBox(height: 16),
+            _buildPdfSection(
+              'Insumos Extra',
+              supplies.map((detail) {
+                return _buildPdfRow(
+                  detail.supply.name,
+                  '${detail.quantity} x \$${detail.cost.toStringAsFixed(2)}',
+                );
+              }).toList(),
+            ),
+          ],
+
+          // Desglose de costos
+          pw.SizedBox(height: 16),
+          _buildPdfSection('Desglose de Costos', [
+            _buildPdfRow(
+              'Filamento',
+              '\$${quote.filamentCost.toStringAsFixed(2)}',
+            ),
+            _buildPdfRow(
+              'Electricidad',
+              '\$${quote.electricityCost.toStringAsFixed(2)}',
+            ),
+            _buildPdfRow(
+              'Insumos',
+              '\$${quote.suppliesCost.toStringAsFixed(2)}',
+            ),
+            if (quote.postProcessingCost != null)
+              _buildPdfRow(
+                'Post-procesado',
+                '\$${quote.postProcessingCost!.toStringAsFixed(2)}',
+              ),
+            pw.Divider(),
+            _buildPdfRow(
+              'Subtotal',
+              '\$${quote.subtotal.toStringAsFixed(2)}',
+              bold: true,
+            ),
+            _buildPdfRow(
+              'Margen (${(quote.marginPercent * 100).toStringAsFixed(0)}%)',
+              '\$${(quote.subtotal * quote.marginPercent).toStringAsFixed(2)}',
+            ),
+            if (shipping != null)
+              _buildPdfRow(
+                'Envío (${shipping.shippingType})',
+                '\$${quote.shippingCost!.toStringAsFixed(2)}',
+              ),
+          ]),
+
+          // Imagen si existe
+          if (quote.imageUrl != null) ...[
+            pw.SizedBox(height: 20),
+            pw.Text(
+              'Imagen del Proyecto',
+              style: pw.TextStyle(
+                fontSize: 14,
+                fontWeight: pw.FontWeight.bold,
+              ),
+            ),
+            pw.SizedBox(height: 8),
+            pw.Container(
+              constraints: const pw.BoxConstraints(maxHeight: 300),
+              child: pw.Image(
+                pw.MemoryImage(base64Decode(quote.imageUrl!)),
+                fit: pw.BoxFit.contain,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+
+    // Mostrar el PDF
+    await Printing.layoutPdf(
+      onLayout: (format) async => pdf.save(),
+      name: 'cotizacion_${widget.quoteId}_${quote.name.replaceAll(' ', '_')}.pdf',
+    );
+  }
+
+  PdfColor _getPdfStatusColor(QuoteStatus status) {
+    switch (status) {
+      case QuoteStatus.PENDIENTE:
+        return PdfColors.orange;
+      case QuoteStatus.PROCESO:
+        return PdfColors.blue;
+      case QuoteStatus.FINALIZADO:
+        return PdfColors.green;
+      case QuoteStatus.CANCELADO:
+        return PdfColors.red;
+    }
+  }
+
+  pw.Widget _buildPdfSection(String title, List<pw.Widget> children) {
+    return pw.Container(
+      padding: const pw.EdgeInsets.all(12),
+      decoration: pw.BoxDecoration(
+        border: pw.Border.all(color: PdfColors.grey300),
+        borderRadius: pw.BorderRadius.circular(4),
+      ),
+      child: pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Text(
+            title,
+            style: pw.TextStyle(
+              fontSize: 14,
+              fontWeight: pw.FontWeight.bold,
+            ),
+          ),
+          pw.SizedBox(height: 8),
+          ...children,
+        ],
+      ),
+    );
+  }
+
+  pw.Widget _buildPdfRow(String label, String value, {bool bold = false}) {
+    return pw.Padding(
+      padding: const pw.EdgeInsets.symmetric(vertical: 3),
+      child: pw.Row(
+        mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+        children: [
+          pw.Expanded(
+            child: pw.Text(
+              label,
+              style: pw.TextStyle(
+                fontSize: 10,
+                color: PdfColors.grey700,
+                fontWeight: bold ? pw.FontWeight.bold : pw.FontWeight.normal,
+              ),
+            ),
+          ),
+          pw.Text(
+            value,
+            style: pw.TextStyle(
+              fontSize: 10,
+              fontWeight: bold ? pw.FontWeight.bold : pw.FontWeight.normal,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -137,6 +439,11 @@ class _QuoteDetailsScreenState extends State<QuoteDetailsScreen> {
         title: Text('Cotización #${widget.quoteId}'),
         backgroundColor: Colors.teal,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.picture_as_pdf),
+            tooltip: 'Generar PDF',
+            onPressed: _quoteDetails == null ? null : _generatePdf,
+          ),
           IconButton(
             icon: const Icon(Icons.edit),
             onPressed: _quoteDetails == null
