@@ -8,10 +8,6 @@ build/
 # Directory created by dartdoc
 doc/api/
 
-# Serverpod generated files (regenerated on each build)
-lib/src/generated/
-!lib/src/generated/protocol.yaml
-
 # Passwords file
 config/passwords.yaml
 
