@@ -76,12 +76,13 @@ Ver [DOCKPLOY_DEPLOYMENT.md](./DOCKPLOY_DEPLOYMENT.md) para detalles completos, 
 ## ⚡ Lo que hace el deployment automáticamente
 
 1. Construye la imagen Docker con el servidor compilado
-2. Configura PostgreSQL 16 con pgvector
-3. Configura Redis 6 para cache
-4. Aplica todas las migraciones de Serverpod
-5. Ejecuta el script de post-migración (campos custom)
-6. Crea los 3 usuarios administradores
-7. Inicia el servidor en los 3 puertos
-8. Configura health checks automáticos
+2. **Genera automáticamente el protocolo Serverpod** (user.dart, user_role.dart, etc.)
+3. Configura PostgreSQL 16 con pgvector
+4. Configura Redis 6 para cache
+5. Aplica todas las migraciones de Serverpod
+6. Ejecuta el script de post-migración (campos custom)
+7. Crea los 3 usuarios administradores
+8. Inicia el servidor en los 3 puertos
+9. Configura health checks automáticos
 
 Todo listo para producción 🎉

@@ -9,6 +9,10 @@ RUN dart pub get
 # Copy the rest of the application
 COPY . .
 
+# Generate Serverpod protocol files
+RUN dart pub global activate serverpod_cli && \
+    dart pub global run serverpod_cli generate
+
 # Compile the server executable
 RUN dart compile exe bin/main.dart -o bin/server
 
