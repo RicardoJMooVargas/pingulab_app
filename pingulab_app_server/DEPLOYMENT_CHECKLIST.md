@@ -32,9 +32,10 @@
 5. [ ] Agregar variables de entorno:
    - `POSTGRES_PASSWORD`
    - `REDIS_PASSWORD`
-6. [ ] Configurar dominios:
-   - Puerto 8080 → `api3d.mogastisolutions.engineer`
-   - Puerto 8081 → `insights.api3d.mogastisolutions.engineer`
+6. [ ] Configurar dominios en Dockploy:
+   - Puerto **8080** → `api3d.mogastisolutions.engineer` (API Server)
+   - Puerto **8081** → `insights.api3d.mogastisolutions.engineer` (Insights/Monitoring)
+   - Puerto **8082** → `app.api3d.mogastisolutions.engineer` (Web Server)
 7. [ ] Habilitar SSL automático (Let's Encrypt)
 8. [ ] Deploy
 
