@@ -37,10 +37,11 @@
 # Serverpod
 # ============================================
 
-# Archivos generados por Serverpod
-**/generated/
-**/lib/src/generated/
-**/lib/generated/
+# IMPORTANTE: Los archivos generados de Serverpod DEBEN commitearse
+# para que funcione el build de Docker en producción (no tiene Flutter)
+# Solo ignorar archivos Flutter generados
+**/lib/generated_plugin_registrant.dart
+**/GeneratedPluginRegistrant.*
 
 # Migraciones (opcional - comentar si quieres versionarlas)
 # **/migrations/
