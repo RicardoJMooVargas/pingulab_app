@@ -158,7 +158,7 @@ class EndpointBackup extends _i1.EndpointRef {
         {},
       );
 
-  /// Importa datos con validación de esquema y compatibilidad
+  /// Importa datos con validación
   _i2.Future<String> importDatabase(String jsonData) =>
       caller.callServerEndpoint<String>(
         'backup',

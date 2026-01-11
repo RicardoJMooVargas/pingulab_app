@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:serverpod/serverpod.dart';
+import '../generated/protocol.dart';
 
 class BackupEndpoint extends Endpoint {
   /// Exporta todos los datos de todas las tablas en formato JSON
@@ -8,156 +9,220 @@ class BackupEndpoint extends Endpoint {
       final export = <String, dynamic>{
         'version': '1.0',
         'exportDate': DateTime.now().toIso8601String(),
-        'tables': <String, List<Map<String, dynamic>>>{},
+        'data': <String, List<Map<String, dynamic>>>{},
       };
 
-      // Lista de tablas a exportar
-      final tables = [
-        'customers',
-        'filaments',
-        'printers',
-        'shippings',
-        'electricity_rates',
-        'extra_supplies',
-        'quotes',
-        'quote_filaments',
-        'quote_extra_supplies',
-        'users',
-      ];
+      // Exportar usando los modelos de Serverpod
+      try {
+        final customers = await Customer.db.find(session);
+        export['data']['customers'] = customers.map((e) => e.toJson()).toList();
+        session.log('✅ Exportados ${customers.length} customers');
+      } catch (e) {
+        session.log('⚠️ Error exportando customers: $e');
+      }
 
-      for (var table in tables) {
-        try {
-          final result = await session.db.unsafeQuery('SELECT * FROM $table');
-          export['tables'][table] = result.map((row) => row.toColumnMap()).toList();
-          session.log('✅ Exportada tabla $table: ${result.length} registros');
-        } catch (e) {
-          session.log('⚠️ Error exportando tabla $table: $e');
-        }
+      try {
+        final filaments = await Filament.db.find(session);
+        export['data']['filaments'] = filaments.map((e) => e.toJson()).toList();
+        session.log('✅ Exportados ${filaments.length} filaments');
+      } catch (e) {
+        session.log('⚠️ Error exportando filaments: $e');
+      }
+
+      try {
+        final printers = await Printer.db.find(session);
+        export['data']['printers'] = printers.map((e) => e.toJson()).toList();
+        session.log('✅ Exportados ${printers.length} printers');
+      } catch (e) {
+        session.log('⚠️ Error exportando printers: $e');
+      }
+
+      try {
+        final shippings = await Shipping.db.find(session);
+        export['data']['shippings'] = shippings.map((e) => e.toJson()).toList();
+        session.log('✅ Exportados ${shippings.length} shippings');
+      } catch (e) {
+        session.log('⚠️ Error exportando shippings: $e');
+      }
+
+      try {
+        final rates = await ElectricityRate.db.find(session);
+        export['data']['electricity_rates'] = rates.map((e) => e.toJson()).toList();
+        session.log('✅ Exportados ${rates.length} electricity_rates');
+      } catch (e) {
+        session.log('⚠️ Error exportando electricity_rates: $e');
+      }
+
+      try {
+        final supplies = await ExtraSupply.db.find(session);
+        export['data']['extra_supplies'] = supplies.map((e) => e.toJson()).toList();
+        session.log('✅ Exportados ${supplies.length} extra_supplies');
+      } catch (e) {
+        session.log('⚠️ Error exportando extra_supplies: $e');
+      }
+
+      try {
+        final quotes = await Quote.db.find(session);
+        export['data']['quotes'] = quotes.map((e) => e.toJson()).toList();
+        session.log('✅ Exportados ${quotes.length} quotes');
+      } catch (e) {
+        session.log('⚠️ Error exportando quotes: $e');
       }
 
       return jsonEncode(export);
     } catch (e) {
       session.log('❌ Error en exportDatabase: $e');
-      throw Exception('Error al exportar base de datos: $e');
+      rethrow;
     }
   }
 
-  /// Importa datos con validación de esquema y compatibilidad
+
+  /// Importa datos con validación
   Future<String> importDatabase(Session session, String jsonData) async {
     var success = true;
-    final importedTables = <String, int>{};
-    final skippedTables = <String>[];
+    final importedCounts = <String, int>{};
     final errors = <String>[];
     final warnings = <String>[];
 
     try {
       final data = jsonDecode(jsonData) as Map<String, dynamic>;
-      final tables = data['tables'] as Map<String, dynamic>;
+      final tables = data['data'] as Map<String, dynamic>;
 
-      session.log('📦 Iniciando importación de ${tables.length} tablas');
+      session.log('📦 Iniciando importación');
 
-      final importOrder = [
-        'users',
-        'customers',
-        'filaments',
-        'printers',
-        'shippings',
-        'electricity_rates',
-        'extra_supplies',
-        'quotes',
-        'quote_filaments',
-        'quote_extra_supplies',
-      ];
-
-      for (var tableName in importOrder) {
-        if (!tables.containsKey(tableName)) continue;
-
-        final rows = tables[tableName] as List<dynamic>;
-        if (rows.isEmpty) continue;
-
+      // Importar customers
+      if (tables.containsKey('customers')) {
         try {
-          final result = await _importTable(session, tableName, rows);
-          importedTables[tableName] = result['imported'] as int;
-          
-          if (result['warnings'] != null) {
-            warnings.addAll((result['warnings'] as List<dynamic>).cast<String>());
+          final items = (tables['customers'] as List).cast<Map<String, dynamic>>();
+          var count = 0;
+          for (var item in items) {
+            item.remove('id'); // Remover ID para que se autogenere
+            await Customer.db.insertRow(session, Customer.fromJson(item));
+            count++;
           }
+          importedCounts['customers'] = count;
         } catch (e) {
-          final errorMsg = 'Error importando tabla $tableName: $e';
-          session.log('❌ $errorMsg');
-          errors.add(errorMsg);
+          errors.add('Error en customers: $e');
+          success = false;
+        }
+      }
+
+      // Importar filaments
+      if (tables.containsKey('filaments')) {
+        try {
+          final items = (tables['filaments'] as List).cast<Map<String, dynamic>>();
+          var count = 0;
+          for (var item in items) {
+            item.remove('id');
+            await Filament.db.insertRow(session, Filament.fromJson(item));
+            count++;
+          }
+          importedCounts['filaments'] = count;
+        } catch (e) {
+          errors.add('Error en filaments: $e');
+          success = false;
+        }
+      }
+
+      // Importar printers
+      if (tables.containsKey('printers')) {
+        try {
+          final items = (tables['printers'] as List).cast<Map<String, dynamic>>();
+          var count = 0;
+          for (var item in items) {
+            item.remove('id');
+            await Printer.db.insertRow(session, Printer.fromJson(item));
+            count++;
+          }
+          importedCounts['printers'] = count;
+        } catch (e) {
+          errors.add('Error en printers: $e');
+          success = false;
+        }
+      }
+
+      // Importar shippings
+      if (tables.containsKey('shippings')) {
+        try {
+          final items = (tables['shippings'] as List).cast<Map<String, dynamic>>();
+          var count = 0;
+          for (var item in items) {
+            item.remove('id');
+            await Shipping.db.insertRow(session, Shipping.fromJson(item));
+            count++;
+          }
+          importedCounts['shippings'] = count;
+        } catch (e) {
+          errors.add('Error en shippings: $e');
+          success = false;
+        }
+      }
+
+      // Importar electricity_rates
+      if (tables.containsKey('electricity_rates')) {
+        try {
+          final items = (tables['electricity_rates'] as List).cast<Map<String, dynamic>>();
+          var count = 0;
+          for (var item in items) {
+            item.remove('id');
+            await ElectricityRate.db.insertRow(session, ElectricityRate.fromJson(item));
+            count++;
+          }
+          importedCounts['electricity_rates'] = count;
+        } catch (e) {
+          errors.add('Error en electricity_rates: $e');
+          success = false;
+        }
+      }
+
+      // Importar extra_supplies
+      if (tables.containsKey('extra_supplies')) {
+        try {
+          final items = (tables['extra_supplies'] as List).cast<Map<String, dynamic>>();
+          var count = 0;
+          for (var item in items) {
+            item.remove('id');
+            await ExtraSupply.db.insertRow(session, ExtraSupply.fromJson(item));
+            count++;
+          }
+          importedCounts['extra_supplies'] = count;
+        } catch (e) {
+          errors.add('Error en extra_supplies: $e');
+          success = false;
+        }
+      }
+
+      // Importar quotes
+      if (tables.containsKey('quotes')) {
+        try {
+          final items = (tables['quotes'] as List).cast<Map<String, dynamic>>();
+          var count = 0;
+          for (var item in items) {
+            item.remove('id');
+            await Quote.db.insertRow(session, Quote.fromJson(item));
+            count++;
+          }
+          importedCounts['quotes'] = count;
+        } catch (e) {
+          errors.add('Error en quotes: $e');
           success = false;
         }
       }
 
       return jsonEncode({
         'success': success,
-        'importedTables': importedTables,
-        'skippedTables': skippedTables,
+        'importedTables': importedCounts,
+        'skippedTables': <String>[],
         'errors': errors,
         'warnings': warnings,
       });
     } catch (e) {
       return jsonEncode({
         'success': false,
-        'importedTables': importedTables,
-        'errors': [e.toString()],
+        'importedTables': importedCounts,
+        'errors': [e.toString(), ...errors],
         'warnings': warnings,
       });
     }
-  }
-
-  Future<Map<String, dynamic>> _importTable(
-    Session session,
-    String tableName,
-    List<dynamic> rows,
-  ) async {
-    final result = {'imported': 0, 'warnings': <String>[]};
-
-    final schemaQuery = await session.db.unsafeQuery('''
-      SELECT column_name, is_nullable, data_type
-      FROM information_schema.columns
-      WHERE table_name = '$tableName'
-    ''');
-
-    if (schemaQuery.isEmpty) return result;
-
-    final targetColumns = <String, String>{};
-    for (var col in schemaQuery) {
-      final colMap = col.toColumnMap();
-      targetColumns[colMap['column_name'] as String] = colMap['data_type'] as String;
-    }
-
-    for (var rowData in rows) {
-      final row = rowData as Map<String, dynamic>;
-      final cleanRow = <String, dynamic>{};
-
-      for (var entry in row.entries) {
-        if (targetColumns.containsKey(entry.key) && entry.key != 'id') {
-          cleanRow[entry.key] = entry.value;
-        }
-      }
-
-      if (cleanRow.isEmpty) continue;
-
-      final columns = cleanRow.keys.toList();
-      final values = cleanRow.values.toList();
-      
-      // Construir valores escapados manualmente
-      final escapedValues = values.map((v) {
-        if (v == null) return 'NULL';
-        if (v is String) return "'${v.replaceAll("'", "''")}'";
-        if (v is DateTime) return "'${v.toIso8601String()}'";
-        return v.toString();
-      }).join(', ');
-
-      await session.db.unsafeQuery(
-        'INSERT INTO $tableName (${columns.join(', ')}) VALUES ($escapedValues)',
-      );
-
-      result['imported'] = (result['imported'] as int) + 1;
-    }
-
-    return result;
   }
 }
