@@ -1,0 +1,5 @@
+class: BackupData
+fields:
+  version: String
+  exportDate: DateTime
+  jsonData: String  # JSON serializado de todas las tablas

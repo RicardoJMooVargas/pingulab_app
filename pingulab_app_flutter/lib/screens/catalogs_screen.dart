@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pingulab_app_client/pingulab_app_client.dart';
 import '../main.dart';
+import 'backup_screen.dart';
 
 class CatalogsScreen extends StatefulWidget {
   const CatalogsScreen({Key? key}) : super(key: key);
@@ -26,6 +27,20 @@ class _CatalogsScreenState extends State<CatalogsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Gestión de Catálogos'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.backup),
+            tooltip: 'Backup e Importación',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const BackupScreen(),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: Row(
         children: [

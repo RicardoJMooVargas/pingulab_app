@@ -116,6 +116,8 @@ void withServerpod(
 class TestEndpoints {
   late final _AuthEndpoint auth;
 
+  late final _BackupEndpoint backup;
+
   late final _CatalogsEndpoint catalogs;
 
   late final _CustomerEndpoint customer;
@@ -137,6 +139,10 @@ class _InternalTestEndpoints extends TestEndpoints
     _i2.EndpointDispatch endpoints,
   ) {
     auth = _AuthEndpoint(
+      endpoints,
+      serializationManager,
+    );
+    backup = _BackupEndpoint(
       endpoints,
       serializationManager,
     );
@@ -453,6 +459,73 @@ class _AuthEndpoint {
           endpointPath: 'auth',
           methodName: 'resetPassword',
           parameters: _i1.testObjectToJson({'userId': userId}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue = await (_localCallContext.method.call(
+          _localUniqueSession,
+          _localCallContext.arguments,
+        ) as _i3.Future<String>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+}
+
+class _BackupEndpoint {
+  _BackupEndpoint(
+    this._endpointDispatch,
+    this._serializationManager,
+  );
+
+  final _i2.EndpointDispatch _endpointDispatch;
+
+  final _i2.SerializationManager _serializationManager;
+
+  _i3.Future<String> exportDatabase(
+      _i1.TestSessionBuilder sessionBuilder) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+        endpoint: 'backup',
+        method: 'exportDatabase',
+      );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'backup',
+          methodName: 'exportDatabase',
+          parameters: _i1.testObjectToJson({}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue = await (_localCallContext.method.call(
+          _localUniqueSession,
+          _localCallContext.arguments,
+        ) as _i3.Future<String>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<String> importDatabase(
+    _i1.TestSessionBuilder sessionBuilder,
+    String jsonData,
+  ) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+        endpoint: 'backup',
+        method: 'importDatabase',
+      );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'backup',
+          methodName: 'importDatabase',
+          parameters: _i1.testObjectToJson({'jsonData': jsonData}),
           serializationManager: _serializationManager,
         );
         var _localReturnValue = await (_localCallContext.method.call(

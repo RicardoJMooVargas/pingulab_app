@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:pingulab_app_client/pingulab_app_client.dart';
 import 'package:provider/provider.dart';
@@ -195,65 +196,36 @@ class _QuotesListScreenState extends State<QuotesListScreen> {
 
     return RefreshIndicator(
       onRefresh: _loadQuotes,
-      child: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: _quotes!.length,
-        itemBuilder: (context, index) {
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // Calcular número de columnas basado en el ancho
+          int crossAxisCount;
+          if (constraints.maxWidth >= 1400) {
+            crossAxisCount = 4; // Pantallas muy grandes: 4 columnas
+          } else if (constraints.maxWidth >= 1000) {
+            crossAxisCount = 3; // Pantallas grandes: 3 columnas
+          } else if (constraints.maxWidth >= 700) {
+            crossAxisCount = 2; // Tablets: 2 columnas
+          } else {
+            crossAxisCount = 1; // Móviles: 1 columna
+          }
+
+          return GridView.builder(
+            padding: const EdgeInsets.all(16),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: crossAxisCount,
+              childAspectRatio: 0.85, // Ajustar según necesidad
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+            ),
+            itemCount: _quotes!.length,
+            itemBuilder: (context, index) {
           final quote = _quotes![index];
           return Card(
             elevation: 2,
             margin: const EdgeInsets.only(bottom: 12),
-            child: ListTile(
-              contentPadding: const EdgeInsets.all(16),
-              leading: CircleAvatar(
-                backgroundColor: _getStatusColor(quote.status),
-                child: Text(
-                  '#${quote.id}',
-                  style: const TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold),
-                ),
-              ),
-              title: Text(
-                quote.name,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 4),
-                  Text(
-                    '\$${quote.total.toStringAsFixed(2)}',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.teal,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text('${quote.pieceWeightGrams}g • ${quote.printHours}hrs'),
-                  const SizedBox(height: 4),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: _getStatusColor(quote.status).withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      _getStatusText(quote.status),
-                      style: TextStyle(
-                        color: _getStatusColor(quote.status),
-                        fontWeight: FontWeight.w500,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              trailing: const Icon(Icons.chevron_right),
+            clipBehavior: Clip.antiAlias,
+            child: InkWell(
               onTap: () async {
                 await Navigator.push(
                   context,
@@ -263,7 +235,120 @@ class _QuotesListScreenState extends State<QuotesListScreen> {
                 );
                 _loadQuotes();
               },
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Imagen de la cotización si existe
+                  if (quote.imageUrl != null)
+                    Container(
+                      width: double.infinity,
+                      height: 200,
+                      color: Colors.grey[200],
+                      child: Image.memory(
+                        base64Decode(quote.imageUrl!),
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            color: Colors.grey[300],
+                            child: const Center(
+                              child: Icon(
+                                Icons.broken_image,
+                                size: 48,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  
+                  // Contenido de la tarjeta
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Avatar con número de cotización
+                        CircleAvatar(
+                          backgroundColor: _getStatusColor(quote.status),
+                          child: Text(
+                            '#${quote.id}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        
+                        // Información de la cotización
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                quote.name,
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                '\$${quote.total.toStringAsFixed(2)}',
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.teal,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                '${quote.pieceWeightGrams}g • ${quote.printHours}hrs',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: _getStatusColor(quote.status).withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  _getStatusText(quote.status),
+                                  style: TextStyle(
+                                    color: _getStatusColor(quote.status),
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        
+                        // Icono de navegación
+                        const Icon(
+                          Icons.chevron_right,
+                          color: Colors.grey,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
+          );
+        },
           );
         },
       ),

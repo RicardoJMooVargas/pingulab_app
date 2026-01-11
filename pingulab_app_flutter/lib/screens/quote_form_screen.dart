@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:image/image.dart' as img;
 import 'package:pingulab_app_client/pingulab_app_client.dart';
 import 'package:provider/provider.dart';
 import '../main.dart';
@@ -120,8 +121,85 @@ class _QuoteFormScreenState extends State<QuoteFormScreen> {
     final picker = ImagePicker();
     final file = await picker.pickImage(source: ImageSource.gallery);
     if (file != null) {
-      _selectedImage = await file.readAsBytes();
+      final bytes = await file.readAsBytes();
+      
+      // Mostrar tamaño original
+      debugPrint('📸 Imagen original: ${bytes.length} bytes (${(bytes.length / 1024).toStringAsFixed(2)} KB)');
+      
+      // Comprimir la imagen para que no exceda el límite del servidor (512 KB)
+      final compressedBytes = await _compressImage(bytes);
+      
+      // Mostrar tamaño comprimido
+      debugPrint('✅ Imagen comprimida: ${compressedBytes.length} bytes (${(compressedBytes.length / 1024).toStringAsFixed(2)} KB)');
+      
+      _selectedImage = compressedBytes;
       setState(() {});
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Imagen cargada: ${(compressedBytes.length / 1024).toStringAsFixed(0)} KB'),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<Uint8List> _compressImage(Uint8List bytes) async {
+    try {
+      // Decodificar la imagen
+      img.Image? image = img.decodeImage(bytes);
+      if (image == null) {
+        debugPrint('⚠️ No se pudo decodificar la imagen');
+        return bytes;
+      }
+
+      debugPrint('📐 Dimensiones originales: ${image.width}x${image.height}');
+
+      // Calcular el tamaño máximo permitido (400 KB para mayor margen)
+      const int maxSizeBytes = 400 * 1024;
+      
+      // Si la imagen ya es pequeña, devolverla sin comprimir
+      if (bytes.length <= maxSizeBytes) {
+        debugPrint('✓ Imagen ya es pequeña, no se comprime');
+        return bytes;
+      }
+
+      // Redimensionar la imagen si es muy grande
+      // Empezar con 1600px para reducir más el tamaño
+      int maxDimension = 1600;
+      if (image.width > maxDimension || image.height > maxDimension) {
+        if (image.width > image.height) {
+          image = img.copyResize(image, width: maxDimension);
+        } else {
+          image = img.copyResize(image, height: maxDimension);
+        }
+        debugPrint('📐 Redimensionada a: ${image.width}x${image.height}');
+      }
+
+      // Comprimir la imagen con calidad decreciente hasta alcanzar el tamaño deseado
+      int quality = 80;
+      Uint8List? compressed;
+
+      while (quality > 5) {
+        compressed = Uint8List.fromList(
+          img.encodeJpg(image, quality: quality),
+        );
+        
+        debugPrint('🔄 Calidad $quality%: ${compressed.length} bytes (${(compressed.length / 1024).toStringAsFixed(2)} KB)');
+        
+        if (compressed.length <= maxSizeBytes || quality <= 10) {
+          break;
+        }
+        
+        quality -= 10;
+      }
+
+      return compressed ?? bytes;
+    } catch (e) {
+      debugPrint('❌ Error al comprimir imagen: $e');
+      return bytes;
     }
   }
 

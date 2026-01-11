@@ -1,0 +1,7 @@
+class: ImportResult
+fields:
+  success: bool
+  importedTables: String  # JSON map de tabla -> count
+  skippedTables: List<String>
+  errors: List<String>
+  warnings: List<String>

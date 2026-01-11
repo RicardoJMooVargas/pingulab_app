@@ -144,6 +144,29 @@ class EndpointAuth extends _i1.EndpointRef {
       );
 }
 
+/// {@category Endpoint}
+class EndpointBackup extends _i1.EndpointRef {
+  EndpointBackup(_i1.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'backup';
+
+  /// Exporta todos los datos de todas las tablas en formato JSON
+  _i2.Future<String> exportDatabase() => caller.callServerEndpoint<String>(
+        'backup',
+        'exportDatabase',
+        {},
+      );
+
+  /// Importa datos con validación de esquema y compatibilidad
+  _i2.Future<String> importDatabase(String jsonData) =>
+      caller.callServerEndpoint<String>(
+        'backup',
+        'importDatabase',
+        {'jsonData': jsonData},
+      );
+}
+
 /// Endpoint para gestión de catálogos (listas maestras)
 /// {@category Endpoint}
 class EndpointCatalogs extends _i1.EndpointRef {
@@ -973,6 +996,7 @@ class Client extends _i1.ServerpodClientShared {
               disconnectStreamsOnLostInternetConnection,
         ) {
     auth = EndpointAuth(this);
+    backup = EndpointBackup(this);
     catalogs = EndpointCatalogs(this);
     customer = EndpointCustomer(this);
     init = EndpointInit(this);
@@ -982,6 +1006,8 @@ class Client extends _i1.ServerpodClientShared {
   }
 
   late final EndpointAuth auth;
+
+  late final EndpointBackup backup;
 
   late final EndpointCatalogs catalogs;
 
@@ -998,6 +1024,7 @@ class Client extends _i1.ServerpodClientShared {
   @override
   Map<String, _i1.EndpointRef> get endpointRefLookup => {
         'auth': auth,
+        'backup': backup,
         'catalogs': catalogs,
         'customer': customer,
         'init': init,

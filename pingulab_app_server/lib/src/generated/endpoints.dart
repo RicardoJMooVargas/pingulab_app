@@ -11,15 +11,16 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod/serverpod.dart' as _i1;
 import '../endpoints/auth_endpoint.dart' as _i2;
-import '../endpoints/catalogs_endpoint.dart' as _i3;
-import '../endpoints/customer_endpoint.dart' as _i4;
-import '../endpoints/init_endpoint.dart' as _i5;
-import '../endpoints/quote_endpoint.dart' as _i6;
-import '../endpoints/resources_endpoint.dart' as _i7;
-import '../greeting_endpoint.dart' as _i8;
-import 'package:pingulab_app_server/src/generated/user_role.dart' as _i9;
-import 'package:pingulab_app_server/src/generated/quote_input.dart' as _i10;
-import 'package:pingulab_app_server/src/generated/quote_status.dart' as _i11;
+import '../endpoints/backup_endpoint.dart' as _i3;
+import '../endpoints/catalogs_endpoint.dart' as _i4;
+import '../endpoints/customer_endpoint.dart' as _i5;
+import '../endpoints/init_endpoint.dart' as _i6;
+import '../endpoints/quote_endpoint.dart' as _i7;
+import '../endpoints/resources_endpoint.dart' as _i8;
+import '../greeting_endpoint.dart' as _i9;
+import 'package:pingulab_app_server/src/generated/user_role.dart' as _i10;
+import 'package:pingulab_app_server/src/generated/quote_input.dart' as _i11;
+import 'package:pingulab_app_server/src/generated/quote_status.dart' as _i12;
 
 class Endpoints extends _i1.EndpointDispatch {
   @override
@@ -31,37 +32,43 @@ class Endpoints extends _i1.EndpointDispatch {
           'auth',
           null,
         ),
-      'catalogs': _i3.CatalogsEndpoint()
+      'backup': _i3.BackupEndpoint()
+        ..initialize(
+          server,
+          'backup',
+          null,
+        ),
+      'catalogs': _i4.CatalogsEndpoint()
         ..initialize(
           server,
           'catalogs',
           null,
         ),
-      'customer': _i4.CustomerEndpoint()
+      'customer': _i5.CustomerEndpoint()
         ..initialize(
           server,
           'customer',
           null,
         ),
-      'init': _i5.InitEndpoint()
+      'init': _i6.InitEndpoint()
         ..initialize(
           server,
           'init',
           null,
         ),
-      'quote': _i6.QuoteEndpoint()
+      'quote': _i7.QuoteEndpoint()
         ..initialize(
           server,
           'quote',
           null,
         ),
-      'resources': _i7.ResourcesEndpoint()
+      'resources': _i8.ResourcesEndpoint()
         ..initialize(
           server,
           'resources',
           null,
         ),
-      'greeting': _i8.GreetingEndpoint()
+      'greeting': _i9.GreetingEndpoint()
         ..initialize(
           server,
           'greeting',
@@ -97,7 +104,7 @@ class Endpoints extends _i1.EndpointDispatch {
             ),
             'rol': _i1.ParameterDescription(
               name: 'rol',
-              type: _i1.getType<_i9.UserRole>(),
+              type: _i1.getType<_i10.UserRole>(),
               nullable: false,
             ),
           },
@@ -215,7 +222,7 @@ class Endpoints extends _i1.EndpointDispatch {
             ),
             'rol': _i1.ParameterDescription(
               name: 'rol',
-              type: _i1.getType<_i9.UserRole>(),
+              type: _i1.getType<_i10.UserRole>(),
               nullable: false,
             ),
             'activo': _i1.ParameterDescription(
@@ -293,6 +300,40 @@ class Endpoints extends _i1.EndpointDispatch {
         ),
       },
     );
+    connectors['backup'] = _i1.EndpointConnector(
+      name: 'backup',
+      endpoint: endpoints['backup']!,
+      methodConnectors: {
+        'exportDatabase': _i1.MethodConnector(
+          name: 'exportDatabase',
+          params: {},
+          call: (
+            _i1.Session session,
+            Map<String, dynamic> params,
+          ) async =>
+              (endpoints['backup'] as _i3.BackupEndpoint)
+                  .exportDatabase(session),
+        ),
+        'importDatabase': _i1.MethodConnector(
+          name: 'importDatabase',
+          params: {
+            'jsonData': _i1.ParameterDescription(
+              name: 'jsonData',
+              type: _i1.getType<String>(),
+              nullable: false,
+            )
+          },
+          call: (
+            _i1.Session session,
+            Map<String, dynamic> params,
+          ) async =>
+              (endpoints['backup'] as _i3.BackupEndpoint).importDatabase(
+            session,
+            params['jsonData'],
+          ),
+        ),
+      },
+    );
     connectors['catalogs'] = _i1.EndpointConnector(
       name: 'catalogs',
       endpoint: endpoints['catalogs']!,
@@ -304,7 +345,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['catalogs'] as _i3.CatalogsEndpoint)
+              (endpoints['catalogs'] as _i4.CatalogsEndpoint)
                   .getFilaments(session),
         ),
         'createFilament': _i1.MethodConnector(
@@ -345,7 +386,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['catalogs'] as _i3.CatalogsEndpoint).createFilament(
+              (endpoints['catalogs'] as _i4.CatalogsEndpoint).createFilament(
             session,
             params['name'],
             params['brand'],
@@ -398,7 +439,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['catalogs'] as _i3.CatalogsEndpoint).updateFilament(
+              (endpoints['catalogs'] as _i4.CatalogsEndpoint).updateFilament(
             session,
             params['id'],
             params['name'],
@@ -422,7 +463,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['catalogs'] as _i3.CatalogsEndpoint).deleteFilament(
+              (endpoints['catalogs'] as _i4.CatalogsEndpoint).deleteFilament(
             session,
             params['id'],
           ),
@@ -434,7 +475,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['catalogs'] as _i3.CatalogsEndpoint)
+              (endpoints['catalogs'] as _i4.CatalogsEndpoint)
                   .getPrinters(session),
         ),
         'createPrinter': _i1.MethodConnector(
@@ -470,7 +511,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['catalogs'] as _i3.CatalogsEndpoint).createPrinter(
+              (endpoints['catalogs'] as _i4.CatalogsEndpoint).createPrinter(
             session,
             params['name'],
             params['powerConsumptionWatts'],
@@ -517,7 +558,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['catalogs'] as _i3.CatalogsEndpoint).updatePrinter(
+              (endpoints['catalogs'] as _i4.CatalogsEndpoint).updatePrinter(
             session,
             params['id'],
             params['name'],
@@ -540,7 +581,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['catalogs'] as _i3.CatalogsEndpoint).deletePrinter(
+              (endpoints['catalogs'] as _i4.CatalogsEndpoint).deletePrinter(
             session,
             params['id'],
           ),
@@ -552,7 +593,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['catalogs'] as _i3.CatalogsEndpoint)
+              (endpoints['catalogs'] as _i4.CatalogsEndpoint)
                   .getShippings(session),
         ),
         'createShipping': _i1.MethodConnector(
@@ -578,7 +619,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['catalogs'] as _i3.CatalogsEndpoint).createShipping(
+              (endpoints['catalogs'] as _i4.CatalogsEndpoint).createShipping(
             session,
             params['shippingType'],
             params['carrierName'],
@@ -613,7 +654,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['catalogs'] as _i3.CatalogsEndpoint).updateShipping(
+              (endpoints['catalogs'] as _i4.CatalogsEndpoint).updateShipping(
             session,
             params['id'],
             params['shippingType'],
@@ -634,7 +675,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['catalogs'] as _i3.CatalogsEndpoint).deleteShipping(
+              (endpoints['catalogs'] as _i4.CatalogsEndpoint).deleteShipping(
             session,
             params['id'],
           ),
@@ -646,7 +687,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['catalogs'] as _i3.CatalogsEndpoint)
+              (endpoints['catalogs'] as _i4.CatalogsEndpoint)
                   .getCustomers(session),
         ),
         'createCustomer': _i1.MethodConnector(
@@ -687,7 +728,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['catalogs'] as _i3.CatalogsEndpoint).createCustomer(
+              (endpoints['catalogs'] as _i4.CatalogsEndpoint).createCustomer(
             session,
             params['apodo'],
             nombre: params['nombre'],
@@ -740,7 +781,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['catalogs'] as _i3.CatalogsEndpoint).updateCustomer(
+              (endpoints['catalogs'] as _i4.CatalogsEndpoint).updateCustomer(
             session,
             params['id'],
             params['apodo'],
@@ -764,7 +805,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['catalogs'] as _i3.CatalogsEndpoint).deleteCustomer(
+              (endpoints['catalogs'] as _i4.CatalogsEndpoint).deleteCustomer(
             session,
             params['id'],
           ),
@@ -776,7 +817,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['catalogs'] as _i3.CatalogsEndpoint)
+              (endpoints['catalogs'] as _i4.CatalogsEndpoint)
                   .getElectricityRates(session),
         ),
         'createElectricityRate': _i1.MethodConnector(
@@ -797,7 +838,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['catalogs'] as _i3.CatalogsEndpoint)
+              (endpoints['catalogs'] as _i4.CatalogsEndpoint)
                   .createElectricityRate(
             session,
             params['costPerKwh'],
@@ -827,7 +868,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['catalogs'] as _i3.CatalogsEndpoint)
+              (endpoints['catalogs'] as _i4.CatalogsEndpoint)
                   .updateElectricityRate(
             session,
             params['id'],
@@ -848,7 +889,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['catalogs'] as _i3.CatalogsEndpoint)
+              (endpoints['catalogs'] as _i4.CatalogsEndpoint)
                   .deleteElectricityRate(
             session,
             params['id'],
@@ -861,7 +902,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['catalogs'] as _i3.CatalogsEndpoint)
+              (endpoints['catalogs'] as _i4.CatalogsEndpoint)
                   .getExtraSupplies(session),
         ),
         'createExtraSupply': _i1.MethodConnector(
@@ -882,7 +923,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['catalogs'] as _i3.CatalogsEndpoint).createExtraSupply(
+              (endpoints['catalogs'] as _i4.CatalogsEndpoint).createExtraSupply(
             session,
             params['name'],
             params['cost'],
@@ -911,7 +952,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['catalogs'] as _i3.CatalogsEndpoint).updateExtraSupply(
+              (endpoints['catalogs'] as _i4.CatalogsEndpoint).updateExtraSupply(
             session,
             params['id'],
             params['name'],
@@ -931,7 +972,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['catalogs'] as _i3.CatalogsEndpoint).deleteExtraSupply(
+              (endpoints['catalogs'] as _i4.CatalogsEndpoint).deleteExtraSupply(
             session,
             params['id'],
           ),
@@ -955,7 +996,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['customer'] as _i4.CustomerEndpoint).searchCustomers(
+              (endpoints['customer'] as _i5.CustomerEndpoint).searchCustomers(
             session,
             params['query'],
           ),
@@ -967,7 +1008,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['customer'] as _i4.CustomerEndpoint)
+              (endpoints['customer'] as _i5.CustomerEndpoint)
                   .getAllCustomers(session),
         ),
         'getCustomer': _i1.MethodConnector(
@@ -983,7 +1024,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['customer'] as _i4.CustomerEndpoint).getCustomer(
+              (endpoints['customer'] as _i5.CustomerEndpoint).getCustomer(
             session,
             params['id'],
           ),
@@ -1026,7 +1067,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['customer'] as _i4.CustomerEndpoint).createCustomer(
+              (endpoints['customer'] as _i5.CustomerEndpoint).createCustomer(
             session,
             params['apodo'],
             params['nombre'],
@@ -1079,7 +1120,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['customer'] as _i4.CustomerEndpoint).updateCustomer(
+              (endpoints['customer'] as _i5.CustomerEndpoint).updateCustomer(
             session,
             params['customerId'],
             params['apodo'],
@@ -1103,7 +1144,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['customer'] as _i4.CustomerEndpoint).deleteCustomer(
+              (endpoints['customer'] as _i5.CustomerEndpoint).deleteCustomer(
             session,
             params['customerId'],
           ),
@@ -1121,7 +1162,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['init'] as _i5.InitEndpoint)
+              (endpoints['init'] as _i6.InitEndpoint)
                   .initializeDatabase(session),
         ),
         'isDatabaseInitialized': _i1.MethodConnector(
@@ -1131,7 +1172,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['init'] as _i5.InitEndpoint)
+              (endpoints['init'] as _i6.InitEndpoint)
                   .isDatabaseInitialized(session),
         ),
       },
@@ -1145,7 +1186,7 @@ class Endpoints extends _i1.EndpointDispatch {
           params: {
             'input': _i1.ParameterDescription(
               name: 'input',
-              type: _i1.getType<_i10.QuoteInput>(),
+              type: _i1.getType<_i11.QuoteInput>(),
               nullable: false,
             ),
             'userId': _i1.ParameterDescription(
@@ -1158,7 +1199,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['quote'] as _i6.QuoteEndpoint).createQuote(
+              (endpoints['quote'] as _i7.QuoteEndpoint).createQuote(
             session,
             params['input'],
             userId: params['userId'],
@@ -1177,7 +1218,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['quote'] as _i6.QuoteEndpoint).getQuote(
+              (endpoints['quote'] as _i7.QuoteEndpoint).getQuote(
             session,
             params['id'],
           ),
@@ -1195,7 +1236,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['quote'] as _i6.QuoteEndpoint).getQuoteDetails(
+              (endpoints['quote'] as _i7.QuoteEndpoint).getQuoteDetails(
             session,
             params['id'],
           ),
@@ -1207,7 +1248,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['quote'] as _i6.QuoteEndpoint).getAllQuotes(session),
+              (endpoints['quote'] as _i7.QuoteEndpoint).getAllQuotes(session),
         ),
         'updateQuote': _i1.MethodConnector(
           name: 'updateQuote',
@@ -1219,7 +1260,7 @@ class Endpoints extends _i1.EndpointDispatch {
             ),
             'input': _i1.ParameterDescription(
               name: 'input',
-              type: _i1.getType<_i10.QuoteInput>(),
+              type: _i1.getType<_i11.QuoteInput>(),
               nullable: false,
             ),
             'userId': _i1.ParameterDescription(
@@ -1232,7 +1273,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['quote'] as _i6.QuoteEndpoint).updateQuote(
+              (endpoints['quote'] as _i7.QuoteEndpoint).updateQuote(
             session,
             params['quoteId'],
             params['input'],
@@ -1252,7 +1293,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['quote'] as _i6.QuoteEndpoint).deleteQuote(
+              (endpoints['quote'] as _i7.QuoteEndpoint).deleteQuote(
             session,
             params['id'],
           ),
@@ -1267,7 +1308,7 @@ class Endpoints extends _i1.EndpointDispatch {
             ),
             'status': _i1.ParameterDescription(
               name: 'status',
-              type: _i1.getType<_i11.QuoteStatus>(),
+              type: _i1.getType<_i12.QuoteStatus>(),
               nullable: false,
             ),
           },
@@ -1275,7 +1316,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['quote'] as _i6.QuoteEndpoint).updateQuoteStatus(
+              (endpoints['quote'] as _i7.QuoteEndpoint).updateQuoteStatus(
             session,
             params['id'],
             params['status'],
@@ -1294,7 +1335,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['resources'] as _i7.ResourcesEndpoint)
+              (endpoints['resources'] as _i8.ResourcesEndpoint)
                   .getAllPrinters(session),
         ),
         'getAvailablePrinters': _i1.MethodConnector(
@@ -1304,7 +1345,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['resources'] as _i7.ResourcesEndpoint)
+              (endpoints['resources'] as _i8.ResourcesEndpoint)
                   .getAvailablePrinters(session),
         ),
         'createPrinter': _i1.MethodConnector(
@@ -1340,7 +1381,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['resources'] as _i7.ResourcesEndpoint).createPrinter(
+              (endpoints['resources'] as _i8.ResourcesEndpoint).createPrinter(
             session,
             params['name'],
             params['powerConsumptionWatts'],
@@ -1387,7 +1428,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['resources'] as _i7.ResourcesEndpoint).updatePrinter(
+              (endpoints['resources'] as _i8.ResourcesEndpoint).updatePrinter(
             session,
             params['printerId'],
             params['name'],
@@ -1410,7 +1451,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['resources'] as _i7.ResourcesEndpoint).deletePrinter(
+              (endpoints['resources'] as _i8.ResourcesEndpoint).deletePrinter(
             session,
             params['printerId'],
           ),
@@ -1422,7 +1463,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['resources'] as _i7.ResourcesEndpoint)
+              (endpoints['resources'] as _i8.ResourcesEndpoint)
                   .getAllFilaments(session),
         ),
         'createFilament': _i1.MethodConnector(
@@ -1463,7 +1504,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['resources'] as _i7.ResourcesEndpoint).createFilament(
+              (endpoints['resources'] as _i8.ResourcesEndpoint).createFilament(
             session,
             params['name'],
             params['brand'],
@@ -1516,7 +1557,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['resources'] as _i7.ResourcesEndpoint).updateFilament(
+              (endpoints['resources'] as _i8.ResourcesEndpoint).updateFilament(
             session,
             params['filamentId'],
             params['name'],
@@ -1540,7 +1581,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['resources'] as _i7.ResourcesEndpoint).deleteFilament(
+              (endpoints['resources'] as _i8.ResourcesEndpoint).deleteFilament(
             session,
             params['filamentId'],
           ),
@@ -1552,7 +1593,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['resources'] as _i7.ResourcesEndpoint)
+              (endpoints['resources'] as _i8.ResourcesEndpoint)
                   .getAllExtraSupplies(session),
         ),
         'createExtraSupply': _i1.MethodConnector(
@@ -1573,7 +1614,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['resources'] as _i7.ResourcesEndpoint)
+              (endpoints['resources'] as _i8.ResourcesEndpoint)
                   .createExtraSupply(
             session,
             params['name'],
@@ -1603,7 +1644,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['resources'] as _i7.ResourcesEndpoint)
+              (endpoints['resources'] as _i8.ResourcesEndpoint)
                   .updateExtraSupply(
             session,
             params['supplyId'],
@@ -1624,7 +1665,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['resources'] as _i7.ResourcesEndpoint)
+              (endpoints['resources'] as _i8.ResourcesEndpoint)
                   .deleteExtraSupply(
             session,
             params['supplyId'],
@@ -1637,7 +1678,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['resources'] as _i7.ResourcesEndpoint)
+              (endpoints['resources'] as _i8.ResourcesEndpoint)
                   .getAllShippings(session),
         ),
         'createShipping': _i1.MethodConnector(
@@ -1663,7 +1704,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['resources'] as _i7.ResourcesEndpoint).createShipping(
+              (endpoints['resources'] as _i8.ResourcesEndpoint).createShipping(
             session,
             params['shippingType'],
             params['carrierName'],
@@ -1698,7 +1739,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['resources'] as _i7.ResourcesEndpoint).updateShipping(
+              (endpoints['resources'] as _i8.ResourcesEndpoint).updateShipping(
             session,
             params['shippingId'],
             params['shippingType'],
@@ -1719,7 +1760,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['resources'] as _i7.ResourcesEndpoint).deleteShipping(
+              (endpoints['resources'] as _i8.ResourcesEndpoint).deleteShipping(
             session,
             params['shippingId'],
           ),
@@ -1731,7 +1772,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['resources'] as _i7.ResourcesEndpoint)
+              (endpoints['resources'] as _i8.ResourcesEndpoint)
                   .getActiveElectricityRate(session),
         ),
         'getAllElectricityRates': _i1.MethodConnector(
@@ -1741,7 +1782,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['resources'] as _i7.ResourcesEndpoint)
+              (endpoints['resources'] as _i8.ResourcesEndpoint)
                   .getAllElectricityRates(session),
         ),
         'createElectricityRate': _i1.MethodConnector(
@@ -1762,7 +1803,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['resources'] as _i7.ResourcesEndpoint)
+              (endpoints['resources'] as _i8.ResourcesEndpoint)
                   .createElectricityRate(
             session,
             params['costPerKwh'],
@@ -1792,7 +1833,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['resources'] as _i7.ResourcesEndpoint)
+              (endpoints['resources'] as _i8.ResourcesEndpoint)
                   .updateElectricityRate(
             session,
             params['rateId'],
@@ -1813,7 +1854,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['resources'] as _i7.ResourcesEndpoint)
+              (endpoints['resources'] as _i8.ResourcesEndpoint)
                   .deleteElectricityRate(
             session,
             params['rateId'],
@@ -1838,7 +1879,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['greeting'] as _i8.GreetingEndpoint).hello(
+              (endpoints['greeting'] as _i9.GreetingEndpoint).hello(
             session,
             params['name'],
           ),
