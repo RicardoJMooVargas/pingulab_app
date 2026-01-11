@@ -1,0 +1,38 @@
+class: Sale
+table: sales
+fields:
+  # Relación con cotización
+  quoteId: int
+  quoteVersionId: int?  # Versión específica de la cotización usada en la venta
+  
+  # Status
+  saleStatus: SaleStatus
+  paymentStatus: PaymentStatus
+  
+  # Información de pago
+  totalAmount: double  # Total de la venta (copiado de quote al momento de crear)
+  paidAmount: double  # Monto pagado hasta ahora
+  pendingAmount: double  # Monto pendiente
+  
+  # Programación de entrega
+  scheduledDeliveryDate: DateTime?
+  actualDeliveryDate: DateTime?
+  deliveryNotes: String?
+  
+  # Recordatorios
+  reminderSent: bool  # Si ya se envió recordatorio
+  reminderDate: DateTime?  # Fecha en que se envió o se debe enviar
+  
+  # Customer info (denormalized for history)
+  customerId: int?
+  customerName: String?
+  
+  # Metadata
+  createdBy: int?
+  updatedBy: int?
+  created: DateTime
+  updated: DateTime?
+  notes: String?
+indexes:
+  quote_sale:
+    fields: quoteId

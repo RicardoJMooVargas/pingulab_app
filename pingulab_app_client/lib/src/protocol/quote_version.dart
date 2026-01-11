@@ -10,12 +10,14 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod_client/serverpod_client.dart' as _i1;
-import 'quote_status.dart' as _i2;
 
-abstract class Quote implements _i1.SerializableModel {
-  Quote._({
+abstract class QuoteVersion implements _i1.SerializableModel {
+  QuoteVersion._({
     this.id,
-    required this.name,
+    required this.quoteId,
+    required this.versionNumber,
+    this.versionName,
+    required this.isPrimary,
     required this.quantity,
     required this.pieceWeightGrams,
     required this.printHours,
@@ -29,19 +31,19 @@ abstract class Quote implements _i1.SerializableModel {
     required this.subtotal,
     required this.marginPercent,
     required this.total,
-    required this.status,
-    this.imageUrl,
-    this.customerId,
     this.printerId,
     this.shippingId,
-    this.categoryId,
     this.createdBy,
-    this.updatedBy,
+    required this.created,
+    this.notes,
   });
 
-  factory Quote({
+  factory QuoteVersion({
     int? id,
-    required String name,
+    required int quoteId,
+    required int versionNumber,
+    String? versionName,
+    required bool isPrimary,
     required int quantity,
     required double pieceWeightGrams,
     required double printHours,
@@ -55,20 +57,20 @@ abstract class Quote implements _i1.SerializableModel {
     required double subtotal,
     required double marginPercent,
     required double total,
-    required _i2.QuoteStatus status,
-    String? imageUrl,
-    int? customerId,
     int? printerId,
     int? shippingId,
-    int? categoryId,
     int? createdBy,
-    int? updatedBy,
-  }) = _QuoteImpl;
+    required DateTime created,
+    String? notes,
+  }) = _QuoteVersionImpl;
 
-  factory Quote.fromJson(Map<String, dynamic> jsonSerialization) {
-    return Quote(
+  factory QuoteVersion.fromJson(Map<String, dynamic> jsonSerialization) {
+    return QuoteVersion(
       id: jsonSerialization['id'] as int?,
-      name: jsonSerialization['name'] as String,
+      quoteId: jsonSerialization['quoteId'] as int,
+      versionNumber: jsonSerialization['versionNumber'] as int,
+      versionName: jsonSerialization['versionName'] as String?,
+      isPrimary: jsonSerialization['isPrimary'] as bool,
       quantity: jsonSerialization['quantity'] as int,
       pieceWeightGrams:
           (jsonSerialization['pieceWeightGrams'] as num).toDouble(),
@@ -85,14 +87,11 @@ abstract class Quote implements _i1.SerializableModel {
       subtotal: (jsonSerialization['subtotal'] as num).toDouble(),
       marginPercent: (jsonSerialization['marginPercent'] as num).toDouble(),
       total: (jsonSerialization['total'] as num).toDouble(),
-      status: _i2.QuoteStatus.fromJson((jsonSerialization['status'] as int)),
-      imageUrl: jsonSerialization['imageUrl'] as String?,
-      customerId: jsonSerialization['customerId'] as int?,
       printerId: jsonSerialization['printerId'] as int?,
       shippingId: jsonSerialization['shippingId'] as int?,
-      categoryId: jsonSerialization['categoryId'] as int?,
       createdBy: jsonSerialization['createdBy'] as int?,
-      updatedBy: jsonSerialization['updatedBy'] as int?,
+      created: _i1.DateTimeJsonExtension.fromJson(jsonSerialization['created']),
+      notes: jsonSerialization['notes'] as String?,
     );
   }
 
@@ -101,7 +100,13 @@ abstract class Quote implements _i1.SerializableModel {
   /// the id will be null.
   int? id;
 
-  String name;
+  int quoteId;
+
+  int versionNumber;
+
+  String? versionName;
+
+  bool isPrimary;
 
   int quantity;
 
@@ -129,28 +134,25 @@ abstract class Quote implements _i1.SerializableModel {
 
   double total;
 
-  _i2.QuoteStatus status;
-
-  String? imageUrl;
-
-  int? customerId;
-
   int? printerId;
 
   int? shippingId;
 
-  int? categoryId;
-
   int? createdBy;
 
-  int? updatedBy;
+  DateTime created;
 
-  /// Returns a shallow copy of this [Quote]
+  String? notes;
+
+  /// Returns a shallow copy of this [QuoteVersion]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
-  Quote copyWith({
+  QuoteVersion copyWith({
     int? id,
-    String? name,
+    int? quoteId,
+    int? versionNumber,
+    String? versionName,
+    bool? isPrimary,
     int? quantity,
     double? pieceWeightGrams,
     double? printHours,
@@ -164,20 +166,20 @@ abstract class Quote implements _i1.SerializableModel {
     double? subtotal,
     double? marginPercent,
     double? total,
-    _i2.QuoteStatus? status,
-    String? imageUrl,
-    int? customerId,
     int? printerId,
     int? shippingId,
-    int? categoryId,
     int? createdBy,
-    int? updatedBy,
+    DateTime? created,
+    String? notes,
   });
   @override
   Map<String, dynamic> toJson() {
     return {
       if (id != null) 'id': id,
-      'name': name,
+      'quoteId': quoteId,
+      'versionNumber': versionNumber,
+      if (versionName != null) 'versionName': versionName,
+      'isPrimary': isPrimary,
       'quantity': quantity,
       'pieceWeightGrams': pieceWeightGrams,
       'printHours': printHours,
@@ -191,14 +193,11 @@ abstract class Quote implements _i1.SerializableModel {
       'subtotal': subtotal,
       'marginPercent': marginPercent,
       'total': total,
-      'status': status.toJson(),
-      if (imageUrl != null) 'imageUrl': imageUrl,
-      if (customerId != null) 'customerId': customerId,
       if (printerId != null) 'printerId': printerId,
       if (shippingId != null) 'shippingId': shippingId,
-      if (categoryId != null) 'categoryId': categoryId,
       if (createdBy != null) 'createdBy': createdBy,
-      if (updatedBy != null) 'updatedBy': updatedBy,
+      'created': created.toJson(),
+      if (notes != null) 'notes': notes,
     };
   }
 
@@ -210,10 +209,13 @@ abstract class Quote implements _i1.SerializableModel {
 
 class _Undefined {}
 
-class _QuoteImpl extends Quote {
-  _QuoteImpl({
+class _QuoteVersionImpl extends QuoteVersion {
+  _QuoteVersionImpl({
     int? id,
-    required String name,
+    required int quoteId,
+    required int versionNumber,
+    String? versionName,
+    required bool isPrimary,
     required int quantity,
     required double pieceWeightGrams,
     required double printHours,
@@ -227,17 +229,17 @@ class _QuoteImpl extends Quote {
     required double subtotal,
     required double marginPercent,
     required double total,
-    required _i2.QuoteStatus status,
-    String? imageUrl,
-    int? customerId,
     int? printerId,
     int? shippingId,
-    int? categoryId,
     int? createdBy,
-    int? updatedBy,
+    required DateTime created,
+    String? notes,
   }) : super._(
           id: id,
-          name: name,
+          quoteId: quoteId,
+          versionNumber: versionNumber,
+          versionName: versionName,
+          isPrimary: isPrimary,
           quantity: quantity,
           pieceWeightGrams: pieceWeightGrams,
           printHours: printHours,
@@ -251,23 +253,23 @@ class _QuoteImpl extends Quote {
           subtotal: subtotal,
           marginPercent: marginPercent,
           total: total,
-          status: status,
-          imageUrl: imageUrl,
-          customerId: customerId,
           printerId: printerId,
           shippingId: shippingId,
-          categoryId: categoryId,
           createdBy: createdBy,
-          updatedBy: updatedBy,
+          created: created,
+          notes: notes,
         );
 
-  /// Returns a shallow copy of this [Quote]
+  /// Returns a shallow copy of this [QuoteVersion]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
   @override
-  Quote copyWith({
+  QuoteVersion copyWith({
     Object? id = _Undefined,
-    String? name,
+    int? quoteId,
+    int? versionNumber,
+    Object? versionName = _Undefined,
+    bool? isPrimary,
     int? quantity,
     double? pieceWeightGrams,
     double? printHours,
@@ -281,18 +283,18 @@ class _QuoteImpl extends Quote {
     double? subtotal,
     double? marginPercent,
     double? total,
-    _i2.QuoteStatus? status,
-    Object? imageUrl = _Undefined,
-    Object? customerId = _Undefined,
     Object? printerId = _Undefined,
     Object? shippingId = _Undefined,
-    Object? categoryId = _Undefined,
     Object? createdBy = _Undefined,
-    Object? updatedBy = _Undefined,
+    DateTime? created,
+    Object? notes = _Undefined,
   }) {
-    return Quote(
+    return QuoteVersion(
       id: id is int? ? id : this.id,
-      name: name ?? this.name,
+      quoteId: quoteId ?? this.quoteId,
+      versionNumber: versionNumber ?? this.versionNumber,
+      versionName: versionName is String? ? versionName : this.versionName,
+      isPrimary: isPrimary ?? this.isPrimary,
       quantity: quantity ?? this.quantity,
       pieceWeightGrams: pieceWeightGrams ?? this.pieceWeightGrams,
       printHours: printHours ?? this.printHours,
@@ -308,14 +310,11 @@ class _QuoteImpl extends Quote {
       subtotal: subtotal ?? this.subtotal,
       marginPercent: marginPercent ?? this.marginPercent,
       total: total ?? this.total,
-      status: status ?? this.status,
-      imageUrl: imageUrl is String? ? imageUrl : this.imageUrl,
-      customerId: customerId is int? ? customerId : this.customerId,
       printerId: printerId is int? ? printerId : this.printerId,
       shippingId: shippingId is int? ? shippingId : this.shippingId,
-      categoryId: categoryId is int? ? categoryId : this.categoryId,
       createdBy: createdBy is int? ? createdBy : this.createdBy,
-      updatedBy: updatedBy is int? ? updatedBy : this.updatedBy,
+      created: created ?? this.created,
+      notes: notes is String? ? notes : this.notes,
     );
   }
 }

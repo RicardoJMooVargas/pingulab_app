@@ -1,0 +1,6 @@
+enum: SaleStatus
+values:
+  - IMPRIMIENDO
+  - PENDIENTE_ENTREGA
+  - ENTREGADO
+  - CANCELADO

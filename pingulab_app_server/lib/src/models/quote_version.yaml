@@ -1,0 +1,39 @@
+class: QuoteVersion
+table: quote_versions
+fields:
+  quoteId: int  # ID de la cotización base
+  versionNumber: int  # 1, 2, 3, etc.
+  versionName: String?  # "Con soporte extra", "Sin postprocesado", etc.
+  isPrimary: bool  # Si es la versión principal a mostrar
+  
+  # Todos los campos de cotización (pueden variar por versión)
+  quantity: int
+  pieceWeightGrams: double
+  printHours: double
+  postProcessingCost: double?
+  measurements: String?
+  
+  # Calculated costs
+  filamentCost: double
+  electricityCost: double
+  suppliesCost: double
+  depreciationCost: double
+  shippingCost: double?
+
+  # Totals
+  subtotal: double
+  marginPercent: double
+  total: double
+
+  # Foreign keys (pueden cambiar entre versiones)
+  printerId: int?
+  shippingId: int?
+  
+  # Metadata
+  createdBy: int?
+  created: DateTime
+  notes: String?  # Notas sobre esta versión
+indexes:
+  quote_version_unique:
+    fields: quoteId, versionNumber
+    unique: true

@@ -29,5 +29,6 @@ fields:
   customerId: int?
   printerId: int?
   shippingId: int?
+  categoryId: int?  # Quote category (Lampara, Juguete, etc.)
   createdBy: int?  # User ID who created the quote
   updatedBy: int?  # User ID who last updated the quote

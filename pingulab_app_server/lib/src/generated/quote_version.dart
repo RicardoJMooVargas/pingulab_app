@@ -10,12 +10,15 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod/serverpod.dart' as _i1;
-import 'quote_status.dart' as _i2;
 
-abstract class Quote implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
-  Quote._({
+abstract class QuoteVersion
+    implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
+  QuoteVersion._({
     this.id,
-    required this.name,
+    required this.quoteId,
+    required this.versionNumber,
+    this.versionName,
+    required this.isPrimary,
     required this.quantity,
     required this.pieceWeightGrams,
     required this.printHours,
@@ -29,19 +32,19 @@ abstract class Quote implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
     required this.subtotal,
     required this.marginPercent,
     required this.total,
-    required this.status,
-    this.imageUrl,
-    this.customerId,
     this.printerId,
     this.shippingId,
-    this.categoryId,
     this.createdBy,
-    this.updatedBy,
+    required this.created,
+    this.notes,
   });
 
-  factory Quote({
+  factory QuoteVersion({
     int? id,
-    required String name,
+    required int quoteId,
+    required int versionNumber,
+    String? versionName,
+    required bool isPrimary,
     required int quantity,
     required double pieceWeightGrams,
     required double printHours,
@@ -55,20 +58,20 @@ abstract class Quote implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
     required double subtotal,
     required double marginPercent,
     required double total,
-    required _i2.QuoteStatus status,
-    String? imageUrl,
-    int? customerId,
     int? printerId,
     int? shippingId,
-    int? categoryId,
     int? createdBy,
-    int? updatedBy,
-  }) = _QuoteImpl;
+    required DateTime created,
+    String? notes,
+  }) = _QuoteVersionImpl;
 
-  factory Quote.fromJson(Map<String, dynamic> jsonSerialization) {
-    return Quote(
+  factory QuoteVersion.fromJson(Map<String, dynamic> jsonSerialization) {
+    return QuoteVersion(
       id: jsonSerialization['id'] as int?,
-      name: jsonSerialization['name'] as String,
+      quoteId: jsonSerialization['quoteId'] as int,
+      versionNumber: jsonSerialization['versionNumber'] as int,
+      versionName: jsonSerialization['versionName'] as String?,
+      isPrimary: jsonSerialization['isPrimary'] as bool,
       quantity: jsonSerialization['quantity'] as int,
       pieceWeightGrams:
           (jsonSerialization['pieceWeightGrams'] as num).toDouble(),
@@ -85,25 +88,28 @@ abstract class Quote implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
       subtotal: (jsonSerialization['subtotal'] as num).toDouble(),
       marginPercent: (jsonSerialization['marginPercent'] as num).toDouble(),
       total: (jsonSerialization['total'] as num).toDouble(),
-      status: _i2.QuoteStatus.fromJson((jsonSerialization['status'] as int)),
-      imageUrl: jsonSerialization['imageUrl'] as String?,
-      customerId: jsonSerialization['customerId'] as int?,
       printerId: jsonSerialization['printerId'] as int?,
       shippingId: jsonSerialization['shippingId'] as int?,
-      categoryId: jsonSerialization['categoryId'] as int?,
       createdBy: jsonSerialization['createdBy'] as int?,
-      updatedBy: jsonSerialization['updatedBy'] as int?,
+      created: _i1.DateTimeJsonExtension.fromJson(jsonSerialization['created']),
+      notes: jsonSerialization['notes'] as String?,
     );
   }
 
-  static final t = QuoteTable();
+  static final t = QuoteVersionTable();
 
-  static const db = QuoteRepository._();
+  static const db = QuoteVersionRepository._();
 
   @override
   int? id;
 
-  String name;
+  int quoteId;
+
+  int versionNumber;
+
+  String? versionName;
+
+  bool isPrimary;
 
   int quantity;
 
@@ -131,31 +137,28 @@ abstract class Quote implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
 
   double total;
 
-  _i2.QuoteStatus status;
-
-  String? imageUrl;
-
-  int? customerId;
-
   int? printerId;
 
   int? shippingId;
 
-  int? categoryId;
-
   int? createdBy;
 
-  int? updatedBy;
+  DateTime created;
+
+  String? notes;
 
   @override
   _i1.Table<int?> get table => t;
 
-  /// Returns a shallow copy of this [Quote]
+  /// Returns a shallow copy of this [QuoteVersion]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
-  Quote copyWith({
+  QuoteVersion copyWith({
     int? id,
-    String? name,
+    int? quoteId,
+    int? versionNumber,
+    String? versionName,
+    bool? isPrimary,
     int? quantity,
     double? pieceWeightGrams,
     double? printHours,
@@ -169,20 +172,20 @@ abstract class Quote implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
     double? subtotal,
     double? marginPercent,
     double? total,
-    _i2.QuoteStatus? status,
-    String? imageUrl,
-    int? customerId,
     int? printerId,
     int? shippingId,
-    int? categoryId,
     int? createdBy,
-    int? updatedBy,
+    DateTime? created,
+    String? notes,
   });
   @override
   Map<String, dynamic> toJson() {
     return {
       if (id != null) 'id': id,
-      'name': name,
+      'quoteId': quoteId,
+      'versionNumber': versionNumber,
+      if (versionName != null) 'versionName': versionName,
+      'isPrimary': isPrimary,
       'quantity': quantity,
       'pieceWeightGrams': pieceWeightGrams,
       'printHours': printHours,
@@ -196,14 +199,11 @@ abstract class Quote implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
       'subtotal': subtotal,
       'marginPercent': marginPercent,
       'total': total,
-      'status': status.toJson(),
-      if (imageUrl != null) 'imageUrl': imageUrl,
-      if (customerId != null) 'customerId': customerId,
       if (printerId != null) 'printerId': printerId,
       if (shippingId != null) 'shippingId': shippingId,
-      if (categoryId != null) 'categoryId': categoryId,
       if (createdBy != null) 'createdBy': createdBy,
-      if (updatedBy != null) 'updatedBy': updatedBy,
+      'created': created.toJson(),
+      if (notes != null) 'notes': notes,
     };
   }
 
@@ -211,7 +211,10 @@ abstract class Quote implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
   Map<String, dynamic> toJsonForProtocol() {
     return {
       if (id != null) 'id': id,
-      'name': name,
+      'quoteId': quoteId,
+      'versionNumber': versionNumber,
+      if (versionName != null) 'versionName': versionName,
+      'isPrimary': isPrimary,
       'quantity': quantity,
       'pieceWeightGrams': pieceWeightGrams,
       'printHours': printHours,
@@ -225,37 +228,34 @@ abstract class Quote implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
       'subtotal': subtotal,
       'marginPercent': marginPercent,
       'total': total,
-      'status': status.toJson(),
-      if (imageUrl != null) 'imageUrl': imageUrl,
-      if (customerId != null) 'customerId': customerId,
       if (printerId != null) 'printerId': printerId,
       if (shippingId != null) 'shippingId': shippingId,
-      if (categoryId != null) 'categoryId': categoryId,
       if (createdBy != null) 'createdBy': createdBy,
-      if (updatedBy != null) 'updatedBy': updatedBy,
+      'created': created.toJson(),
+      if (notes != null) 'notes': notes,
     };
   }
 
-  static QuoteInclude include() {
-    return QuoteInclude._();
+  static QuoteVersionInclude include() {
+    return QuoteVersionInclude._();
   }
 
-  static QuoteIncludeList includeList({
-    _i1.WhereExpressionBuilder<QuoteTable>? where,
+  static QuoteVersionIncludeList includeList({
+    _i1.WhereExpressionBuilder<QuoteVersionTable>? where,
     int? limit,
     int? offset,
-    _i1.OrderByBuilder<QuoteTable>? orderBy,
+    _i1.OrderByBuilder<QuoteVersionTable>? orderBy,
     bool orderDescending = false,
-    _i1.OrderByListBuilder<QuoteTable>? orderByList,
-    QuoteInclude? include,
+    _i1.OrderByListBuilder<QuoteVersionTable>? orderByList,
+    QuoteVersionInclude? include,
   }) {
-    return QuoteIncludeList._(
+    return QuoteVersionIncludeList._(
       where: where,
       limit: limit,
       offset: offset,
-      orderBy: orderBy?.call(Quote.t),
+      orderBy: orderBy?.call(QuoteVersion.t),
       orderDescending: orderDescending,
-      orderByList: orderByList?.call(Quote.t),
+      orderByList: orderByList?.call(QuoteVersion.t),
       include: include,
     );
   }
@@ -268,10 +268,13 @@ abstract class Quote implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
 
 class _Undefined {}
 
-class _QuoteImpl extends Quote {
-  _QuoteImpl({
+class _QuoteVersionImpl extends QuoteVersion {
+  _QuoteVersionImpl({
     int? id,
-    required String name,
+    required int quoteId,
+    required int versionNumber,
+    String? versionName,
+    required bool isPrimary,
     required int quantity,
     required double pieceWeightGrams,
     required double printHours,
@@ -285,17 +288,17 @@ class _QuoteImpl extends Quote {
     required double subtotal,
     required double marginPercent,
     required double total,
-    required _i2.QuoteStatus status,
-    String? imageUrl,
-    int? customerId,
     int? printerId,
     int? shippingId,
-    int? categoryId,
     int? createdBy,
-    int? updatedBy,
+    required DateTime created,
+    String? notes,
   }) : super._(
           id: id,
-          name: name,
+          quoteId: quoteId,
+          versionNumber: versionNumber,
+          versionName: versionName,
+          isPrimary: isPrimary,
           quantity: quantity,
           pieceWeightGrams: pieceWeightGrams,
           printHours: printHours,
@@ -309,23 +312,23 @@ class _QuoteImpl extends Quote {
           subtotal: subtotal,
           marginPercent: marginPercent,
           total: total,
-          status: status,
-          imageUrl: imageUrl,
-          customerId: customerId,
           printerId: printerId,
           shippingId: shippingId,
-          categoryId: categoryId,
           createdBy: createdBy,
-          updatedBy: updatedBy,
+          created: created,
+          notes: notes,
         );
 
-  /// Returns a shallow copy of this [Quote]
+  /// Returns a shallow copy of this [QuoteVersion]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
   @override
-  Quote copyWith({
+  QuoteVersion copyWith({
     Object? id = _Undefined,
-    String? name,
+    int? quoteId,
+    int? versionNumber,
+    Object? versionName = _Undefined,
+    bool? isPrimary,
     int? quantity,
     double? pieceWeightGrams,
     double? printHours,
@@ -339,18 +342,18 @@ class _QuoteImpl extends Quote {
     double? subtotal,
     double? marginPercent,
     double? total,
-    _i2.QuoteStatus? status,
-    Object? imageUrl = _Undefined,
-    Object? customerId = _Undefined,
     Object? printerId = _Undefined,
     Object? shippingId = _Undefined,
-    Object? categoryId = _Undefined,
     Object? createdBy = _Undefined,
-    Object? updatedBy = _Undefined,
+    DateTime? created,
+    Object? notes = _Undefined,
   }) {
-    return Quote(
+    return QuoteVersion(
       id: id is int? ? id : this.id,
-      name: name ?? this.name,
+      quoteId: quoteId ?? this.quoteId,
+      versionNumber: versionNumber ?? this.versionNumber,
+      versionName: versionName is String? ? versionName : this.versionName,
+      isPrimary: isPrimary ?? this.isPrimary,
       quantity: quantity ?? this.quantity,
       pieceWeightGrams: pieceWeightGrams ?? this.pieceWeightGrams,
       printHours: printHours ?? this.printHours,
@@ -366,22 +369,32 @@ class _QuoteImpl extends Quote {
       subtotal: subtotal ?? this.subtotal,
       marginPercent: marginPercent ?? this.marginPercent,
       total: total ?? this.total,
-      status: status ?? this.status,
-      imageUrl: imageUrl is String? ? imageUrl : this.imageUrl,
-      customerId: customerId is int? ? customerId : this.customerId,
       printerId: printerId is int? ? printerId : this.printerId,
       shippingId: shippingId is int? ? shippingId : this.shippingId,
-      categoryId: categoryId is int? ? categoryId : this.categoryId,
       createdBy: createdBy is int? ? createdBy : this.createdBy,
-      updatedBy: updatedBy is int? ? updatedBy : this.updatedBy,
+      created: created ?? this.created,
+      notes: notes is String? ? notes : this.notes,
     );
   }
 }
 
-class QuoteTable extends _i1.Table<int?> {
-  QuoteTable({super.tableRelation}) : super(tableName: 'quotes') {
-    name = _i1.ColumnString(
-      'name',
+class QuoteVersionTable extends _i1.Table<int?> {
+  QuoteVersionTable({super.tableRelation})
+      : super(tableName: 'quote_versions') {
+    quoteId = _i1.ColumnInt(
+      'quoteId',
+      this,
+    );
+    versionNumber = _i1.ColumnInt(
+      'versionNumber',
+      this,
+    );
+    versionName = _i1.ColumnString(
+      'versionName',
+      this,
+    );
+    isPrimary = _i1.ColumnBool(
+      'isPrimary',
       this,
     );
     quantity = _i1.ColumnInt(
@@ -436,19 +449,6 @@ class QuoteTable extends _i1.Table<int?> {
       'total',
       this,
     );
-    status = _i1.ColumnEnum(
-      'status',
-      this,
-      _i1.EnumSerialization.byIndex,
-    );
-    imageUrl = _i1.ColumnString(
-      'imageUrl',
-      this,
-    );
-    customerId = _i1.ColumnInt(
-      'customerId',
-      this,
-    );
     printerId = _i1.ColumnInt(
       'printerId',
       this,
@@ -457,21 +457,27 @@ class QuoteTable extends _i1.Table<int?> {
       'shippingId',
       this,
     );
-    categoryId = _i1.ColumnInt(
-      'categoryId',
-      this,
-    );
     createdBy = _i1.ColumnInt(
       'createdBy',
       this,
     );
-    updatedBy = _i1.ColumnInt(
-      'updatedBy',
+    created = _i1.ColumnDateTime(
+      'created',
+      this,
+    );
+    notes = _i1.ColumnString(
+      'notes',
       this,
     );
   }
 
-  late final _i1.ColumnString name;
+  late final _i1.ColumnInt quoteId;
+
+  late final _i1.ColumnInt versionNumber;
+
+  late final _i1.ColumnString versionName;
+
+  late final _i1.ColumnBool isPrimary;
 
   late final _i1.ColumnInt quantity;
 
@@ -499,26 +505,23 @@ class QuoteTable extends _i1.Table<int?> {
 
   late final _i1.ColumnDouble total;
 
-  late final _i1.ColumnEnum<_i2.QuoteStatus> status;
-
-  late final _i1.ColumnString imageUrl;
-
-  late final _i1.ColumnInt customerId;
-
   late final _i1.ColumnInt printerId;
 
   late final _i1.ColumnInt shippingId;
 
-  late final _i1.ColumnInt categoryId;
-
   late final _i1.ColumnInt createdBy;
 
-  late final _i1.ColumnInt updatedBy;
+  late final _i1.ColumnDateTime created;
+
+  late final _i1.ColumnString notes;
 
   @override
   List<_i1.Column> get columns => [
         id,
-        name,
+        quoteId,
+        versionNumber,
+        versionName,
+        isPrimary,
         quantity,
         pieceWeightGrams,
         printHours,
@@ -532,30 +535,27 @@ class QuoteTable extends _i1.Table<int?> {
         subtotal,
         marginPercent,
         total,
-        status,
-        imageUrl,
-        customerId,
         printerId,
         shippingId,
-        categoryId,
         createdBy,
-        updatedBy,
+        created,
+        notes,
       ];
 }
 
-class QuoteInclude extends _i1.IncludeObject {
-  QuoteInclude._();
+class QuoteVersionInclude extends _i1.IncludeObject {
+  QuoteVersionInclude._();
 
   @override
   Map<String, _i1.Include?> get includes => {};
 
   @override
-  _i1.Table<int?> get table => Quote.t;
+  _i1.Table<int?> get table => QuoteVersion.t;
 }
 
-class QuoteIncludeList extends _i1.IncludeList {
-  QuoteIncludeList._({
-    _i1.WhereExpressionBuilder<QuoteTable>? where,
+class QuoteVersionIncludeList extends _i1.IncludeList {
+  QuoteVersionIncludeList._({
+    _i1.WhereExpressionBuilder<QuoteVersionTable>? where,
     super.limit,
     super.offset,
     super.orderBy,
@@ -563,20 +563,20 @@ class QuoteIncludeList extends _i1.IncludeList {
     super.orderByList,
     super.include,
   }) {
-    super.where = where?.call(Quote.t);
+    super.where = where?.call(QuoteVersion.t);
   }
 
   @override
   Map<String, _i1.Include?> get includes => include?.includes ?? {};
 
   @override
-  _i1.Table<int?> get table => Quote.t;
+  _i1.Table<int?> get table => QuoteVersion.t;
 }
 
-class QuoteRepository {
-  const QuoteRepository._();
+class QuoteVersionRepository {
+  const QuoteVersionRepository._();
 
-  /// Returns a list of [Quote]s matching the given query parameters.
+  /// Returns a list of [QuoteVersion]s matching the given query parameters.
   ///
   /// Use [where] to specify which items to include in the return value.
   /// If none is specified, all items will be returned.
@@ -598,20 +598,20 @@ class QuoteRepository {
   ///   limit: 100,
   /// );
   /// ```
-  Future<List<Quote>> find(
+  Future<List<QuoteVersion>> find(
     _i1.Session session, {
-    _i1.WhereExpressionBuilder<QuoteTable>? where,
+    _i1.WhereExpressionBuilder<QuoteVersionTable>? where,
     int? limit,
     int? offset,
-    _i1.OrderByBuilder<QuoteTable>? orderBy,
+    _i1.OrderByBuilder<QuoteVersionTable>? orderBy,
     bool orderDescending = false,
-    _i1.OrderByListBuilder<QuoteTable>? orderByList,
+    _i1.OrderByListBuilder<QuoteVersionTable>? orderByList,
     _i1.Transaction? transaction,
   }) async {
-    return session.db.find<Quote>(
-      where: where?.call(Quote.t),
-      orderBy: orderBy?.call(Quote.t),
-      orderByList: orderByList?.call(Quote.t),
+    return session.db.find<QuoteVersion>(
+      where: where?.call(QuoteVersion.t),
+      orderBy: orderBy?.call(QuoteVersion.t),
+      orderByList: orderByList?.call(QuoteVersion.t),
       orderDescending: orderDescending,
       limit: limit,
       offset: offset,
@@ -619,7 +619,7 @@ class QuoteRepository {
     );
   }
 
-  /// Returns the first matching [Quote] matching the given query parameters.
+  /// Returns the first matching [QuoteVersion] matching the given query parameters.
   ///
   /// Use [where] to specify which items to include in the return value.
   /// If none is specified, all items will be returned.
@@ -636,136 +636,136 @@ class QuoteRepository {
   ///   orderBy: (t) => t.age,
   /// );
   /// ```
-  Future<Quote?> findFirstRow(
+  Future<QuoteVersion?> findFirstRow(
     _i1.Session session, {
-    _i1.WhereExpressionBuilder<QuoteTable>? where,
+    _i1.WhereExpressionBuilder<QuoteVersionTable>? where,
     int? offset,
-    _i1.OrderByBuilder<QuoteTable>? orderBy,
+    _i1.OrderByBuilder<QuoteVersionTable>? orderBy,
     bool orderDescending = false,
-    _i1.OrderByListBuilder<QuoteTable>? orderByList,
+    _i1.OrderByListBuilder<QuoteVersionTable>? orderByList,
     _i1.Transaction? transaction,
   }) async {
-    return session.db.findFirstRow<Quote>(
-      where: where?.call(Quote.t),
-      orderBy: orderBy?.call(Quote.t),
-      orderByList: orderByList?.call(Quote.t),
+    return session.db.findFirstRow<QuoteVersion>(
+      where: where?.call(QuoteVersion.t),
+      orderBy: orderBy?.call(QuoteVersion.t),
+      orderByList: orderByList?.call(QuoteVersion.t),
       orderDescending: orderDescending,
       offset: offset,
       transaction: transaction,
     );
   }
 
-  /// Finds a single [Quote] by its [id] or null if no such row exists.
-  Future<Quote?> findById(
+  /// Finds a single [QuoteVersion] by its [id] or null if no such row exists.
+  Future<QuoteVersion?> findById(
     _i1.Session session,
     int id, {
     _i1.Transaction? transaction,
   }) async {
-    return session.db.findById<Quote>(
+    return session.db.findById<QuoteVersion>(
       id,
       transaction: transaction,
     );
   }
 
-  /// Inserts all [Quote]s in the list and returns the inserted rows.
+  /// Inserts all [QuoteVersion]s in the list and returns the inserted rows.
   ///
-  /// The returned [Quote]s will have their `id` fields set.
+  /// The returned [QuoteVersion]s will have their `id` fields set.
   ///
   /// This is an atomic operation, meaning that if one of the rows fails to
   /// insert, none of the rows will be inserted.
-  Future<List<Quote>> insert(
+  Future<List<QuoteVersion>> insert(
     _i1.Session session,
-    List<Quote> rows, {
+    List<QuoteVersion> rows, {
     _i1.Transaction? transaction,
   }) async {
-    return session.db.insert<Quote>(
+    return session.db.insert<QuoteVersion>(
       rows,
       transaction: transaction,
     );
   }
 
-  /// Inserts a single [Quote] and returns the inserted row.
+  /// Inserts a single [QuoteVersion] and returns the inserted row.
   ///
-  /// The returned [Quote] will have its `id` field set.
-  Future<Quote> insertRow(
+  /// The returned [QuoteVersion] will have its `id` field set.
+  Future<QuoteVersion> insertRow(
     _i1.Session session,
-    Quote row, {
+    QuoteVersion row, {
     _i1.Transaction? transaction,
   }) async {
-    return session.db.insertRow<Quote>(
+    return session.db.insertRow<QuoteVersion>(
       row,
       transaction: transaction,
     );
   }
 
-  /// Updates all [Quote]s in the list and returns the updated rows. If
+  /// Updates all [QuoteVersion]s in the list and returns the updated rows. If
   /// [columns] is provided, only those columns will be updated. Defaults to
   /// all columns.
   /// This is an atomic operation, meaning that if one of the rows fails to
   /// update, none of the rows will be updated.
-  Future<List<Quote>> update(
+  Future<List<QuoteVersion>> update(
     _i1.Session session,
-    List<Quote> rows, {
-    _i1.ColumnSelections<QuoteTable>? columns,
+    List<QuoteVersion> rows, {
+    _i1.ColumnSelections<QuoteVersionTable>? columns,
     _i1.Transaction? transaction,
   }) async {
-    return session.db.update<Quote>(
+    return session.db.update<QuoteVersion>(
       rows,
-      columns: columns?.call(Quote.t),
+      columns: columns?.call(QuoteVersion.t),
       transaction: transaction,
     );
   }
 
-  /// Updates a single [Quote]. The row needs to have its id set.
+  /// Updates a single [QuoteVersion]. The row needs to have its id set.
   /// Optionally, a list of [columns] can be provided to only update those
   /// columns. Defaults to all columns.
-  Future<Quote> updateRow(
+  Future<QuoteVersion> updateRow(
     _i1.Session session,
-    Quote row, {
-    _i1.ColumnSelections<QuoteTable>? columns,
+    QuoteVersion row, {
+    _i1.ColumnSelections<QuoteVersionTable>? columns,
     _i1.Transaction? transaction,
   }) async {
-    return session.db.updateRow<Quote>(
+    return session.db.updateRow<QuoteVersion>(
       row,
-      columns: columns?.call(Quote.t),
+      columns: columns?.call(QuoteVersion.t),
       transaction: transaction,
     );
   }
 
-  /// Deletes all [Quote]s in the list and returns the deleted rows.
+  /// Deletes all [QuoteVersion]s in the list and returns the deleted rows.
   /// This is an atomic operation, meaning that if one of the rows fail to
   /// be deleted, none of the rows will be deleted.
-  Future<List<Quote>> delete(
+  Future<List<QuoteVersion>> delete(
     _i1.Session session,
-    List<Quote> rows, {
+    List<QuoteVersion> rows, {
     _i1.Transaction? transaction,
   }) async {
-    return session.db.delete<Quote>(
+    return session.db.delete<QuoteVersion>(
       rows,
       transaction: transaction,
     );
   }
 
-  /// Deletes a single [Quote].
-  Future<Quote> deleteRow(
+  /// Deletes a single [QuoteVersion].
+  Future<QuoteVersion> deleteRow(
     _i1.Session session,
-    Quote row, {
+    QuoteVersion row, {
     _i1.Transaction? transaction,
   }) async {
-    return session.db.deleteRow<Quote>(
+    return session.db.deleteRow<QuoteVersion>(
       row,
       transaction: transaction,
     );
   }
 
   /// Deletes all rows matching the [where] expression.
-  Future<List<Quote>> deleteWhere(
+  Future<List<QuoteVersion>> deleteWhere(
     _i1.Session session, {
-    required _i1.WhereExpressionBuilder<QuoteTable> where,
+    required _i1.WhereExpressionBuilder<QuoteVersionTable> where,
     _i1.Transaction? transaction,
   }) async {
-    return session.db.deleteWhere<Quote>(
-      where: where(Quote.t),
+    return session.db.deleteWhere<QuoteVersion>(
+      where: where(QuoteVersion.t),
       transaction: transaction,
     );
   }
@@ -774,12 +774,12 @@ class QuoteRepository {
   /// will return the count of all rows in the table.
   Future<int> count(
     _i1.Session session, {
-    _i1.WhereExpressionBuilder<QuoteTable>? where,
+    _i1.WhereExpressionBuilder<QuoteVersionTable>? where,
     int? limit,
     _i1.Transaction? transaction,
   }) async {
-    return session.db.count<Quote>(
-      where: where?.call(Quote.t),
+    return session.db.count<QuoteVersion>(
+      where: where?.call(QuoteVersion.t),
       limit: limit,
       transaction: transaction,
     );

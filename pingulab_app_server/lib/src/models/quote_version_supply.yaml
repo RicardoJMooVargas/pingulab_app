@@ -1,0 +1,7 @@
+class: QuoteVersionSupply
+table: quote_version_supplies
+fields:
+  quoteVersionId: int
+  extraSupplyId: int
+  quantity: int
+  cost: double

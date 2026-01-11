@@ -1,0 +1,12 @@
+class: QuoteCategory
+table: quote_categories
+fields:
+  name: String  # Lampara, Juguete, Figura, Organizadores, etc.
+  description: String?
+  icon: String?  # Emoji or icon name
+  color: String?  # Hex color for UI
+  active: bool
+indexes:
+  name_unique:
+    fields: name
+    unique: true

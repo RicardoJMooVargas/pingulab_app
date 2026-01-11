@@ -69,6 +69,46 @@ class BackupEndpoint extends Endpoint {
         session.log('⚠️ Error exportando quotes: $e');
       }
 
+      try {
+        final categories = await QuoteCategory.db.find(session);
+        export['data']['quote_categories'] = categories.map((e) => e.toJson()).toList();
+        session.log('✅ Exportados ${categories.length} quote_categories');
+      } catch (e) {
+        session.log('⚠️ Error exportando quote_categories: $e');
+      }
+
+      try {
+        final versions = await QuoteVersion.db.find(session);
+        export['data']['quote_versions'] = versions.map((e) => e.toJson()).toList();
+        session.log('✅ Exportados ${versions.length} quote_versions');
+      } catch (e) {
+        session.log('⚠️ Error exportando quote_versions: $e');
+      }
+
+      try {
+        final versionFilaments = await QuoteVersionFilament.db.find(session);
+        export['data']['quote_version_filaments'] = versionFilaments.map((e) => e.toJson()).toList();
+        session.log('✅ Exportados ${versionFilaments.length} quote_version_filaments');
+      } catch (e) {
+        session.log('⚠️ Error exportando quote_version_filaments: $e');
+      }
+
+      try {
+        final versionSupplies = await QuoteVersionSupply.db.find(session);
+        export['data']['quote_version_supplies'] = versionSupplies.map((e) => e.toJson()).toList();
+        session.log('✅ Exportados ${versionSupplies.length} quote_version_supplies');
+      } catch (e) {
+        session.log('⚠️ Error exportando quote_version_supplies: $e');
+      }
+
+      try {
+        final sales = await Sale.db.find(session);
+        export['data']['sales'] = sales.map((e) => e.toJson()).toList();
+        session.log('✅ Exportados ${sales.length} sales');
+      } catch (e) {
+        session.log('⚠️ Error exportando sales: $e');
+      }
+
       return jsonEncode(export);
     } catch (e) {
       session.log('❌ Error en exportDatabase: $e');
@@ -205,6 +245,91 @@ class BackupEndpoint extends Endpoint {
           importedCounts['quotes'] = count;
         } catch (e) {
           errors.add('Error en quotes: $e');
+          success = false;
+        }
+      }
+
+      // Importar quote_categories
+      if (tables.containsKey('quote_categories')) {
+        try {
+          final items = (tables['quote_categories'] as List).cast<Map<String, dynamic>>();
+          var count = 0;
+          for (var item in items) {
+            item.remove('id');
+            await QuoteCategory.db.insertRow(session, QuoteCategory.fromJson(item));
+            count++;
+          }
+          importedCounts['quote_categories'] = count;
+        } catch (e) {
+          errors.add('Error en quote_categories: $e');
+          success = false;
+        }
+      }
+
+      // Importar quote_versions
+      if (tables.containsKey('quote_versions')) {
+        try {
+          final items = (tables['quote_versions'] as List).cast<Map<String, dynamic>>();
+          var count = 0;
+          for (var item in items) {
+            item.remove('id');
+            await QuoteVersion.db.insertRow(session, QuoteVersion.fromJson(item));
+            count++;
+          }
+          importedCounts['quote_versions'] = count;
+        } catch (e) {
+          errors.add('Error en quote_versions: $e');
+          success = false;
+        }
+      }
+
+      // Importar quote_version_filaments
+      if (tables.containsKey('quote_version_filaments')) {
+        try {
+          final items = (tables['quote_version_filaments'] as List).cast<Map<String, dynamic>>();
+          var count = 0;
+          for (var item in items) {
+            item.remove('id');
+            await QuoteVersionFilament.db.insertRow(session, QuoteVersionFilament.fromJson(item));
+            count++;
+          }
+          importedCounts['quote_version_filaments'] = count;
+        } catch (e) {
+          errors.add('Error en quote_version_filaments: $e');
+          success = false;
+        }
+      }
+
+      // Importar quote_version_supplies
+      if (tables.containsKey('quote_version_supplies')) {
+        try {
+          final items = (tables['quote_version_supplies'] as List).cast<Map<String, dynamic>>();
+          var count = 0;
+          for (var item in items) {
+            item.remove('id');
+            await QuoteVersionSupply.db.insertRow(session, QuoteVersionSupply.fromJson(item));
+            count++;
+          }
+          importedCounts['quote_version_supplies'] = count;
+        } catch (e) {
+          errors.add('Error en quote_version_supplies: $e');
+          success = false;
+        }
+      }
+
+      // Importar sales
+      if (tables.containsKey('sales')) {
+        try {
+          final items = (tables['sales'] as List).cast<Map<String, dynamic>>();
+          var count = 0;
+          for (var item in items) {
+            item.remove('id');
+            await Sale.db.insertRow(session, Sale.fromJson(item));
+            count++;
+          }
+          importedCounts['sales'] = count;
+        } catch (e) {
+          errors.add('Error en sales: $e');
           success = false;
         }
       }
