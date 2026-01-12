@@ -20,6 +20,7 @@ class _CatalogsScreenState extends State<CatalogsScreen> {
     'Clientes',
     'Tarifas Eléctricas',
     'Suministros Extra',
+    'Categorías',
   ];
 
   @override
@@ -74,6 +75,8 @@ class _CatalogsScreenState extends State<CatalogsScreen> {
   Icon _getIcon(String tab, bool selected) {
     IconData iconData;
     switch (tab) {
+      case 'Categorías':
+        iconData = Icons.category;
       case 'Filamentos':
         iconData = Icons.layers;
         break;
@@ -100,6 +103,8 @@ class _CatalogsScreenState extends State<CatalogsScreen> {
 
   Widget _buildContent() {
     switch (_selectedIndex) {
+      case 6:
+        return const CategoriesTab();
       case 0:
         return const FilamentsTab();
       case 1:
@@ -1541,3 +1546,267 @@ class _ExtraSuppliesTabState extends State<ExtraSuppliesTab> {
     }
   }
 }
+
+// ========== CATEGORIES TAB ==========
+
+class CategoriesTab extends StatefulWidget {
+  const CategoriesTab({Key? key}) : super(key: key);
+
+  @override
+  State<CategoriesTab> createState() => _CategoriesTabState();
+}
+
+class _CategoriesTabState extends State<CategoriesTab> {
+  List<QuoteCategory> _categories = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCategories();
+  }
+
+  Future<void> _loadCategories() async {
+    setState(() => _isLoading = true);
+    try {
+      final categories = await client.resources.getAllQuoteCategories();
+      setState(() {
+        _categories = categories;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _categories = [];
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: ElevatedButton.icon(
+            onPressed: () => _showCategoryDialog(),
+            icon: const Icon(Icons.add),
+            label: const Text('Nueva Categoría'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.teal,
+              foregroundColor: Colors.white,
+            ),
+          ),
+        ),
+        Expanded(
+          child: _categories.isEmpty
+              ? const Center(child: Text('No hay categorías'))
+              : ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: _categories.length,
+                  itemBuilder: (context, index) {
+                    final category = _categories[index];
+                    return Card(
+                      child: ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: _parseColor(category.color ?? '#808080'),
+                          child: Text(
+                            category.icon ?? '📁',
+                            style: const TextStyle(fontSize: 20),
+                          ),
+                        ),
+                        title: Text(
+                          category.name,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: category.description != null
+                            ? Text(category.description!)
+                            : null,
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Chip(
+                              label: Text(
+                                category.active ? 'Activa' : 'Inactiva',
+                                style: const TextStyle(fontSize: 12),
+                              ),
+                              backgroundColor: category.active
+                                  ? Colors.green.shade100
+                                  : Colors.grey.shade300,
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.edit, color: Colors.blue),
+                              onPressed: () => _showCategoryDialog(category: category),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () => _deleteCategory(category),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+        ),
+      ],
+    );
+  }
+
+  Color _parseColor(String colorString) {
+    try {
+      final hex = colorString.replaceAll('#', '');
+      return Color(int.parse('FF$hex', radix: 16));
+    } catch (e) {
+      debugPrint('Error parsing color: $colorString');
+    }
+    return Colors.grey;
+  }
+
+  Future<void> _showCategoryDialog({QuoteCategory? category}) async {
+    final isEdit = category != null;
+    final nameController = TextEditingController(text: category?.name ?? '');
+    final descController = TextEditingController(text: category?.description ?? '');
+    final iconController = TextEditingController(text: category?.icon ?? '📁');
+    final colorController = TextEditingController(text: category?.color ?? '#808080');
+    bool active = category?.active ?? true;
+
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: Text(isEdit ? 'Editar Categoría' : 'Nueva Categoría'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(labelText: 'Nombre *'),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: descController,
+                  decoration: const InputDecoration(labelText: 'Descripción'),
+                  maxLines: 2,
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: iconController,
+                  decoration: const InputDecoration(
+                    labelText: 'Icono (emoji)',
+                    hintText: '📁',
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: colorController,
+                  decoration: const InputDecoration(
+                    labelText: 'Color (hex)',
+                    hintText: '#808080',
+                  ),
+                ),
+                const SizedBox(height: 12),
+                SwitchListTile(
+                  title: const Text('Activa'),
+                  value: active,
+                  onChanged: (val) => setDialogState(() => active = val),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: Text(isEdit ? 'Actualizar' : 'Crear'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (result == true) {
+      try {
+        if (isEdit) {
+          await client.resources.updateQuoteCategory(
+            category!.id!,
+            nameController.text,
+            active,
+            description: descController.text.isEmpty ? null : descController.text,
+            icon: iconController.text.isEmpty ? null : iconController.text,
+            color: colorController.text.isEmpty ? null : colorController.text,
+          );
+        } else {
+          await client.resources.createQuoteCategory(
+            nameController.text,
+            active,
+            description: descController.text.isEmpty ? null : descController.text,
+            icon: iconController.text.isEmpty ? null : iconController.text,
+            color: colorController.text.isEmpty ? null : colorController.text,
+          );
+        }
+
+        _loadCategories();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(isEdit ? 'Categoría actualizada' : 'Categoría creada')),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error: $e')),
+          );
+        }
+      }
+    }
+  }
+
+  Future<void> _deleteCategory(QuoteCategory category) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirmar'),
+        content: Text('¿Eliminar la categoría "${category.name}"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Eliminar'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      try {
+        await client.resources.deleteQuoteCategory(category.id!);
+        _loadCategories();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Categoría eliminada')),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error al eliminar: $e')),
+          );
+        }
+      }
+    }
+  }
+}
+

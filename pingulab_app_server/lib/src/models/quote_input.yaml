@@ -15,6 +15,7 @@ fields:
   customerId: int?
   printerId: int?
   shippingId: int?
+  categoryId: int?
   
   # Filaments used (list of filament IDs and grams)
   filamentUsages: List<FilamentUsage>?

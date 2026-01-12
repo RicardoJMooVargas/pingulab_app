@@ -54,6 +54,13 @@ quote:
   - updateQuote:
   - deleteQuote:
   - updateQuoteStatus:
+quoteVersion:
+  - getQuoteVersions:
+  - getPrimaryVersion:
+  - createVersionFromQuote:
+  - setPrimaryVersion:
+  - applyVersionToQuote:
+  - deleteVersion:
 resources:
   - getAllPrinters:
   - getAvailablePrinters:
@@ -77,5 +84,23 @@ resources:
   - createElectricityRate:
   - updateElectricityRate:
   - deleteElectricityRate:
+  - getAllQuoteCategories:
+  - getActiveQuoteCategories:
+  - createQuoteCategory:
+  - updateQuoteCategory:
+  - deleteQuoteCategory:
+sales:
+  - getAllSales:
+  - getSaleById:
+  - getSalesByQuoteId:
+  - convertQuoteToSale:
+  - updateSaleStatus:
+  - updatePaymentStatus:
+  - updateDeliverySchedule:
+  - updateSaleNotes:
+  - deleteSale:
+  - getSalesStatistics:
+  - getUpcomingDeliveries:
+  - getOverdueDeliveries:
 greeting:
   - hello:

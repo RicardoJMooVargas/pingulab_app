@@ -46,6 +46,9 @@ import 'package:pingulab_app_client/src/protocol/customer.dart' as _i34;
 import 'package:pingulab_app_client/src/protocol/electricity_rate.dart' as _i35;
 import 'package:pingulab_app_client/src/protocol/extra_supply.dart' as _i36;
 import 'package:pingulab_app_client/src/protocol/quote.dart' as _i37;
+import 'package:pingulab_app_client/src/protocol/quote_version.dart' as _i38;
+import 'package:pingulab_app_client/src/protocol/quote_category.dart' as _i39;
+import 'package:pingulab_app_client/src/protocol/sale.dart' as _i40;
 export 'greeting.dart';
 export 'backup_data.dart';
 export 'customer.dart';
@@ -321,6 +324,23 @@ class Protocol extends _i1.SerializationManager {
     if (t == List<_i37.Quote>) {
       return (data as List).map((e) => deserialize<_i37.Quote>(e)).toList()
           as T;
+    }
+    if (t == List<_i38.QuoteVersion>) {
+      return (data as List)
+          .map((e) => deserialize<_i38.QuoteVersion>(e))
+          .toList() as T;
+    }
+    if (t == List<_i39.QuoteCategory>) {
+      return (data as List)
+          .map((e) => deserialize<_i39.QuoteCategory>(e))
+          .toList() as T;
+    }
+    if (t == List<_i40.Sale>) {
+      return (data as List).map((e) => deserialize<_i40.Sale>(e)).toList() as T;
+    }
+    if (t == Map<String, dynamic>) {
+      return (data as Map).map((k, v) =>
+          MapEntry(deserialize<String>(k), deserialize<dynamic>(v))) as T;
     }
     return super.deserialize<T>(data, t);
   }

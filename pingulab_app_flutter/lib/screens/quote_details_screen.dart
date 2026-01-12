@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:pingulab_app_client/pingulab_app_client.dart';
 import 'package:pdf/pdf.dart';
@@ -7,6 +6,8 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import '../main.dart';
 import 'quote_form_screen.dart';
+import 'quote_versions_screen.dart';
+import 'sale_details_screen.dart';
 
 class QuoteDetailsScreen extends StatefulWidget {
   final int quoteId;
@@ -21,10 +22,12 @@ class _QuoteDetailsScreenState extends State<QuoteDetailsScreen> {
   QuoteDetails? _quoteDetails;
   bool _isLoading = true;
   String? _error;
+  List<Sale>? _sales;
 
   @override
   void initState() {
     super.initState();
+    _loadSales();
     _loadQuoteDetails();
   }
 
@@ -48,7 +51,18 @@ class _QuoteDetailsScreenState extends State<QuoteDetailsScreen> {
       });
     }
   }
+Future<void> _loadSales() async {
+    try {
+      final sales = await client.sales.getSalesByQuoteId(widget.quoteId);
+      setState(() {
+        _sales = sales;
+      });
+    } catch (e) {
+      debugPrint('Error loading sales: $e');
+    }
+  }
 
+  
   Color _getStatusColor(QuoteStatus status) {
     switch (status) {
       case QuoteStatus.PENDIENTE:
@@ -122,6 +136,119 @@ class _QuoteDetailsScreenState extends State<QuoteDetailsScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Cotización eliminada')),
           );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error: $e')),
+          );
+        }
+      }
+    }
+  }
+
+  Future<void> _convertToSale() async {
+    if (_quoteDetails == null) return;
+
+    final quote = _quoteDetails!.quote;
+    final customerNameController = TextEditingController(text: quote.name);
+    DateTime? scheduledDate;
+
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: const Text('Convertir a Venta'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Total: \$${quote.total.toStringAsFixed(2)}',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.deepPurple,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: customerNameController,
+                      decoration: const InputDecoration(
+                        labelText: 'Nombre del Cliente',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: const Text('Programar Entrega'),
+                      subtitle: Text(
+                        scheduledDate != null
+                            ? 'Fecha: ${scheduledDate!.day}/${scheduledDate!.month}/${scheduledDate!.year}'
+                            : 'Sin fecha programada',
+                      ),
+                      trailing: const Icon(Icons.calendar_today),
+                      onTap: () async {
+                        final date = await showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime.now(),
+                          lastDate: DateTime.now().add(const Duration(days: 365)),
+                        );
+                        if (date != null) {
+                          setDialogState(() {
+                            scheduledDate = date;
+                          });
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: const Text('Cancelar'),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  child: const Text('Crear Venta'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+
+    if (result == true) {
+      try {
+        final sale = await client.sales.convertQuoteToSale(
+          widget.quoteId,
+          customerName: customerNameController.text.isEmpty
+              ? null
+              : customerNameController.text,
+          scheduledDeliveryDate: scheduledDate,
+        );
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Venta creada exitosamente')),
+          );
+          
+          // Navigate to sale details
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => SaleDetailsScreen(saleId: sale.id!),
+            ),
+          );
+
+          _loadSales();
         }
       } catch (e) {
         if (mounted) {
@@ -440,6 +567,23 @@ class _QuoteDetailsScreenState extends State<QuoteDetailsScreen> {
         backgroundColor: Colors.teal,
         actions: [
           IconButton(
+            icon: const Icon(Icons.history),
+            tooltip: 'Versiones',
+            onPressed: _quoteDetails == null
+                ? null
+                : () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => QuoteVersionsScreen(
+                          quoteId: widget.quoteId,
+                          quoteName: _quoteDetails!.quote.name,
+                        ),
+                      ),
+                    );
+                  },
+          ),
+          IconButton(
             icon: const Icon(Icons.picture_as_pdf),
             tooltip: 'Generar PDF',
             onPressed: _quoteDetails == null ? null : _generatePdf,
@@ -467,6 +611,14 @@ class _QuoteDetailsScreenState extends State<QuoteDetailsScreen> {
         ],
       ),
       body: _buildBody(),
+      floatingActionButton: _quoteDetails != null && (_sales == null || _sales!.isEmpty)
+          ? FloatingActionButton.extended(
+              onPressed: _convertToSale,
+              backgroundColor: Colors.deepPurple,
+              icon: const Icon(Icons.sell),
+              label: const Text('Convertir a Venta'),
+            )
+          : null,
     );
   }
 

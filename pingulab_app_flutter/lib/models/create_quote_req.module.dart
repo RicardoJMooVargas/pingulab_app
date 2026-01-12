@@ -13,6 +13,7 @@ class CreateQuoteReqModel {
   int? customerId;
   int? printerId;
   int? shippingId;
+  int? categoryId;
   QuoteStatus status;
 
   /// Imagen seleccionada (aún NO base64)
@@ -34,6 +35,7 @@ class CreateQuoteReqModel {
     this.customerId,
     this.printerId,
     this.shippingId,
+    this.categoryId,
     this.imageBytes,
     Map<int, double>? filamentUsages,
     Map<int, int>? supplyUsages,
@@ -54,6 +56,7 @@ class CreateQuoteReqModel {
       marginPercent: marginPercent,
       customerId: customerId,
       printerId: printerId,
+      categoryId: categoryId,
       shippingId: shippingId,
       status: status,
       imageUrl: imageBase64, // por ahora se reutiliza este campo

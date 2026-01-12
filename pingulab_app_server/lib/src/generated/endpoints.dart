@@ -16,11 +16,15 @@ import '../endpoints/catalogs_endpoint.dart' as _i4;
 import '../endpoints/customer_endpoint.dart' as _i5;
 import '../endpoints/init_endpoint.dart' as _i6;
 import '../endpoints/quote_endpoint.dart' as _i7;
-import '../endpoints/resources_endpoint.dart' as _i8;
-import '../greeting_endpoint.dart' as _i9;
-import 'package:pingulab_app_server/src/generated/user_role.dart' as _i10;
-import 'package:pingulab_app_server/src/generated/quote_input.dart' as _i11;
-import 'package:pingulab_app_server/src/generated/quote_status.dart' as _i12;
+import '../endpoints/quote_version_endpoint.dart' as _i8;
+import '../endpoints/resources_endpoint.dart' as _i9;
+import '../endpoints/sales_endpoint.dart' as _i10;
+import '../greeting_endpoint.dart' as _i11;
+import 'package:pingulab_app_server/src/generated/user_role.dart' as _i12;
+import 'package:pingulab_app_server/src/generated/quote_input.dart' as _i13;
+import 'package:pingulab_app_server/src/generated/quote_status.dart' as _i14;
+import 'package:pingulab_app_server/src/generated/sale_status.dart' as _i15;
+import 'package:pingulab_app_server/src/generated/payment_status.dart' as _i16;
 
 class Endpoints extends _i1.EndpointDispatch {
   @override
@@ -62,13 +66,25 @@ class Endpoints extends _i1.EndpointDispatch {
           'quote',
           null,
         ),
-      'resources': _i8.ResourcesEndpoint()
+      'quoteVersion': _i8.QuoteVersionEndpoint()
+        ..initialize(
+          server,
+          'quoteVersion',
+          null,
+        ),
+      'resources': _i9.ResourcesEndpoint()
         ..initialize(
           server,
           'resources',
           null,
         ),
-      'greeting': _i9.GreetingEndpoint()
+      'sales': _i10.SalesEndpoint()
+        ..initialize(
+          server,
+          'sales',
+          null,
+        ),
+      'greeting': _i11.GreetingEndpoint()
         ..initialize(
           server,
           'greeting',
@@ -104,7 +120,7 @@ class Endpoints extends _i1.EndpointDispatch {
             ),
             'rol': _i1.ParameterDescription(
               name: 'rol',
-              type: _i1.getType<_i10.UserRole>(),
+              type: _i1.getType<_i12.UserRole>(),
               nullable: false,
             ),
           },
@@ -222,7 +238,7 @@ class Endpoints extends _i1.EndpointDispatch {
             ),
             'rol': _i1.ParameterDescription(
               name: 'rol',
-              type: _i1.getType<_i10.UserRole>(),
+              type: _i1.getType<_i12.UserRole>(),
               nullable: false,
             ),
             'activo': _i1.ParameterDescription(
@@ -1186,7 +1202,7 @@ class Endpoints extends _i1.EndpointDispatch {
           params: {
             'input': _i1.ParameterDescription(
               name: 'input',
-              type: _i1.getType<_i11.QuoteInput>(),
+              type: _i1.getType<_i13.QuoteInput>(),
               nullable: false,
             ),
             'userId': _i1.ParameterDescription(
@@ -1260,7 +1276,7 @@ class Endpoints extends _i1.EndpointDispatch {
             ),
             'input': _i1.ParameterDescription(
               name: 'input',
-              type: _i1.getType<_i11.QuoteInput>(),
+              type: _i1.getType<_i13.QuoteInput>(),
               nullable: false,
             ),
             'userId': _i1.ParameterDescription(
@@ -1308,7 +1324,7 @@ class Endpoints extends _i1.EndpointDispatch {
             ),
             'status': _i1.ParameterDescription(
               name: 'status',
-              type: _i1.getType<_i12.QuoteStatus>(),
+              type: _i1.getType<_i14.QuoteStatus>(),
               nullable: false,
             ),
           },
@@ -1324,6 +1340,150 @@ class Endpoints extends _i1.EndpointDispatch {
         ),
       },
     );
+    connectors['quoteVersion'] = _i1.EndpointConnector(
+      name: 'quoteVersion',
+      endpoint: endpoints['quoteVersion']!,
+      methodConnectors: {
+        'getQuoteVersions': _i1.MethodConnector(
+          name: 'getQuoteVersions',
+          params: {
+            'quoteId': _i1.ParameterDescription(
+              name: 'quoteId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            )
+          },
+          call: (
+            _i1.Session session,
+            Map<String, dynamic> params,
+          ) async =>
+              (endpoints['quoteVersion'] as _i8.QuoteVersionEndpoint)
+                  .getQuoteVersions(
+            session,
+            params['quoteId'],
+          ),
+        ),
+        'getPrimaryVersion': _i1.MethodConnector(
+          name: 'getPrimaryVersion',
+          params: {
+            'quoteId': _i1.ParameterDescription(
+              name: 'quoteId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            )
+          },
+          call: (
+            _i1.Session session,
+            Map<String, dynamic> params,
+          ) async =>
+              (endpoints['quoteVersion'] as _i8.QuoteVersionEndpoint)
+                  .getPrimaryVersion(
+            session,
+            params['quoteId'],
+          ),
+        ),
+        'createVersionFromQuote': _i1.MethodConnector(
+          name: 'createVersionFromQuote',
+          params: {
+            'quoteId': _i1.ParameterDescription(
+              name: 'quoteId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+            'versionName': _i1.ParameterDescription(
+              name: 'versionName',
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
+            'isPrimary': _i1.ParameterDescription(
+              name: 'isPrimary',
+              type: _i1.getType<bool>(),
+              nullable: false,
+            ),
+            'userId': _i1.ParameterDescription(
+              name: 'userId',
+              type: _i1.getType<int?>(),
+              nullable: true,
+            ),
+          },
+          call: (
+            _i1.Session session,
+            Map<String, dynamic> params,
+          ) async =>
+              (endpoints['quoteVersion'] as _i8.QuoteVersionEndpoint)
+                  .createVersionFromQuote(
+            session,
+            params['quoteId'],
+            params['versionName'],
+            params['isPrimary'],
+            params['userId'],
+          ),
+        ),
+        'setPrimaryVersion': _i1.MethodConnector(
+          name: 'setPrimaryVersion',
+          params: {
+            'versionId': _i1.ParameterDescription(
+              name: 'versionId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            )
+          },
+          call: (
+            _i1.Session session,
+            Map<String, dynamic> params,
+          ) async =>
+              (endpoints['quoteVersion'] as _i8.QuoteVersionEndpoint)
+                  .setPrimaryVersion(
+            session,
+            params['versionId'],
+          ),
+        ),
+        'applyVersionToQuote': _i1.MethodConnector(
+          name: 'applyVersionToQuote',
+          params: {
+            'versionId': _i1.ParameterDescription(
+              name: 'versionId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+            'userId': _i1.ParameterDescription(
+              name: 'userId',
+              type: _i1.getType<int?>(),
+              nullable: true,
+            ),
+          },
+          call: (
+            _i1.Session session,
+            Map<String, dynamic> params,
+          ) async =>
+              (endpoints['quoteVersion'] as _i8.QuoteVersionEndpoint)
+                  .applyVersionToQuote(
+            session,
+            params['versionId'],
+            params['userId'],
+          ),
+        ),
+        'deleteVersion': _i1.MethodConnector(
+          name: 'deleteVersion',
+          params: {
+            'versionId': _i1.ParameterDescription(
+              name: 'versionId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            )
+          },
+          call: (
+            _i1.Session session,
+            Map<String, dynamic> params,
+          ) async =>
+              (endpoints['quoteVersion'] as _i8.QuoteVersionEndpoint)
+                  .deleteVersion(
+            session,
+            params['versionId'],
+          ),
+        ),
+      },
+    );
     connectors['resources'] = _i1.EndpointConnector(
       name: 'resources',
       endpoint: endpoints['resources']!,
@@ -1335,7 +1495,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['resources'] as _i8.ResourcesEndpoint)
+              (endpoints['resources'] as _i9.ResourcesEndpoint)
                   .getAllPrinters(session),
         ),
         'getAvailablePrinters': _i1.MethodConnector(
@@ -1345,7 +1505,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['resources'] as _i8.ResourcesEndpoint)
+              (endpoints['resources'] as _i9.ResourcesEndpoint)
                   .getAvailablePrinters(session),
         ),
         'createPrinter': _i1.MethodConnector(
@@ -1381,7 +1541,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['resources'] as _i8.ResourcesEndpoint).createPrinter(
+              (endpoints['resources'] as _i9.ResourcesEndpoint).createPrinter(
             session,
             params['name'],
             params['powerConsumptionWatts'],
@@ -1428,7 +1588,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['resources'] as _i8.ResourcesEndpoint).updatePrinter(
+              (endpoints['resources'] as _i9.ResourcesEndpoint).updatePrinter(
             session,
             params['printerId'],
             params['name'],
@@ -1451,7 +1611,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['resources'] as _i8.ResourcesEndpoint).deletePrinter(
+              (endpoints['resources'] as _i9.ResourcesEndpoint).deletePrinter(
             session,
             params['printerId'],
           ),
@@ -1463,7 +1623,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['resources'] as _i8.ResourcesEndpoint)
+              (endpoints['resources'] as _i9.ResourcesEndpoint)
                   .getAllFilaments(session),
         ),
         'createFilament': _i1.MethodConnector(
@@ -1504,7 +1664,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['resources'] as _i8.ResourcesEndpoint).createFilament(
+              (endpoints['resources'] as _i9.ResourcesEndpoint).createFilament(
             session,
             params['name'],
             params['brand'],
@@ -1557,7 +1717,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['resources'] as _i8.ResourcesEndpoint).updateFilament(
+              (endpoints['resources'] as _i9.ResourcesEndpoint).updateFilament(
             session,
             params['filamentId'],
             params['name'],
@@ -1581,7 +1741,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['resources'] as _i8.ResourcesEndpoint).deleteFilament(
+              (endpoints['resources'] as _i9.ResourcesEndpoint).deleteFilament(
             session,
             params['filamentId'],
           ),
@@ -1593,7 +1753,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['resources'] as _i8.ResourcesEndpoint)
+              (endpoints['resources'] as _i9.ResourcesEndpoint)
                   .getAllExtraSupplies(session),
         ),
         'createExtraSupply': _i1.MethodConnector(
@@ -1614,7 +1774,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['resources'] as _i8.ResourcesEndpoint)
+              (endpoints['resources'] as _i9.ResourcesEndpoint)
                   .createExtraSupply(
             session,
             params['name'],
@@ -1644,7 +1804,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['resources'] as _i8.ResourcesEndpoint)
+              (endpoints['resources'] as _i9.ResourcesEndpoint)
                   .updateExtraSupply(
             session,
             params['supplyId'],
@@ -1665,7 +1825,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['resources'] as _i8.ResourcesEndpoint)
+              (endpoints['resources'] as _i9.ResourcesEndpoint)
                   .deleteExtraSupply(
             session,
             params['supplyId'],
@@ -1678,7 +1838,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['resources'] as _i8.ResourcesEndpoint)
+              (endpoints['resources'] as _i9.ResourcesEndpoint)
                   .getAllShippings(session),
         ),
         'createShipping': _i1.MethodConnector(
@@ -1704,7 +1864,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['resources'] as _i8.ResourcesEndpoint).createShipping(
+              (endpoints['resources'] as _i9.ResourcesEndpoint).createShipping(
             session,
             params['shippingType'],
             params['carrierName'],
@@ -1739,7 +1899,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['resources'] as _i8.ResourcesEndpoint).updateShipping(
+              (endpoints['resources'] as _i9.ResourcesEndpoint).updateShipping(
             session,
             params['shippingId'],
             params['shippingType'],
@@ -1760,7 +1920,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['resources'] as _i8.ResourcesEndpoint).deleteShipping(
+              (endpoints['resources'] as _i9.ResourcesEndpoint).deleteShipping(
             session,
             params['shippingId'],
           ),
@@ -1772,7 +1932,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['resources'] as _i8.ResourcesEndpoint)
+              (endpoints['resources'] as _i9.ResourcesEndpoint)
                   .getActiveElectricityRate(session),
         ),
         'getAllElectricityRates': _i1.MethodConnector(
@@ -1782,7 +1942,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['resources'] as _i8.ResourcesEndpoint)
+              (endpoints['resources'] as _i9.ResourcesEndpoint)
                   .getAllElectricityRates(session),
         ),
         'createElectricityRate': _i1.MethodConnector(
@@ -1803,7 +1963,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['resources'] as _i8.ResourcesEndpoint)
+              (endpoints['resources'] as _i9.ResourcesEndpoint)
                   .createElectricityRate(
             session,
             params['costPerKwh'],
@@ -1833,7 +1993,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['resources'] as _i8.ResourcesEndpoint)
+              (endpoints['resources'] as _i9.ResourcesEndpoint)
                   .updateElectricityRate(
             session,
             params['rateId'],
@@ -1854,11 +2014,464 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['resources'] as _i8.ResourcesEndpoint)
+              (endpoints['resources'] as _i9.ResourcesEndpoint)
                   .deleteElectricityRate(
             session,
             params['rateId'],
           ),
+        ),
+        'getAllQuoteCategories': _i1.MethodConnector(
+          name: 'getAllQuoteCategories',
+          params: {},
+          call: (
+            _i1.Session session,
+            Map<String, dynamic> params,
+          ) async =>
+              (endpoints['resources'] as _i9.ResourcesEndpoint)
+                  .getAllQuoteCategories(session),
+        ),
+        'getActiveQuoteCategories': _i1.MethodConnector(
+          name: 'getActiveQuoteCategories',
+          params: {},
+          call: (
+            _i1.Session session,
+            Map<String, dynamic> params,
+          ) async =>
+              (endpoints['resources'] as _i9.ResourcesEndpoint)
+                  .getActiveQuoteCategories(session),
+        ),
+        'createQuoteCategory': _i1.MethodConnector(
+          name: 'createQuoteCategory',
+          params: {
+            'name': _i1.ParameterDescription(
+              name: 'name',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+            'active': _i1.ParameterDescription(
+              name: 'active',
+              type: _i1.getType<bool>(),
+              nullable: false,
+            ),
+            'description': _i1.ParameterDescription(
+              name: 'description',
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
+            'icon': _i1.ParameterDescription(
+              name: 'icon',
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
+            'color': _i1.ParameterDescription(
+              name: 'color',
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
+          },
+          call: (
+            _i1.Session session,
+            Map<String, dynamic> params,
+          ) async =>
+              (endpoints['resources'] as _i9.ResourcesEndpoint)
+                  .createQuoteCategory(
+            session,
+            params['name'],
+            params['active'],
+            description: params['description'],
+            icon: params['icon'],
+            color: params['color'],
+          ),
+        ),
+        'updateQuoteCategory': _i1.MethodConnector(
+          name: 'updateQuoteCategory',
+          params: {
+            'categoryId': _i1.ParameterDescription(
+              name: 'categoryId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+            'name': _i1.ParameterDescription(
+              name: 'name',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+            'active': _i1.ParameterDescription(
+              name: 'active',
+              type: _i1.getType<bool>(),
+              nullable: false,
+            ),
+            'description': _i1.ParameterDescription(
+              name: 'description',
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
+            'icon': _i1.ParameterDescription(
+              name: 'icon',
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
+            'color': _i1.ParameterDescription(
+              name: 'color',
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
+          },
+          call: (
+            _i1.Session session,
+            Map<String, dynamic> params,
+          ) async =>
+              (endpoints['resources'] as _i9.ResourcesEndpoint)
+                  .updateQuoteCategory(
+            session,
+            params['categoryId'],
+            params['name'],
+            params['active'],
+            description: params['description'],
+            icon: params['icon'],
+            color: params['color'],
+          ),
+        ),
+        'deleteQuoteCategory': _i1.MethodConnector(
+          name: 'deleteQuoteCategory',
+          params: {
+            'categoryId': _i1.ParameterDescription(
+              name: 'categoryId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            )
+          },
+          call: (
+            _i1.Session session,
+            Map<String, dynamic> params,
+          ) async =>
+              (endpoints['resources'] as _i9.ResourcesEndpoint)
+                  .deleteQuoteCategory(
+            session,
+            params['categoryId'],
+          ),
+        ),
+      },
+    );
+    connectors['sales'] = _i1.EndpointConnector(
+      name: 'sales',
+      endpoint: endpoints['sales']!,
+      methodConnectors: {
+        'getAllSales': _i1.MethodConnector(
+          name: 'getAllSales',
+          params: {
+            'status': _i1.ParameterDescription(
+              name: 'status',
+              type: _i1.getType<_i15.SaleStatus?>(),
+              nullable: true,
+            ),
+            'paymentStatus': _i1.ParameterDescription(
+              name: 'paymentStatus',
+              type: _i1.getType<_i16.PaymentStatus?>(),
+              nullable: true,
+            ),
+          },
+          call: (
+            _i1.Session session,
+            Map<String, dynamic> params,
+          ) async =>
+              (endpoints['sales'] as _i10.SalesEndpoint).getAllSales(
+            session,
+            status: params['status'],
+            paymentStatus: params['paymentStatus'],
+          ),
+        ),
+        'getSaleById': _i1.MethodConnector(
+          name: 'getSaleById',
+          params: {
+            'saleId': _i1.ParameterDescription(
+              name: 'saleId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            )
+          },
+          call: (
+            _i1.Session session,
+            Map<String, dynamic> params,
+          ) async =>
+              (endpoints['sales'] as _i10.SalesEndpoint).getSaleById(
+            session,
+            params['saleId'],
+          ),
+        ),
+        'getSalesByQuoteId': _i1.MethodConnector(
+          name: 'getSalesByQuoteId',
+          params: {
+            'quoteId': _i1.ParameterDescription(
+              name: 'quoteId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            )
+          },
+          call: (
+            _i1.Session session,
+            Map<String, dynamic> params,
+          ) async =>
+              (endpoints['sales'] as _i10.SalesEndpoint).getSalesByQuoteId(
+            session,
+            params['quoteId'],
+          ),
+        ),
+        'convertQuoteToSale': _i1.MethodConnector(
+          name: 'convertQuoteToSale',
+          params: {
+            'quoteId': _i1.ParameterDescription(
+              name: 'quoteId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+            'quoteVersionId': _i1.ParameterDescription(
+              name: 'quoteVersionId',
+              type: _i1.getType<int?>(),
+              nullable: true,
+            ),
+            'initialStatus': _i1.ParameterDescription(
+              name: 'initialStatus',
+              type: _i1.getType<_i15.SaleStatus?>(),
+              nullable: true,
+            ),
+            'initialPaymentStatus': _i1.ParameterDescription(
+              name: 'initialPaymentStatus',
+              type: _i1.getType<_i16.PaymentStatus?>(),
+              nullable: true,
+            ),
+            'paidAmount': _i1.ParameterDescription(
+              name: 'paidAmount',
+              type: _i1.getType<double?>(),
+              nullable: true,
+            ),
+            'scheduledDeliveryDate': _i1.ParameterDescription(
+              name: 'scheduledDeliveryDate',
+              type: _i1.getType<DateTime?>(),
+              nullable: true,
+            ),
+            'customerName': _i1.ParameterDescription(
+              name: 'customerName',
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
+            'notes': _i1.ParameterDescription(
+              name: 'notes',
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
+          },
+          call: (
+            _i1.Session session,
+            Map<String, dynamic> params,
+          ) async =>
+              (endpoints['sales'] as _i10.SalesEndpoint).convertQuoteToSale(
+            session,
+            params['quoteId'],
+            quoteVersionId: params['quoteVersionId'],
+            initialStatus: params['initialStatus'],
+            initialPaymentStatus: params['initialPaymentStatus'],
+            paidAmount: params['paidAmount'],
+            scheduledDeliveryDate: params['scheduledDeliveryDate'],
+            customerName: params['customerName'],
+            notes: params['notes'],
+          ),
+        ),
+        'updateSaleStatus': _i1.MethodConnector(
+          name: 'updateSaleStatus',
+          params: {
+            'saleId': _i1.ParameterDescription(
+              name: 'saleId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+            'newStatus': _i1.ParameterDescription(
+              name: 'newStatus',
+              type: _i1.getType<_i15.SaleStatus>(),
+              nullable: false,
+            ),
+            'notes': _i1.ParameterDescription(
+              name: 'notes',
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
+          },
+          call: (
+            _i1.Session session,
+            Map<String, dynamic> params,
+          ) async =>
+              (endpoints['sales'] as _i10.SalesEndpoint).updateSaleStatus(
+            session,
+            params['saleId'],
+            params['newStatus'],
+            notes: params['notes'],
+          ),
+        ),
+        'updatePaymentStatus': _i1.MethodConnector(
+          name: 'updatePaymentStatus',
+          params: {
+            'saleId': _i1.ParameterDescription(
+              name: 'saleId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+            'newPaymentStatus': _i1.ParameterDescription(
+              name: 'newPaymentStatus',
+              type: _i1.getType<_i16.PaymentStatus>(),
+              nullable: false,
+            ),
+            'paidAmount': _i1.ParameterDescription(
+              name: 'paidAmount',
+              type: _i1.getType<double?>(),
+              nullable: true,
+            ),
+            'notes': _i1.ParameterDescription(
+              name: 'notes',
+              type: _i1.getType<String?>(),
+              nullable: true,
+            ),
+          },
+          call: (
+            _i1.Session session,
+            Map<String, dynamic> params,
+          ) async =>
+              (endpoints['sales'] as _i10.SalesEndpoint).updatePaymentStatus(
+            session,
+            params['saleId'],
+            params['newPaymentStatus'],
+            paidAmount: params['paidAmount'],
+            notes: params['notes'],
+          ),
+        ),
+        'updateDeliverySchedule': _i1.MethodConnector(
+          name: 'updateDeliverySchedule',
+          params: {
+            'saleId': _i1.ParameterDescription(
+              name: 'saleId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+            'scheduledDeliveryDate': _i1.ParameterDescription(
+              name: 'scheduledDeliveryDate',
+              type: _i1.getType<DateTime?>(),
+              nullable: true,
+            ),
+            'reminderDate': _i1.ParameterDescription(
+              name: 'reminderDate',
+              type: _i1.getType<DateTime?>(),
+              nullable: true,
+            ),
+            'actualDeliveryDate': _i1.ParameterDescription(
+              name: 'actualDeliveryDate',
+              type: _i1.getType<DateTime?>(),
+              nullable: true,
+            ),
+          },
+          call: (
+            _i1.Session session,
+            Map<String, dynamic> params,
+          ) async =>
+              (endpoints['sales'] as _i10.SalesEndpoint).updateDeliverySchedule(
+            session,
+            params['saleId'],
+            scheduledDeliveryDate: params['scheduledDeliveryDate'],
+            reminderDate: params['reminderDate'],
+            actualDeliveryDate: params['actualDeliveryDate'],
+          ),
+        ),
+        'updateSaleNotes': _i1.MethodConnector(
+          name: 'updateSaleNotes',
+          params: {
+            'saleId': _i1.ParameterDescription(
+              name: 'saleId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+            'notes': _i1.ParameterDescription(
+              name: 'notes',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call: (
+            _i1.Session session,
+            Map<String, dynamic> params,
+          ) async =>
+              (endpoints['sales'] as _i10.SalesEndpoint).updateSaleNotes(
+            session,
+            params['saleId'],
+            params['notes'],
+          ),
+        ),
+        'deleteSale': _i1.MethodConnector(
+          name: 'deleteSale',
+          params: {
+            'saleId': _i1.ParameterDescription(
+              name: 'saleId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            )
+          },
+          call: (
+            _i1.Session session,
+            Map<String, dynamic> params,
+          ) async =>
+              (endpoints['sales'] as _i10.SalesEndpoint).deleteSale(
+            session,
+            params['saleId'],
+          ),
+        ),
+        'getSalesStatistics': _i1.MethodConnector(
+          name: 'getSalesStatistics',
+          params: {
+            'fromDate': _i1.ParameterDescription(
+              name: 'fromDate',
+              type: _i1.getType<DateTime?>(),
+              nullable: true,
+            ),
+            'toDate': _i1.ParameterDescription(
+              name: 'toDate',
+              type: _i1.getType<DateTime?>(),
+              nullable: true,
+            ),
+          },
+          call: (
+            _i1.Session session,
+            Map<String, dynamic> params,
+          ) async =>
+              (endpoints['sales'] as _i10.SalesEndpoint).getSalesStatistics(
+            session,
+            fromDate: params['fromDate'],
+            toDate: params['toDate'],
+          ),
+        ),
+        'getUpcomingDeliveries': _i1.MethodConnector(
+          name: 'getUpcomingDeliveries',
+          params: {
+            'daysAhead': _i1.ParameterDescription(
+              name: 'daysAhead',
+              type: _i1.getType<int>(),
+              nullable: false,
+            )
+          },
+          call: (
+            _i1.Session session,
+            Map<String, dynamic> params,
+          ) async =>
+              (endpoints['sales'] as _i10.SalesEndpoint).getUpcomingDeliveries(
+            session,
+            daysAhead: params['daysAhead'],
+          ),
+        ),
+        'getOverdueDeliveries': _i1.MethodConnector(
+          name: 'getOverdueDeliveries',
+          params: {},
+          call: (
+            _i1.Session session,
+            Map<String, dynamic> params,
+          ) async =>
+              (endpoints['sales'] as _i10.SalesEndpoint)
+                  .getOverdueDeliveries(session),
         ),
       },
     );
@@ -1879,7 +2492,7 @@ class Endpoints extends _i1.EndpointDispatch {
             _i1.Session session,
             Map<String, dynamic> params,
           ) async =>
-              (endpoints['greeting'] as _i9.GreetingEndpoint).hello(
+              (endpoints['greeting'] as _i11.GreetingEndpoint).hello(
             session,
             params['name'],
           ),

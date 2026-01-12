@@ -312,4 +312,73 @@ class ResourcesEndpoint extends Endpoint {
       where: (t) => t.id.equals(rateId),
     );
   }
+
+  // ========== QUOTE CATEGORIES ==========
+  
+  /// Get all quote categories
+  Future<List<QuoteCategory>> getAllQuoteCategories(Session session) async {
+    return await QuoteCategory.db.find(session, orderBy: (t) => t.name);
+  }
+
+  /// Get active quote categories only
+  Future<List<QuoteCategory>> getActiveQuoteCategories(Session session) async {
+    return await QuoteCategory.db.find(
+      session,
+      where: (t) => t.active.equals(true),
+      orderBy: (t) => t.name,
+    );
+  }
+  
+  /// Create a new quote category
+  Future<QuoteCategory> createQuoteCategory(
+    Session session,
+    String name,
+    bool active, {
+    String? description,
+    String? icon,
+    String? color,
+  }) async {
+    final category = QuoteCategory(
+      name: name,
+      description: description,
+      icon: icon,
+      color: color,
+      active: active,
+    );
+    
+    return await QuoteCategory.db.insertRow(session, category);
+  }
+  
+  /// Update quote category
+  Future<QuoteCategory> updateQuoteCategory(
+    Session session,
+    int categoryId,
+    String name,
+    bool active, {
+    String? description,
+    String? icon,
+    String? color,
+  }) async {
+    final category = await QuoteCategory.db.findById(session, categoryId);
+    if (category == null) {
+      throw Exception('Quote category not found');
+    }
+    
+    category.name = name;
+    category.description = description;
+    category.icon = icon;
+    category.color = color;
+    category.active = active;
+    
+    return await QuoteCategory.db.updateRow(session, category);
+  }
+  
+  /// Delete quote category
+  Future<void> deleteQuoteCategory(Session session, int categoryId) async {
+    await QuoteCategory.db.deleteWhere(
+      session,
+      where: (t) => t.id.equals(categoryId),
+    );
+  }
 }
+

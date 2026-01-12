@@ -7,6 +7,7 @@ import '../services/auth_service.dart';
 import 'quote_form_screen.dart';
 import 'quote_details_screen.dart';
 import 'catalogs_screen.dart';
+import 'sales_list_screen.dart';
 
 class QuotesListScreen extends StatefulWidget {
   const QuotesListScreen({super.key});
@@ -91,6 +92,18 @@ class _QuotesListScreenState extends State<QuotesListScreen> {
         ),
         backgroundColor: Colors.teal,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.sell),
+            tooltip: 'Ventas',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SalesListScreen(),
+                ),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.category),
             tooltip: 'Gestionar Catálogos',

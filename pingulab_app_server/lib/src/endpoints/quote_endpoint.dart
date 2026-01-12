@@ -18,6 +18,7 @@ class QuoteEndpoint extends Endpoint {
       customerId: input.customerId,
       printerId: input.printerId,
       shippingId: input.shippingId,
+      categoryId: input.categoryId,
       createdBy: userId,
       filamentCost: 0.0,
       electricityCost: 0.0,
@@ -182,6 +183,7 @@ class QuoteEndpoint extends Endpoint {
     quote.customerId = input.customerId;
     quote.printerId = input.printerId;
     quote.shippingId = input.shippingId;
+    quote.categoryId = input.categoryId;
     quote.updatedBy = userId;
     
     if (input.status != null) {

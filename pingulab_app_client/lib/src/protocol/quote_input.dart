@@ -28,6 +28,7 @@ abstract class QuoteInput implements _i1.SerializableModel {
     this.customerId,
     this.printerId,
     this.shippingId,
+    this.categoryId,
     this.filamentUsages,
     this.supplyUsages,
   });
@@ -45,6 +46,7 @@ abstract class QuoteInput implements _i1.SerializableModel {
     int? customerId,
     int? printerId,
     int? shippingId,
+    int? categoryId,
     List<_i3.FilamentUsage>? filamentUsages,
     List<_i4.SupplyUsage>? supplyUsages,
   }) = _QuoteInputImpl;
@@ -67,6 +69,7 @@ abstract class QuoteInput implements _i1.SerializableModel {
       customerId: jsonSerialization['customerId'] as int?,
       printerId: jsonSerialization['printerId'] as int?,
       shippingId: jsonSerialization['shippingId'] as int?,
+      categoryId: jsonSerialization['categoryId'] as int?,
       filamentUsages: (jsonSerialization['filamentUsages'] as List?)
           ?.map((e) => _i3.FilamentUsage.fromJson((e as Map<String, dynamic>)))
           .toList(),
@@ -100,6 +103,8 @@ abstract class QuoteInput implements _i1.SerializableModel {
 
   int? shippingId;
 
+  int? categoryId;
+
   List<_i3.FilamentUsage>? filamentUsages;
 
   List<_i4.SupplyUsage>? supplyUsages;
@@ -120,6 +125,7 @@ abstract class QuoteInput implements _i1.SerializableModel {
     int? customerId,
     int? printerId,
     int? shippingId,
+    int? categoryId,
     List<_i3.FilamentUsage>? filamentUsages,
     List<_i4.SupplyUsage>? supplyUsages,
   });
@@ -138,6 +144,7 @@ abstract class QuoteInput implements _i1.SerializableModel {
       if (customerId != null) 'customerId': customerId,
       if (printerId != null) 'printerId': printerId,
       if (shippingId != null) 'shippingId': shippingId,
+      if (categoryId != null) 'categoryId': categoryId,
       if (filamentUsages != null)
         'filamentUsages':
             filamentUsages?.toJson(valueToJson: (v) => v.toJson()),
@@ -168,6 +175,7 @@ class _QuoteInputImpl extends QuoteInput {
     int? customerId,
     int? printerId,
     int? shippingId,
+    int? categoryId,
     List<_i3.FilamentUsage>? filamentUsages,
     List<_i4.SupplyUsage>? supplyUsages,
   }) : super._(
@@ -183,6 +191,7 @@ class _QuoteInputImpl extends QuoteInput {
           customerId: customerId,
           printerId: printerId,
           shippingId: shippingId,
+          categoryId: categoryId,
           filamentUsages: filamentUsages,
           supplyUsages: supplyUsages,
         );
@@ -204,6 +213,7 @@ class _QuoteInputImpl extends QuoteInput {
     Object? customerId = _Undefined,
     Object? printerId = _Undefined,
     Object? shippingId = _Undefined,
+    Object? categoryId = _Undefined,
     Object? filamentUsages = _Undefined,
     Object? supplyUsages = _Undefined,
   }) {
@@ -222,6 +232,7 @@ class _QuoteInputImpl extends QuoteInput {
       customerId: customerId is int? ? customerId : this.customerId,
       printerId: printerId is int? ? printerId : this.printerId,
       shippingId: shippingId is int? ? shippingId : this.shippingId,
+      categoryId: categoryId is int? ? categoryId : this.categoryId,
       filamentUsages: filamentUsages is List<_i3.FilamentUsage>?
           ? filamentUsages
           : this.filamentUsages?.map((e0) => e0.copyWith()).toList(),

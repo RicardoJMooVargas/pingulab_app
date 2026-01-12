@@ -39,6 +39,7 @@ class _QuoteFormScreenState extends State<QuoteFormScreen> {
   String? _selectedCustomerName;
   int? _selectedPrinterId;
   int? _selectedShippingId;
+  int? _selectedCategoryId;
   QuoteStatus _selectedStatus = QuoteStatus.PENDIENTE;
 
   // Data
@@ -46,6 +47,7 @@ class _QuoteFormScreenState extends State<QuoteFormScreen> {
   List<Filament>? _filaments;
   List<ExtraSupply>? _supplies;
   List<Shipping>? _shippings;
+  List<QuoteCategory>? _categories;
 
   // Selected
   final Map<int, double> _selectedFilaments = {};
@@ -63,11 +65,14 @@ class _QuoteFormScreenState extends State<QuoteFormScreen> {
       final filaments = await client.resources.getAllFilaments();
       final supplies = await client.resources.getAllExtraSupplies();
       final shippings = await client.resources.getAllShippings();
+      final categories = await client.resources.getActiveQuoteCategories();
 
       setState(() {
         _printers = printers;
         _filaments = filaments;
         _supplies = supplies;
+        _shippings = shippings;
+        _categories = categories;
         _shippings = shippings;
         _isLoadingData = false;
       });
@@ -101,6 +106,7 @@ class _QuoteFormScreenState extends State<QuoteFormScreen> {
       }
       _selectedPrinterId = quote.printerId;
       _selectedShippingId = quote.shippingId;
+      _selectedCategoryId = quote.categoryId;
       _selectedStatus = quote.status;
 
       if (details.filamentDetails != null) {
@@ -237,6 +243,7 @@ class _QuoteFormScreenState extends State<QuoteFormScreen> {
         customerId: _selectedCustomerId,
         printerId: _selectedPrinterId,
         shippingId: _selectedShippingId,
+        categoryId: _selectedCategoryId,
         status: _selectedStatus,
         imageBytes: _selectedImage,
         filamentUsages: _selectedFilaments,
@@ -407,6 +414,33 @@ class _QuoteFormScreenState extends State<QuoteFormScreen> {
                             .toList() ??
                         [],
                     onChanged: (v) => setState(() => _selectedPrinterId = v),
+                  ),
+
+                  const SizedBox(height: 24),
+                  _section('Categoría'),
+                  DropdownButtonFormField<int>(
+                    value: _selectedCategoryId,
+                    decoration: const InputDecoration(
+                      labelText: 'Seleccionar categoría',
+                      border: OutlineInputBorder(),
+                    ),
+                    hint: const Text('Sin categoría'),
+                    items: _categories
+                            ?.map((c) => DropdownMenuItem(
+                                  value: c.id,
+                                  child: Row(
+                                    children: [
+                                      if (c.icon != null) ...[
+                                        Text(c.icon!, style: const TextStyle(fontSize: 18)),
+                                        const SizedBox(width: 8),
+                                      ],
+                                      Text(c.name),
+                                    ],
+                                  ),
+                                ))
+                            .toList() ??
+                        [],
+                    onChanged: (v) => setState(() => _selectedCategoryId = v),
                   ),
 
                   const SizedBox(height: 24),

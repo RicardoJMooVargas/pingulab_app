@@ -23,8 +23,13 @@ import 'package:pingulab_app_client/src/protocol/quote.dart' as _i11;
 import 'package:pingulab_app_client/src/protocol/quote_input.dart' as _i12;
 import 'package:pingulab_app_client/src/protocol/quote_details.dart' as _i13;
 import 'package:pingulab_app_client/src/protocol/quote_status.dart' as _i14;
-import 'package:pingulab_app_client/src/protocol/greeting.dart' as _i15;
-import 'protocol.dart' as _i16;
+import 'package:pingulab_app_client/src/protocol/quote_version.dart' as _i15;
+import 'package:pingulab_app_client/src/protocol/quote_category.dart' as _i16;
+import 'package:pingulab_app_client/src/protocol/sale.dart' as _i17;
+import 'package:pingulab_app_client/src/protocol/sale_status.dart' as _i18;
+import 'package:pingulab_app_client/src/protocol/payment_status.dart' as _i19;
+import 'package:pingulab_app_client/src/protocol/greeting.dart' as _i20;
+import 'protocol.dart' as _i21;
 
 /// {@category Endpoint}
 class EndpointAuth extends _i1.EndpointRef {
@@ -666,6 +671,78 @@ class EndpointQuote extends _i1.EndpointRef {
 }
 
 /// {@category Endpoint}
+class EndpointQuoteVersion extends _i1.EndpointRef {
+  EndpointQuoteVersion(_i1.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'quoteVersion';
+
+  /// Get all versions for a quote
+  _i2.Future<List<_i15.QuoteVersion>> getQuoteVersions(int quoteId) =>
+      caller.callServerEndpoint<List<_i15.QuoteVersion>>(
+        'quoteVersion',
+        'getQuoteVersions',
+        {'quoteId': quoteId},
+      );
+
+  /// Get primary version for a quote
+  _i2.Future<_i15.QuoteVersion?> getPrimaryVersion(int quoteId) =>
+      caller.callServerEndpoint<_i15.QuoteVersion?>(
+        'quoteVersion',
+        'getPrimaryVersion',
+        {'quoteId': quoteId},
+      );
+
+  /// Create new version from current quote
+  _i2.Future<_i15.QuoteVersion> createVersionFromQuote(
+    int quoteId,
+    String? versionName,
+    bool isPrimary,
+    int? userId,
+  ) =>
+      caller.callServerEndpoint<_i15.QuoteVersion>(
+        'quoteVersion',
+        'createVersionFromQuote',
+        {
+          'quoteId': quoteId,
+          'versionName': versionName,
+          'isPrimary': isPrimary,
+          'userId': userId,
+        },
+      );
+
+  /// Set version as primary
+  _i2.Future<void> setPrimaryVersion(int versionId) =>
+      caller.callServerEndpoint<void>(
+        'quoteVersion',
+        'setPrimaryVersion',
+        {'versionId': versionId},
+      );
+
+  /// Apply version to quote (update quote with version data)
+  _i2.Future<_i11.Quote> applyVersionToQuote(
+    int versionId,
+    int? userId,
+  ) =>
+      caller.callServerEndpoint<_i11.Quote>(
+        'quoteVersion',
+        'applyVersionToQuote',
+        {
+          'versionId': versionId,
+          'userId': userId,
+        },
+      );
+
+  /// Delete version
+  _i2.Future<void> deleteVersion(int versionId) =>
+      caller.callServerEndpoint<void>(
+        'quoteVersion',
+        'deleteVersion',
+        {'versionId': versionId},
+      );
+}
+
+/// {@category Endpoint}
 class EndpointResources extends _i1.EndpointRef {
   EndpointResources(_i1.EndpointCaller caller) : super(caller);
 
@@ -949,6 +1026,241 @@ class EndpointResources extends _i1.EndpointRef {
         'deleteElectricityRate',
         {'rateId': rateId},
       );
+
+  /// Get all quote categories
+  _i2.Future<List<_i16.QuoteCategory>> getAllQuoteCategories() =>
+      caller.callServerEndpoint<List<_i16.QuoteCategory>>(
+        'resources',
+        'getAllQuoteCategories',
+        {},
+      );
+
+  /// Get active quote categories only
+  _i2.Future<List<_i16.QuoteCategory>> getActiveQuoteCategories() =>
+      caller.callServerEndpoint<List<_i16.QuoteCategory>>(
+        'resources',
+        'getActiveQuoteCategories',
+        {},
+      );
+
+  /// Create a new quote category
+  _i2.Future<_i16.QuoteCategory> createQuoteCategory(
+    String name,
+    bool active, {
+    String? description,
+    String? icon,
+    String? color,
+  }) =>
+      caller.callServerEndpoint<_i16.QuoteCategory>(
+        'resources',
+        'createQuoteCategory',
+        {
+          'name': name,
+          'active': active,
+          'description': description,
+          'icon': icon,
+          'color': color,
+        },
+      );
+
+  /// Update quote category
+  _i2.Future<_i16.QuoteCategory> updateQuoteCategory(
+    int categoryId,
+    String name,
+    bool active, {
+    String? description,
+    String? icon,
+    String? color,
+  }) =>
+      caller.callServerEndpoint<_i16.QuoteCategory>(
+        'resources',
+        'updateQuoteCategory',
+        {
+          'categoryId': categoryId,
+          'name': name,
+          'active': active,
+          'description': description,
+          'icon': icon,
+          'color': color,
+        },
+      );
+
+  /// Delete quote category
+  _i2.Future<void> deleteQuoteCategory(int categoryId) =>
+      caller.callServerEndpoint<void>(
+        'resources',
+        'deleteQuoteCategory',
+        {'categoryId': categoryId},
+      );
+}
+
+/// Endpoint for managing sales operations.
+/// Handles conversion from quotes to sales, status tracking, and payment management.
+/// {@category Endpoint}
+class EndpointSales extends _i1.EndpointRef {
+  EndpointSales(_i1.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'sales';
+
+  /// Get all sales with optional filtering by status
+  _i2.Future<List<_i17.Sale>> getAllSales({
+    _i18.SaleStatus? status,
+    _i19.PaymentStatus? paymentStatus,
+  }) =>
+      caller.callServerEndpoint<List<_i17.Sale>>(
+        'sales',
+        'getAllSales',
+        {
+          'status': status,
+          'paymentStatus': paymentStatus,
+        },
+      );
+
+  /// Get a specific sale by ID
+  _i2.Future<_i17.Sale?> getSaleById(int saleId) =>
+      caller.callServerEndpoint<_i17.Sale?>(
+        'sales',
+        'getSaleById',
+        {'saleId': saleId},
+      );
+
+  /// Get sales by quote ID
+  _i2.Future<List<_i17.Sale>> getSalesByQuoteId(int quoteId) =>
+      caller.callServerEndpoint<List<_i17.Sale>>(
+        'sales',
+        'getSalesByQuoteId',
+        {'quoteId': quoteId},
+      );
+
+  /// Convert a quote to a sale
+  _i2.Future<_i17.Sale> convertQuoteToSale(
+    int quoteId, {
+    int? quoteVersionId,
+    _i18.SaleStatus? initialStatus,
+    _i19.PaymentStatus? initialPaymentStatus,
+    double? paidAmount,
+    DateTime? scheduledDeliveryDate,
+    String? customerName,
+    String? notes,
+  }) =>
+      caller.callServerEndpoint<_i17.Sale>(
+        'sales',
+        'convertQuoteToSale',
+        {
+          'quoteId': quoteId,
+          'quoteVersionId': quoteVersionId,
+          'initialStatus': initialStatus,
+          'initialPaymentStatus': initialPaymentStatus,
+          'paidAmount': paidAmount,
+          'scheduledDeliveryDate': scheduledDeliveryDate,
+          'customerName': customerName,
+          'notes': notes,
+        },
+      );
+
+  /// Update sale status
+  _i2.Future<_i17.Sale> updateSaleStatus(
+    int saleId,
+    _i18.SaleStatus newStatus, {
+    String? notes,
+  }) =>
+      caller.callServerEndpoint<_i17.Sale>(
+        'sales',
+        'updateSaleStatus',
+        {
+          'saleId': saleId,
+          'newStatus': newStatus,
+          'notes': notes,
+        },
+      );
+
+  /// Update payment status and paid amount
+  _i2.Future<_i17.Sale> updatePaymentStatus(
+    int saleId,
+    _i19.PaymentStatus newPaymentStatus, {
+    double? paidAmount,
+    String? notes,
+  }) =>
+      caller.callServerEndpoint<_i17.Sale>(
+        'sales',
+        'updatePaymentStatus',
+        {
+          'saleId': saleId,
+          'newPaymentStatus': newPaymentStatus,
+          'paidAmount': paidAmount,
+          'notes': notes,
+        },
+      );
+
+  /// Update delivery scheduling
+  _i2.Future<_i17.Sale> updateDeliverySchedule(
+    int saleId, {
+    DateTime? scheduledDeliveryDate,
+    DateTime? reminderDate,
+    DateTime? actualDeliveryDate,
+  }) =>
+      caller.callServerEndpoint<_i17.Sale>(
+        'sales',
+        'updateDeliverySchedule',
+        {
+          'saleId': saleId,
+          'scheduledDeliveryDate': scheduledDeliveryDate,
+          'reminderDate': reminderDate,
+          'actualDeliveryDate': actualDeliveryDate,
+        },
+      );
+
+  /// Update sale notes
+  _i2.Future<_i17.Sale> updateSaleNotes(
+    int saleId,
+    String notes,
+  ) =>
+      caller.callServerEndpoint<_i17.Sale>(
+        'sales',
+        'updateSaleNotes',
+        {
+          'saleId': saleId,
+          'notes': notes,
+        },
+      );
+
+  /// Delete a sale
+  _i2.Future<bool> deleteSale(int saleId) => caller.callServerEndpoint<bool>(
+        'sales',
+        'deleteSale',
+        {'saleId': saleId},
+      );
+
+  /// Get sales statistics
+  _i2.Future<Map<String, dynamic>> getSalesStatistics({
+    DateTime? fromDate,
+    DateTime? toDate,
+  }) =>
+      caller.callServerEndpoint<Map<String, dynamic>>(
+        'sales',
+        'getSalesStatistics',
+        {
+          'fromDate': fromDate,
+          'toDate': toDate,
+        },
+      );
+
+  /// Get upcoming deliveries (scheduled for the next N days)
+  _i2.Future<List<_i17.Sale>> getUpcomingDeliveries({required int daysAhead}) =>
+      caller.callServerEndpoint<List<_i17.Sale>>(
+        'sales',
+        'getUpcomingDeliveries',
+        {'daysAhead': daysAhead},
+      );
+
+  /// Get overdue deliveries (scheduled delivery date passed but not delivered)
+  _i2.Future<List<_i17.Sale>> getOverdueDeliveries() =>
+      caller.callServerEndpoint<List<_i17.Sale>>(
+        'sales',
+        'getOverdueDeliveries',
+        {},
+      );
 }
 
 /// This is an example endpoint that returns a greeting message through
@@ -961,8 +1273,8 @@ class EndpointGreeting extends _i1.EndpointRef {
   String get name => 'greeting';
 
   /// Returns a personalized greeting message: "Hello {name}".
-  _i2.Future<_i15.Greeting> hello(String name) =>
-      caller.callServerEndpoint<_i15.Greeting>(
+  _i2.Future<_i20.Greeting> hello(String name) =>
+      caller.callServerEndpoint<_i20.Greeting>(
         'greeting',
         'hello',
         {'name': name},
@@ -985,7 +1297,7 @@ class Client extends _i1.ServerpodClientShared {
     bool? disconnectStreamsOnLostInternetConnection,
   }) : super(
           host,
-          _i16.Protocol(),
+          _i21.Protocol(),
           securityContext: securityContext,
           authenticationKeyManager: authenticationKeyManager,
           streamingConnectionTimeout: streamingConnectionTimeout,
@@ -1001,7 +1313,9 @@ class Client extends _i1.ServerpodClientShared {
     customer = EndpointCustomer(this);
     init = EndpointInit(this);
     quote = EndpointQuote(this);
+    quoteVersion = EndpointQuoteVersion(this);
     resources = EndpointResources(this);
+    sales = EndpointSales(this);
     greeting = EndpointGreeting(this);
   }
 
@@ -1017,7 +1331,11 @@ class Client extends _i1.ServerpodClientShared {
 
   late final EndpointQuote quote;
 
+  late final EndpointQuoteVersion quoteVersion;
+
   late final EndpointResources resources;
+
+  late final EndpointSales sales;
 
   late final EndpointGreeting greeting;
 
@@ -1029,7 +1347,9 @@ class Client extends _i1.ServerpodClientShared {
         'customer': customer,
         'init': init,
         'quote': quote,
+        'quoteVersion': quoteVersion,
         'resources': resources,
+        'sales': sales,
         'greeting': greeting,
       };
 
