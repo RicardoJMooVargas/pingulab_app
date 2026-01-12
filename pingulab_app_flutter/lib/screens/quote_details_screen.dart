@@ -166,6 +166,39 @@ Future<void> _loadSales() async {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Mostrar imagen si existe
+                    if (quote.imageUrl != null) ...[
+                      Container(
+                        constraints: const BoxConstraints(maxHeight: 200),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.grey.shade300),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.memory(
+                            base64Decode(quote.imageUrl!),
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                padding: const EdgeInsets.all(16),
+                                color: Colors.grey[200],
+                                child: const Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.error_outline, color: Colors.red, size: 16),
+                                    SizedBox(width: 8),
+                                    Text('Error al cargar imagen', style: TextStyle(fontSize: 12)),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
                     Text(
                       'Total: \$${quote.total.toStringAsFixed(2)}',
                       style: const TextStyle(
