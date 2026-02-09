@@ -632,6 +632,20 @@ class EndpointQuote extends _i1.EndpointRef {
         {},
       );
 
+  /// Get quotes with pagination
+  _i2.Future<List<_i11.Quote>> getQuotesPaginated({
+    required int limit,
+    required int offset,
+  }) =>
+      caller.callServerEndpoint<List<_i11.Quote>>(
+        'quote',
+        'getQuotesPaginated',
+        {
+          'limit': limit,
+          'offset': offset,
+        },
+      );
+
   /// Update an existing quote
   _i2.Future<_i11.Quote> updateQuote(
     int quoteId,

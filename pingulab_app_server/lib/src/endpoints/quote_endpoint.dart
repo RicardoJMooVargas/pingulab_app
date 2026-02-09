@@ -163,6 +163,23 @@ class QuoteEndpoint extends Endpoint {
     return quotes;
   }
 
+  /// Get quotes with pagination
+  Future<List<Quote>> getQuotesPaginated(
+    Session session, {
+    int limit = 20,
+    int offset = 0,
+  }) async {
+    final quotes = await Quote.db.find(
+      session,
+      orderBy: (t) => t.id,
+      orderDescending: true,
+      limit: limit,
+      offset: offset,
+    );
+    
+    return quotes;
+  }
+
   /// Update an existing quote
   Future<Quote> updateQuote(Session session, int quoteId, QuoteInput input, {int? userId}) async {
     // Get existing quote

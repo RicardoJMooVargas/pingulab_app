@@ -16,11 +16,35 @@ class _SalesListScreenState extends State<SalesListScreen> {
   late Future<List<Sale>> _salesFuture;
   SaleStatus? _filterStatus;
   PaymentStatus? _filterPaymentStatus;
+  int? _filterCustomerId;
+  String? _filterCustomerName;
+  final TextEditingController _searchController = TextEditingController();
+  List<Sale> _allSales = [];
+  List<Sale> _filteredSales = [];
+  List<Customer> _customers = [];
 
   @override
   void initState() {
     super.initState();
+    _loadCustomers();
     _loadSales();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadCustomers() async {
+    try {
+      final customers = await client.catalogs.getCustomers();
+      setState(() {
+        _customers = customers;
+      });
+    } catch (e) {
+      debugPrint('Error loading customers: $e');
+    }
   }
 
   void _loadSales() {
@@ -28,7 +52,38 @@ class _SalesListScreenState extends State<SalesListScreen> {
       _salesFuture = client.sales.getAllSales(
         status: _filterStatus,
         paymentStatus: _filterPaymentStatus,
-      );
+      ).then((sales) {
+        _allSales = sales;
+        _applyFilters();
+        return _filteredSales;
+      });
+    });
+  }
+
+  void _applyFilters() {
+    List<Sale> filtered = List.from(_allSales);
+
+    // Filtrar por cliente
+    if (_filterCustomerId != null) {
+      filtered = filtered.where((sale) => sale.customerId == _filterCustomerId).toList();
+    }
+
+    // Filtrar por búsqueda de texto
+    final searchQuery = _searchController.text.toLowerCase().trim();
+    if (searchQuery.isNotEmpty) {
+      filtered = filtered.where((sale) {
+        final customerName = (sale.customerName ?? '').toLowerCase();
+        final saleId = 'venta #${sale.id}';
+        final quoteId = 'cotización #${sale.quoteId}';
+        
+        return customerName.contains(searchQuery) ||
+               saleId.contains(searchQuery) ||
+               quoteId.contains(searchQuery);
+      }).toList();
+    }
+
+    setState(() {
+      _filteredSales = filtered;
     });
   }
 
@@ -47,39 +102,85 @@ class _SalesListScreenState extends State<SalesListScreen> {
       ),
       body: Column(
         children: [
-          if (_filterStatus != null || _filterPaymentStatus != null)
+          // Buscador
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'Buscar por cliente, venta o cotización...',
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: _searchController.text.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          _searchController.clear();
+                          _applyFilters();
+                        },
+                      )
+                    : null,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                filled: true,
+                fillColor: Colors.grey[100],
+              ),
+              onChanged: (value) {
+                _applyFilters();
+              },
+            ),
+          ),
+          // Filtros activos
+          if (_filterStatus != null || _filterPaymentStatus != null || _filterCustomerId != null)
             Container(
               padding: const EdgeInsets.all(8.0),
               color: Colors.deepPurple.shade50,
-              child: Row(
-                children: [
-                  const Text('Filtros activos: '),
-                  if (_filterStatus != null) ...[
-                    Chip(
-                      label: Text(_getSaleStatusLabel(_filterStatus!)),
-                      deleteIcon: const Icon(Icons.close, size: 16),
-                      onDeleted: () {
-                        setState(() {
-                          _filterStatus = null;
-                          _loadSales();
-                        });
-                      },
-                    ),
-                    const SizedBox(width: 4),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    const Text('Filtros: '),
+                    if (_filterStatus != null) ...[
+                      Chip(
+                        label: Text(_getSaleStatusLabel(_filterStatus!)),
+                        deleteIcon: const Icon(Icons.close, size: 16),
+                        onDeleted: () {
+                          setState(() {
+                            _filterStatus = null;
+                            _loadSales();
+                          });
+                        },
+                      ),
+                      const SizedBox(width: 4),
+                    ],
+                    if (_filterPaymentStatus != null) ...[
+                      Chip(
+                        label: Text(_getPaymentStatusLabel(_filterPaymentStatus!)),
+                        deleteIcon: const Icon(Icons.close, size: 16),
+                        onDeleted: () {
+                          setState(() {
+                            _filterPaymentStatus = null;
+                            _loadSales();
+                          });
+                        },
+                      ),
+                      const SizedBox(width: 4),
+                    ],
+                    if (_filterCustomerId != null) ...[
+                      Chip(
+                        label: Text('Cliente: $_filterCustomerName'),
+                        deleteIcon: const Icon(Icons.close, size: 16),
+                        onDeleted: () {
+                          setState(() {
+                            _filterCustomerId = null;
+                            _filterCustomerName = null;
+                            _applyFilters();
+                          });
+                        },
+                      ),
+                    ],
                   ],
-                  if (_filterPaymentStatus != null) ...[
-                    Chip(
-                      label: Text(_getPaymentStatusLabel(_filterPaymentStatus!)),
-                      deleteIcon: const Icon(Icons.close, size: 16),
-                      onDeleted: () {
-                        setState(() {
-                          _filterPaymentStatus = null;
-                          _loadSales();
-                        });
-                      },
-                    ),
-                  ],
-                ],
+                ),
               ),
             ),
           Expanded(
@@ -164,7 +265,7 @@ class _SalesListScreenState extends State<SalesListScreen> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Venta #${sale.id}',
+                          'Venta #${sale.id} • Cotización #${sale.quoteId}',
                           style: TextStyle(
                             color: Colors.grey[600],
                             fontSize: 12,
@@ -343,6 +444,8 @@ class _SalesListScreenState extends State<SalesListScreen> {
       builder: (context) {
         SaleStatus? tempFilterStatus = _filterStatus;
         PaymentStatus? tempFilterPaymentStatus = _filterPaymentStatus;
+        int? tempFilterCustomerId = _filterCustomerId;
+        String? tempFilterCustomerName = _filterCustomerName;
 
         return StatefulBuilder(
           builder: (context, setDialogState) {
@@ -353,6 +456,40 @@ class _SalesListScreenState extends State<SalesListScreen> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    const Text('Cliente:', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 8),
+                    DropdownButtonFormField<int?>(
+                      value: tempFilterCustomerId,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      ),
+                      hint: const Text('Todos los clientes'),
+                      items: [
+                        const DropdownMenuItem<int?>(
+                          value: null,
+                          child: Text('Todos los clientes'),
+                        ),
+                        ..._customers.map((customer) {
+                          return DropdownMenuItem<int?>(
+                            value: customer.id,
+                            child: Text(customer.apodo),
+                          );
+                        }).toList(),
+                      ],
+                      onChanged: (value) {
+                        setDialogState(() {
+                          tempFilterCustomerId = value;
+                          if (value != null) {
+                            final customer = _customers.firstWhere((c) => c.id == value);
+                            tempFilterCustomerName = customer.apodo;
+                          } else {
+                            tempFilterCustomerName = null;
+                          }
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 16),
                     const Text('Estado de Venta:', style: TextStyle(fontWeight: FontWeight.bold)),
                     const SizedBox(height: 8),
                     Wrap(
@@ -423,6 +560,8 @@ class _SalesListScreenState extends State<SalesListScreen> {
                     setState(() {
                       _filterStatus = tempFilterStatus;
                       _filterPaymentStatus = tempFilterPaymentStatus;
+                      _filterCustomerId = tempFilterCustomerId;
+                      _filterCustomerName = tempFilterCustomerName;
                     });
                     _loadSales();
                     Navigator.pop(context);

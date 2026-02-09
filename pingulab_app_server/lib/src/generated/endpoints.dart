@@ -1266,6 +1266,30 @@ class Endpoints extends _i1.EndpointDispatch {
           ) async =>
               (endpoints['quote'] as _i7.QuoteEndpoint).getAllQuotes(session),
         ),
+        'getQuotesPaginated': _i1.MethodConnector(
+          name: 'getQuotesPaginated',
+          params: {
+            'limit': _i1.ParameterDescription(
+              name: 'limit',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+            'offset': _i1.ParameterDescription(
+              name: 'offset',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call: (
+            _i1.Session session,
+            Map<String, dynamic> params,
+          ) async =>
+              (endpoints['quote'] as _i7.QuoteEndpoint).getQuotesPaginated(
+            session,
+            limit: params['limit'],
+            offset: params['offset'],
+          ),
+        ),
         'updateQuote': _i1.MethodConnector(
           name: 'updateQuote',
           params: {

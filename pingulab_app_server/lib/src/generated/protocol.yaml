@@ -51,6 +51,7 @@ quote:
   - getQuote:
   - getQuoteDetails:
   - getAllQuotes:
+  - getQuotesPaginated:
   - updateQuote:
   - deleteQuote:
   - updateQuoteStatus:

@@ -109,6 +109,16 @@ class _QuoteFormScreenState extends State<QuoteFormScreen> {
       _selectedCategoryId = quote.categoryId;
       _selectedStatus = quote.status;
 
+      // Cargar imagen existente
+      if (quote.imageUrl != null) {
+        try {
+          _selectedImage = base64Decode(quote.imageUrl!);
+          debugPrint('✅ Imagen cargada desde la cotización: ${(_selectedImage!.length / 1024).toStringAsFixed(2)} KB');
+        } catch (e) {
+          debugPrint('❌ Error al decodificar imagen: $e');
+        }
+      }
+
       if (details.filamentDetails != null) {
         for (var d in details.filamentDetails!) {
           _selectedFilaments[d.filament.id!] = d.gramsUsed;
