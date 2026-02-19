@@ -151,55 +151,93 @@ Future<void> _loadSales() async {
     if (_quoteDetails == null) return;
 
     final quote = _quoteDetails!.quote;
+    
+    // Cargar la lista de clientes disponibles
+    List<Customer> customers = [];
+    try {
+      customers = await client.catalogs.getCustomers();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error cargando clientes: $e')),
+        );
+      }
+      return;
+    }
+
+    // Cargar versiones de la cotización
+    List<QuoteVersion> versions = [];
+    try {
+      versions = await client.quoteVersion.getQuoteVersions(widget.quoteId);
+    } catch (e) {
+      debugPrint('Error loading versions: $e');
+    }
+
     final customerNameController = TextEditingController(text: quote.name);
+    final notesController = TextEditingController();
     DateTime? scheduledDate;
+    int? selectedCustomerId = quote.customerId;
+    int? selectedVersionId;
 
     final result = await showDialog<bool>(
       context: context,
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setDialogState) {
+            // Buscar la versión seleccionada
+            QuoteVersion? selectedVersion;
+            if (selectedVersionId != null) {
+              try {
+                selectedVersion = versions.firstWhere((v) => v.id == selectedVersionId);
+              } catch (e) {
+                selectedVersion = null;
+              }
+            }
+
             return AlertDialog(
               title: const Text('Convertir a Venta'),
-              content: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Mostrar imagen si existe
-                    if (quote.imageUrl != null) ...[
-                      Container(
-                        constraints: const BoxConstraints(maxHeight: 200),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.grey.shade300),
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Image.memory(
-                            base64Decode(quote.imageUrl!),
-                            fit: BoxFit.cover,
-                            width: double.infinity,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Container(
-                                padding: const EdgeInsets.all(16),
-                                color: Colors.grey[200],
-                                child: const Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(Icons.error_outline, color: Colors.red, size: 16),
-                                    SizedBox(width: 8),
-                                    Text('Error al cargar imagen', style: TextStyle(fontSize: 12)),
-                                  ],
-                                ),
-                              );
-                            },
+              content: SizedBox(
+                width: 500,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Mostrar imagen si existe
+                      if (quote.imageUrl != null) ...[
+                        Container(
+                          constraints: const BoxConstraints(maxHeight: 200),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.grey.shade300),
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.memory(
+                              base64Decode(quote.imageUrl!),
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  padding: const EdgeInsets.all(16),
+                                  color: Colors.grey[200],
+                                  child: const Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.error_outline, color: Colors.red, size: 16),
+                                      SizedBox(width: 8),
+                                      Text('Error al cargar imagen', style: TextStyle(fontSize: 12)),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 16),
-                    ],
-                    if (quote.quantity > 1) ...[
+                        const SizedBox(height: 16),
+                      ],
+                      
+                      // Información de precio
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
@@ -209,41 +247,43 @@ Future<void> _loadSales() async {
                         ),
                         child: Column(
                           children: [
+                            if (quote.quantity > 1) ...[
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Text(
+                                    'Precio por pieza:',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  Text(
+                                    '\$${(selectedVersion?.total ?? quote.total / quote.quantity).toStringAsFixed(2)}',
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.deepPurple,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              const Divider(height: 8),
+                              const SizedBox(height: 4),
+                            ],
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                const Text(
-                                  'Precio por pieza:',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
                                 Text(
-                                  '\$${(quote.total / quote.quantity).toStringAsFixed(2)}',
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.deepPurple,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            const Divider(height: 8),
-                            const SizedBox(height: 4),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  'Total (${quote.quantity} piezas):',
+                                  quote.quantity > 1 ? 'Total (${quote.quantity} piezas):' : 'Total:',
                                   style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
                                 Text(
-                                  '\$${quote.total.toStringAsFixed(2)}',
+                                  '\$${(selectedVersion?.total ?? quote.total).toStringAsFixed(2)}',
                                   style: const TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
@@ -256,49 +296,159 @@ Future<void> _loadSales() async {
                         ),
                       ),
                       const SizedBox(height: 16),
-                    ] else ...[
-                      Text(
-                        'Total: \$${quote.total.toStringAsFixed(2)}',
-                        style: const TextStyle(
-                          fontSize: 18,
+                      
+                      // Selector de Cliente
+                      const Text(
+                        'Cliente',
+                        style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          color: Colors.deepPurple,
+                          fontSize: 16,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      DropdownButtonFormField<int?>(
+                        value: selectedCustomerId,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          hintText: 'Seleccionar cliente',
+                          prefixIcon: Icon(Icons.person),
+                        ),
+                        items: customers.map((customer) {
+                          return DropdownMenuItem<int?>(
+                            value: customer.id,
+                            child: Text(customer.apodo),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setDialogState(() {
+                            selectedCustomerId = value;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      
+                      // Nombre personalizado del cliente (opcional)
+                      TextField(
+                        controller: customerNameController,
+                        decoration: const InputDecoration(
+                          labelText: 'Nombre para la venta (opcional)',
+                          hintText: 'Ej: Juan Pérez - Lote A',
+                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.edit),
                         ),
                       ),
                       const SizedBox(height: 16),
+                      
+                      // Selector de Versión (si hay versiones disponibles)
+                      if (versions.isNotEmpty) ...[
+                        const Text(
+                          'Versión de Cotización',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        DropdownButtonFormField<int?>(
+                          value: selectedVersionId,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            hintText: 'Usar cotización original',
+                            prefixIcon: Icon(Icons.layers),
+                          ),
+                          items: [
+                            const DropdownMenuItem<int?>(
+                              value: null,
+                              child: Text('Cotización Original'),
+                            ),
+                            ...versions.map((version) {
+                              return DropdownMenuItem<int?>(
+                                value: version.id,
+                                child: Text(
+                                  version.versionName != null
+                                      ? '${version.versionName} (v${version.versionNumber})${version.isPrimary ? ' ⭐' : ''}'
+                                      : 'Versión ${version.versionNumber}${version.isPrimary ? ' ⭐' : ''}',
+                                ),
+                              );
+                            }).toList(),
+                          ],
+                          onChanged: (value) {
+                            setDialogState(() {
+                              selectedVersionId = value;
+                            });
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                      ],
+                      
+                      // Notas
+                      TextField(
+                        controller: notesController,
+                        maxLines: 3,
+                        decoration: const InputDecoration(
+                          labelText: 'Notas',
+                          hintText: 'Información adicional para esta venta...',
+                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.notes),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      
+                      // Programar Entrega
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: const Text('Programar Entrega'),
+                        subtitle: Text(
+                          scheduledDate != null
+                              ? 'Fecha: ${scheduledDate!.day}/${scheduledDate!.month}/${scheduledDate!.year}'
+                              : 'Sin fecha programada',
+                        ),
+                        trailing: const Icon(Icons.calendar_today),
+                        onTap: () async {
+                          final date = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime.now(),
+                            firstDate: DateTime.now(),
+                            lastDate: DateTime.now().add(const Duration(days: 365)),
+                          );
+                          if (date != null) {
+                            setDialogState(() {
+                              scheduledDate = date;
+                            });
+                          }
+                        },
+                      ),
+                      
+                      // Información de la versión seleccionada
+                      if (selectedVersion != null) ...[
+                        const Divider(),
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.blue.withOpacity(0.3)),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Detalles de la Versión',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text('Peso: ${selectedVersion.pieceWeightGrams}g'),
+                              Text('Horas de impresión: ${selectedVersion.printHours}hrs'),
+                              Text('Cantidad: ${selectedVersion.quantity}'),
+                            ],
+                          ),
+                        ),
+                      ],
                     ],
-                    TextField(
-                      controller: customerNameController,
-                      decoration: const InputDecoration(
-                        labelText: 'Nombre del Cliente',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: const Text('Programar Entrega'),
-                      subtitle: Text(
-                        scheduledDate != null
-                            ? 'Fecha: ${scheduledDate!.day}/${scheduledDate!.month}/${scheduledDate!.year}'
-                            : 'Sin fecha programada',
-                      ),
-                      trailing: const Icon(Icons.calendar_today),
-                      onTap: () async {
-                        final date = await showDatePicker(
-                          context: context,
-                          initialDate: DateTime.now(),
-                          firstDate: DateTime.now(),
-                          lastDate: DateTime.now().add(const Duration(days: 365)),
-                        );
-                        if (date != null) {
-                          setDialogState(() {
-                            scheduledDate = date;
-                          });
-                        }
-                      },
-                    ),
-                  ],
+                  ),
                 ),
               ),
               actions: [
@@ -307,7 +457,9 @@ Future<void> _loadSales() async {
                   child: const Text('Cancelar'),
                 ),
                 ElevatedButton(
-                  onPressed: () => Navigator.pop(context, true),
+                  onPressed: selectedCustomerId == null
+                      ? null
+                      : () => Navigator.pop(context, true),
                   child: const Text('Crear Venta'),
                 ),
               ],
@@ -321,15 +473,18 @@ Future<void> _loadSales() async {
       try {
         final sale = await client.sales.convertQuoteToSale(
           widget.quoteId,
+          quoteVersionId: selectedVersionId,
+          customerId: selectedCustomerId,
           customerName: customerNameController.text.isEmpty
               ? null
               : customerNameController.text,
           scheduledDeliveryDate: scheduledDate,
+          notes: notesController.text.isEmpty ? null : notesController.text,
         );
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Venta creada exitosamente')),
+            const SnackBar(content: Text('✅ Venta creada exitosamente')),
           );
           
           // Navigate to sale details
@@ -345,7 +500,7 @@ Future<void> _loadSales() async {
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error: $e')),
+            SnackBar(content: Text('❌ Error: $e')),
           );
         }
       }
@@ -732,12 +887,12 @@ Future<void> _loadSales() async {
         ],
       ),
       body: _buildBody(),
-      floatingActionButton: _quoteDetails != null && (_sales == null || _sales!.isEmpty)
+      floatingActionButton: _quoteDetails != null
           ? FloatingActionButton.extended(
               onPressed: _convertToSale,
               backgroundColor: Colors.deepPurple,
-              icon: const Icon(Icons.sell),
-              label: const Text('Convertir a Venta'),
+              icon: const Icon(Icons.add_shopping_cart),
+              label: Text(_sales != null && _sales!.isNotEmpty ? 'Nueva Venta' : 'Crear Venta'),
             )
           : null,
     );
@@ -1010,6 +1165,82 @@ Future<void> _loadSales() async {
             ],
           ),
 
+          // Sales Section
+          if (_sales != null && _sales!.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            Card(
+              color: Colors.deepPurple.withOpacity(0.05),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.shopping_cart, color: Colors.deepPurple),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Ventas Realizadas (${_sales!.length})',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const Divider(height: 24),
+                    ..._sales!.map((sale) {
+                      return Card(
+                        margin: const EdgeInsets.only(bottom: 8),
+                        child: ListTile(
+                          leading: CircleAvatar(
+                            backgroundColor: _getSaleStatusColor(sale.saleStatus),
+                            child: Text(
+                              '#${sale.id}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                          title: Text(
+                            sale.customerName ?? 'Sin cliente',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(height: 4),
+                              Text('Total: \$${sale.totalAmount.toStringAsFixed(2)}'),
+                              Text(
+                                _getSaleStatusLabel(sale.saleStatus),
+                                style: TextStyle(
+                                  color: _getSaleStatusColor(sale.saleStatus),
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () async {
+                            await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => SaleDetailsScreen(saleId: sale.id!),
+                              ),
+                            );
+                            _loadSales();
+                          },
+                        ),
+                      );
+                    }).toList(),
+                  ],
+                ),
+              ),
+            ),
+          ],
+
           if (quote.imageUrl != null) ...[
             const SizedBox(height: 16),
             Card(
@@ -1099,5 +1330,31 @@ Future<void> _loadSales() async {
         ],
       ),
     );
+  }
+
+  String _getSaleStatusLabel(SaleStatus status) {
+    switch (status) {
+      case SaleStatus.IMPRIMIENDO:
+        return 'IMPRIMIENDO';
+      case SaleStatus.PENDIENTE_ENTREGA:
+        return 'PENDIENTE ENTREGA';
+      case SaleStatus.ENTREGADO:
+        return 'ENTREGADO';
+      case SaleStatus.CANCELADO:
+        return 'CANCELADO';
+    }
+  }
+
+  Color _getSaleStatusColor(SaleStatus status) {
+    switch (status) {
+      case SaleStatus.IMPRIMIENDO:
+        return Colors.blue;
+      case SaleStatus.PENDIENTE_ENTREGA:
+        return Colors.orange;
+      case SaleStatus.ENTREGADO:
+        return Colors.green;
+      case SaleStatus.CANCELADO:
+        return Colors.red;
+    }
   }
 }

@@ -2254,6 +2254,11 @@ class Endpoints extends _i1.EndpointDispatch {
               type: _i1.getType<int?>(),
               nullable: true,
             ),
+            'customerId': _i1.ParameterDescription(
+              name: 'customerId',
+              type: _i1.getType<int?>(),
+              nullable: true,
+            ),
             'initialStatus': _i1.ParameterDescription(
               name: 'initialStatus',
               type: _i1.getType<_i15.SaleStatus?>(),
@@ -2293,6 +2298,7 @@ class Endpoints extends _i1.EndpointDispatch {
             session,
             params['quoteId'],
             quoteVersionId: params['quoteVersionId'],
+            customerId: params['customerId'],
             initialStatus: params['initialStatus'],
             initialPaymentStatus: params['initialPaymentStatus'],
             paidAmount: params['paidAmount'],

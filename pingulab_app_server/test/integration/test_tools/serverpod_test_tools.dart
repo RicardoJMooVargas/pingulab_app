@@ -3075,6 +3075,7 @@ class _SalesEndpoint {
     _i1.TestSessionBuilder sessionBuilder,
     int quoteId, {
     int? quoteVersionId,
+    int? customerId,
     _i19.SaleStatus? initialStatus,
     _i20.PaymentStatus? initialPaymentStatus,
     double? paidAmount,
@@ -3096,6 +3097,7 @@ class _SalesEndpoint {
           parameters: _i1.testObjectToJson({
             'quoteId': quoteId,
             'quoteVersionId': quoteVersionId,
+            'customerId': customerId,
             'initialStatus': initialStatus,
             'initialPaymentStatus': initialPaymentStatus,
             'paidAmount': paidAmount,

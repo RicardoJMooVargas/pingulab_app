@@ -1,7 +1,7 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:pingulab_app_client/pingulab_app_client.dart';
 import 'package:intl/intl.dart';
-import '../services/auth_service.dart';
 import '../main.dart';
 
 class SaleDetailsScreen extends StatefulWidget {
@@ -18,6 +18,8 @@ class SaleDetailsScreen extends StatefulWidget {
 
 class _SaleDetailsScreenState extends State<SaleDetailsScreen> {
   Sale? _sale;
+  Customer? _customer;
+  QuoteDetails? _quoteDetails;
   bool _isLoading = true;
 
   @override
@@ -29,8 +31,31 @@ class _SaleDetailsScreenState extends State<SaleDetailsScreen> {
   Future<void> _loadSale() async {
     try {
       final sale = await client.sales.getSaleById(widget.saleId);
+      Customer? customer;
+      QuoteDetails? quoteDetails;
+      
+      // Cargar información del cliente si existe customerId
+      if (sale != null && sale.customerId != null) {
+        try {
+          customer = await client.customer.getCustomer(sale.customerId!);
+        } catch (e) {
+          debugPrint('Error loading customer: $e');
+        }
+      }
+      
+      // Cargar detalles de la cotización
+      if (sale != null) {
+        try {
+          quoteDetails = await client.quote.getQuoteDetails(sale.quoteId);
+        } catch (e) {
+          debugPrint('Error loading quote details: $e');
+        }
+      }
+      
       setState(() {
         _sale = sale;
+        _customer = customer;
+        _quoteDetails = quoteDetails;
         _isLoading = false;
       });
     } catch (e) {
@@ -86,17 +111,69 @@ class _SaleDetailsScreenState extends State<SaleDetailsScreen> {
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.person, color: Colors.deepPurple),
-                      const SizedBox(width: 8),
-                      Text(
-                        sale.customerName ?? 'Sin nombre',
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                      CircleAvatar(
+                        backgroundColor: Colors.deepPurple,
+                        child: Text(
+                          (_customer?.apodo ?? sale.customerName ?? 'S').substring(0, 1).toUpperCase(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _customer?.apodo ?? sale.customerName ?? 'Sin cliente',
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            if (_customer != null && (_customer!.nombre != null || _customer!.apellido != null)) ...[
+                              const SizedBox(height: 4),
+                              Text(
+                                '${_customer!.nombre ?? ''} ${_customer!.apellido ?? ''}'.trim(),
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                            ],
+                            if (_customer == null && sale.customerName != null) ...[
+                              const SizedBox(height: 4),
+                              Text(
+                                sale.customerName!,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey[600],
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                       ),
                     ],
                   ),
+                  if (_customer != null) ...[
+                    const Divider(height: 24),
+                    if (_customer!.numero != null)
+                      _buildDetailRow(
+                        'Teléfono',
+                        _customer!.numero!,
+                        Icons.phone,
+                      ),
+                    if (_customer!.direccion != null)
+                      _buildDetailRow(
+                        'Dirección',
+                        _customer!.direccion!,
+                        Icons.location_on,
+                      ),
+                  ],
                   const Divider(height: 24),
                   _buildDetailRow(
                     'Cotización',
@@ -310,6 +387,50 @@ class _SaleDetailsScreenState extends State<SaleDetailsScreen> {
               ),
             ),
           const SizedBox(height: 16),
+
+          // Quote Image Card
+          if (_quoteDetails?.quote.imageUrl != null) ...[
+            Card(
+              margin: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Imagen de Cotización',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.memory(
+                        base64Decode(_quoteDetails!.quote.imageUrl!),
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            padding: const EdgeInsets.all(16),
+                            color: Colors.grey[200],
+                            child: const Row(
+                              children: [
+                                Icon(Icons.error_outline, color: Colors.red),
+                                SizedBox(width: 8),
+                                Text('Error al cargar imagen'),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
         ],
       ),
     );

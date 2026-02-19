@@ -1151,6 +1151,7 @@ class EndpointSales extends _i1.EndpointRef {
   _i2.Future<_i17.Sale> convertQuoteToSale(
     int quoteId, {
     int? quoteVersionId,
+    int? customerId,
     _i18.SaleStatus? initialStatus,
     _i19.PaymentStatus? initialPaymentStatus,
     double? paidAmount,
@@ -1164,6 +1165,7 @@ class EndpointSales extends _i1.EndpointRef {
         {
           'quoteId': quoteId,
           'quoteVersionId': quoteVersionId,
+          'customerId': customerId,
           'initialStatus': initialStatus,
           'initialPaymentStatus': initialPaymentStatus,
           'paidAmount': paidAmount,

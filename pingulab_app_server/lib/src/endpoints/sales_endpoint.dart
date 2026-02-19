@@ -46,6 +46,7 @@ class SalesEndpoint extends Endpoint {
     Session session,
     int quoteId, {
     int? quoteVersionId,
+    int? customerId,
     SaleStatus? initialStatus,
     PaymentStatus? initialPaymentStatus,
     double? paidAmount,
@@ -73,10 +74,14 @@ class SalesEndpoint extends Endpoint {
     final paid = paidAmount ?? 0.0;
     final pending = totalAmount - paid;
 
+    // Use customerId from parameter or from quote
+    final finalCustomerId = customerId ?? quote.customerId;
+
     // Create the sale
     final sale = Sale(
       quoteId: quoteId,
       quoteVersionId: quoteVersionId,
+      customerId: finalCustomerId,
       saleStatus: initialStatus ?? SaleStatus.IMPRIMIENDO,
       paymentStatus: initialPaymentStatus ?? PaymentStatus.PENDIENTE,
       totalAmount: totalAmount,

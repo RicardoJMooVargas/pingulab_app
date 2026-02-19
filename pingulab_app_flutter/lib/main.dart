@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:serverpod_flutter/serverpod_flutter.dart';
-import 'screens/quotes_list_screen.dart';
+import 'screens/main_navigation_screen.dart';
 import 'screens/login_screen.dart';
 import 'services/auth_service.dart';
 
@@ -120,7 +120,7 @@ class AuthWrapper extends StatelessWidget {
         }
 
         // Show main app if authenticated
-        return const QuotesListScreen();
+        return const MainNavigationScreen();
       },
     );
   }

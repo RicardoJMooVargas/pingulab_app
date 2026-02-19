@@ -1,7 +1,7 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:pingulab_app_client/pingulab_app_client.dart';
 import 'package:intl/intl.dart';
-import '../services/auth_service.dart';
 import '../main.dart';
 import 'sale_details_screen.dart';
 
@@ -22,6 +22,8 @@ class _SalesListScreenState extends State<SalesListScreen> {
   List<Sale> _allSales = [];
   List<Sale> _filteredSales = [];
   List<Customer> _customers = [];
+  Map<int, Customer> _customerMap = {};
+  Map<int, String?> _quoteImagesMap = {};
 
   @override
   void initState() {
@@ -41,6 +43,7 @@ class _SalesListScreenState extends State<SalesListScreen> {
       final customers = await client.catalogs.getCustomers();
       setState(() {
         _customers = customers;
+        _customerMap = {for (var c in customers) c.id!: c};
       });
     } catch (e) {
       debugPrint('Error loading customers: $e');
@@ -52,12 +55,29 @@ class _SalesListScreenState extends State<SalesListScreen> {
       _salesFuture = client.sales.getAllSales(
         status: _filterStatus,
         paymentStatus: _filterPaymentStatus,
-      ).then((sales) {
+      ).then((sales) async {
         _allSales = sales;
+        // Cargar imágenes de cotizaciones
+        await _loadQuoteImages(sales);
         _applyFilters();
         return _filteredSales;
       });
     });
+  }
+
+  Future<void> _loadQuoteImages(List<Sale> sales) async {
+    final quoteIds = sales.map((s) => s.quoteId).toSet();
+    for (var quoteId in quoteIds) {
+      if (!_quoteImagesMap.containsKey(quoteId)) {
+        try {
+          final quoteDetails = await client.quote.getQuoteDetails(quoteId);
+          _quoteImagesMap[quoteId] = quoteDetails?.quote.imageUrl;
+        } catch (e) {
+          debugPrint('Error loading quote image for quote $quoteId: $e');
+          _quoteImagesMap[quoteId] = null;
+        }
+      }
+    }
   }
 
   void _applyFilters() {
@@ -229,6 +249,13 @@ class _SalesListScreenState extends State<SalesListScreen> {
   Widget _buildSaleCard(Sale sale) {
     final dateFormat = DateFormat('dd/MM/yyyy HH:mm');
     final currencyFormat = NumberFormat.currency(symbol: '\$', decimalDigits: 2);
+    
+    // Obtener información del cliente
+    final customer = sale.customerId != null ? _customerMap[sale.customerId] : null;
+    final displayName = customer?.apodo ?? sale.customerName ?? 'Sin cliente';
+    
+    // Obtener imagen de la cotización
+    final quoteImage = _quoteImagesMap[sale.quoteId];
 
     return Card(
       margin: const EdgeInsets.only(bottom: 8.0),
@@ -245,23 +272,107 @@ class _SalesListScreenState extends State<SalesListScreen> {
             _loadSales();
           }
         },
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final isDesktop = constraints.maxWidth > 600;
+            return Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: isDesktop && quoteImage != null
+                  ? _buildDesktopLayout(sale, dateFormat, currencyFormat, displayName, customer, quoteImage)
+                  : _buildMobileLayout(sale, dateFormat, currencyFormat, displayName, customer, quoteImage),
+            );
+          }
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMobileLayout(Sale sale, DateFormat dateFormat, NumberFormat currencyFormat, String displayName, Customer? customer, String? quoteImage) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (quoteImage != null) ...[
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image.memory(
+              base64Decode(quoteImage),
+              height: 150,
+              width: double.infinity,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Container(
+                  height: 150,
+                  color: Colors.grey[200],
+                  child: const Center(
+                    child: Icon(Icons.error_outline, color: Colors.grey),
+                  ),
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 12),
+        ],
+        _buildSaleContent(sale, dateFormat, currencyFormat, displayName, customer),
+      ],
+    );
+  }
+
+  Widget _buildDesktopLayout(Sale sale, DateFormat dateFormat, NumberFormat currencyFormat, String displayName, Customer? customer, String quoteImage) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Image.memory(
+            base64Decode(quoteImage),
+            width: 150,
+            height: 150,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              return Container(
+                width: 150,
+                height: 150,
+                color: Colors.grey[200],
+                child: const Center(
+                  child: Icon(Icons.error_outline, color: Colors.grey),
+                ),
+              );
+            },
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: _buildSaleContent(sale, dateFormat, currencyFormat, displayName, customer),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSaleContent(Sale sale, DateFormat dateFormat, NumberFormat currencyFormat, String displayName, Customer? customer) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
               Row(
                 children: [
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          sale.customerName ?? 'Sin nombre',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        Row(
+                          children: [
+                            Icon(Icons.person, size: 16, color: Colors.deepPurple),
+                            const SizedBox(width: 4),
+                            Expanded(
+                              child: Text(
+                                displayName,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 4),
                         Text(
@@ -271,6 +382,17 @@ class _SalesListScreenState extends State<SalesListScreen> {
                             fontSize: 12,
                           ),
                         ),
+                        if (customer != null && sale.customerName != null && sale.customerName != customer.apodo) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            sale.customerName!,
+                            style: TextStyle(
+                              color: Colors.grey[500],
+                              fontSize: 11,
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ),
@@ -364,10 +486,7 @@ class _SalesListScreenState extends State<SalesListScreen> {
                 ),
               ],
             ],
-          ),
-        ),
-      ),
-    );
+          );
   }
 
   Widget _buildStatusChip(String label, Color color) {
