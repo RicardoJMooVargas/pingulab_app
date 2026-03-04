@@ -632,10 +632,12 @@ class EndpointQuote extends _i1.EndpointRef {
         {},
       );
 
-  /// Get quotes with pagination
+  /// Get quotes with pagination and optional filtering
   _i2.Future<List<_i11.Quote>> getQuotesPaginated({
     required int limit,
     required int offset,
+    _i14.QuoteStatus? status,
+    int? customerId,
   }) =>
       caller.callServerEndpoint<List<_i11.Quote>>(
         'quote',
@@ -643,6 +645,8 @@ class EndpointQuote extends _i1.EndpointRef {
         {
           'limit': limit,
           'offset': offset,
+          'status': status,
+          'customerId': customerId,
         },
       );
 
@@ -1128,6 +1132,26 @@ class EndpointSales extends _i1.EndpointRef {
         {
           'status': status,
           'paymentStatus': paymentStatus,
+        },
+      );
+
+  /// Get sales with pagination and optional filtering
+  _i2.Future<List<_i17.Sale>> getSalesPaginated({
+    required int limit,
+    required int offset,
+    _i18.SaleStatus? status,
+    _i19.PaymentStatus? paymentStatus,
+    int? customerId,
+  }) =>
+      caller.callServerEndpoint<List<_i17.Sale>>(
+        'sales',
+        'getSalesPaginated',
+        {
+          'limit': limit,
+          'offset': offset,
+          'status': status,
+          'paymentStatus': paymentStatus,
+          'customerId': customerId,
         },
       );
 

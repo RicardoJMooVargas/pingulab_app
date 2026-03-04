@@ -28,6 +28,45 @@ class SalesEndpoint extends Endpoint {
     return filtered;
   }
 
+  /// Get sales with pagination and optional filtering
+  Future<List<Sale>> getSalesPaginated(
+    Session session, {
+    int limit = 20,
+    int offset = 0,
+    SaleStatus? status,
+    PaymentStatus? paymentStatus,
+    int? customerId,
+  }) async {
+    final hasFilters = status != null || paymentStatus != null || customerId != null;
+
+    final sales = await Sale.db.find(
+      session,
+      where: hasFilters
+          ? (t) {
+              Expression? w;
+              if (status != null) {
+                w = t.saleStatus.equals(status);
+              }
+              if (paymentStatus != null) {
+                final e = t.paymentStatus.equals(paymentStatus);
+                w = w != null ? (w & e) : e;
+              }
+              if (customerId != null) {
+                final e = t.customerId.equals(customerId);
+                w = w != null ? (w & e) : e;
+              }
+              return w!;
+            }
+          : null,
+      orderBy: (t) => t.created,
+      orderDescending: true,
+      limit: limit,
+      offset: offset,
+    );
+
+    return sales;
+  }
+
   /// Get a specific sale by ID
   Future<Sale?> getSaleById(Session session, int saleId) async {
     return await Sale.db.findById(session, saleId);

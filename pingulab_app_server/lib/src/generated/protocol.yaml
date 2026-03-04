@@ -92,6 +92,7 @@ resources:
   - deleteQuoteCategory:
 sales:
   - getAllSales:
+  - getSalesPaginated:
   - getSaleById:
   - getSalesByQuoteId:
   - convertQuoteToSale:

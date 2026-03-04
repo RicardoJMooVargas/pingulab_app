@@ -1279,6 +1279,16 @@ class Endpoints extends _i1.EndpointDispatch {
               type: _i1.getType<int>(),
               nullable: false,
             ),
+            'status': _i1.ParameterDescription(
+              name: 'status',
+              type: _i1.getType<_i14.QuoteStatus?>(),
+              nullable: true,
+            ),
+            'customerId': _i1.ParameterDescription(
+              name: 'customerId',
+              type: _i1.getType<int?>(),
+              nullable: true,
+            ),
           },
           call: (
             _i1.Session session,
@@ -1288,6 +1298,8 @@ class Endpoints extends _i1.EndpointDispatch {
             session,
             limit: params['limit'],
             offset: params['offset'],
+            status: params['status'],
+            customerId: params['customerId'],
           ),
         ),
         'updateQuote': _i1.MethodConnector(
@@ -2203,6 +2215,48 @@ class Endpoints extends _i1.EndpointDispatch {
             session,
             status: params['status'],
             paymentStatus: params['paymentStatus'],
+          ),
+        ),
+        'getSalesPaginated': _i1.MethodConnector(
+          name: 'getSalesPaginated',
+          params: {
+            'limit': _i1.ParameterDescription(
+              name: 'limit',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+            'offset': _i1.ParameterDescription(
+              name: 'offset',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+            'status': _i1.ParameterDescription(
+              name: 'status',
+              type: _i1.getType<_i15.SaleStatus?>(),
+              nullable: true,
+            ),
+            'paymentStatus': _i1.ParameterDescription(
+              name: 'paymentStatus',
+              type: _i1.getType<_i16.PaymentStatus?>(),
+              nullable: true,
+            ),
+            'customerId': _i1.ParameterDescription(
+              name: 'customerId',
+              type: _i1.getType<int?>(),
+              nullable: true,
+            ),
+          },
+          call: (
+            _i1.Session session,
+            Map<String, dynamic> params,
+          ) async =>
+              (endpoints['sales'] as _i10.SalesEndpoint).getSalesPaginated(
+            session,
+            limit: params['limit'],
+            offset: params['offset'],
+            status: params['status'],
+            paymentStatus: params['paymentStatus'],
+            customerId: params['customerId'],
           ),
         ),
         'getSaleById': _i1.MethodConnector(

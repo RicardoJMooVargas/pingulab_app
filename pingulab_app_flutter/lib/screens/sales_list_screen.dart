@@ -13,21 +13,31 @@ class SalesListScreen extends StatefulWidget {
 }
 
 class _SalesListScreenState extends State<SalesListScreen> {
-  late Future<List<Sale>> _salesFuture;
   SaleStatus? _filterStatus;
   PaymentStatus? _filterPaymentStatus;
   int? _filterCustomerId;
   String? _filterCustomerName;
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+
   List<Sale> _allSales = [];
   List<Sale> _filteredSales = [];
   List<Customer> _customers = [];
   Map<int, Customer> _customerMap = {};
   Map<int, String?> _quoteImagesMap = {};
 
+  bool _isLoading = false;
+  bool _isLoadingMore = false;
+  bool _hasMore = true;
+  String? _error;
+
+  static const int _pageSize = 20;
+  int _currentOffset = 0;
+
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(_onScroll);
     _loadCustomers();
     _loadSales();
   }
@@ -35,34 +45,112 @@ class _SalesListScreenState extends State<SalesListScreen> {
   @override
   void dispose() {
     _searchController.dispose();
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
     super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 300) {
+      _loadMoreSales();
+    }
   }
 
   Future<void> _loadCustomers() async {
     try {
       final customers = await client.catalogs.getCustomers();
-      setState(() {
-        _customers = customers;
-        _customerMap = {for (var c in customers) c.id!: c};
-      });
+      if (mounted) {
+        setState(() {
+          _customers = customers;
+          _customerMap = {for (var c in customers) c.id!: c};
+        });
+      }
     } catch (e) {
       debugPrint('Error loading customers: $e');
     }
   }
 
-  void _loadSales() {
+  Future<void> _loadSales() async {
+    if (_isLoading) return;
+
     setState(() {
-      _salesFuture = client.sales.getAllSales(
+      _isLoading = true;
+      _error = null;
+      _allSales = [];
+      _filteredSales = [];
+      _currentOffset = 0;
+      _hasMore = true;
+    });
+
+    try {
+      final sales = await client.sales.getSalesPaginated(
+        limit: _pageSize,
+        offset: 0,
         status: _filterStatus,
         paymentStatus: _filterPaymentStatus,
-      ).then((sales) async {
-        _allSales = sales;
-        // Cargar imágenes de cotizaciones
-        await _loadQuoteImages(sales);
-        _applyFilters();
-        return _filteredSales;
-      });
+        customerId: _filterCustomerId,
+      );
+
+      _allSales = sales;
+      _currentOffset = sales.length;
+      _hasMore = sales.length >= _pageSize;
+
+      // Load quote images only for this page
+      await _loadQuoteImages(sales);
+      _applyFilters();
+
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = e.toString();
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _loadMoreSales() async {
+    if (_isLoadingMore || !_hasMore || _isLoading) return;
+
+    setState(() {
+      _isLoadingMore = true;
     });
+
+    try {
+      final sales = await client.sales.getSalesPaginated(
+        limit: _pageSize,
+        offset: _currentOffset,
+        status: _filterStatus,
+        paymentStatus: _filterPaymentStatus,
+        customerId: _filterCustomerId,
+      );
+
+      _allSales.addAll(sales);
+      _currentOffset += sales.length;
+      _hasMore = sales.length >= _pageSize;
+
+      // Load quote images only for new page
+      await _loadQuoteImages(sales);
+      _applyFilters();
+
+      if (mounted) {
+        setState(() {
+          _isLoadingMore = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoadingMore = false;
+        });
+      }
+    }
   }
 
   Future<void> _loadQuoteImages(List<Sale> sales) async {
@@ -83,22 +171,21 @@ class _SalesListScreenState extends State<SalesListScreen> {
   void _applyFilters() {
     List<Sale> filtered = List.from(_allSales);
 
-    // Filtrar por cliente
-    if (_filterCustomerId != null) {
-      filtered = filtered.where((sale) => sale.customerId == _filterCustomerId).toList();
-    }
-
-    // Filtrar por búsqueda de texto
+    // Text search (client-side on loaded data)
     final searchQuery = _searchController.text.toLowerCase().trim();
     if (searchQuery.isNotEmpty) {
       filtered = filtered.where((sale) {
         final customerName = (sale.customerName ?? '').toLowerCase();
+        final customer =
+            sale.customerId != null ? _customerMap[sale.customerId] : null;
+        final apodo = (customer?.apodo ?? '').toLowerCase();
         final saleId = 'venta #${sale.id}';
         final quoteId = 'cotización #${sale.quoteId}';
-        
+
         return customerName.contains(searchQuery) ||
-               saleId.contains(searchQuery) ||
-               quoteId.contains(searchQuery);
+            apodo.contains(searchQuery) ||
+            saleId.contains(searchQuery) ||
+            quoteId.contains(searchQuery);
       }).toList();
     }
 
@@ -194,8 +281,8 @@ class _SalesListScreenState extends State<SalesListScreen> {
                           setState(() {
                             _filterCustomerId = null;
                             _filterCustomerName = null;
-                            _applyFilters();
                           });
+                          _loadSales();
                         },
                       ),
                     ],
@@ -204,44 +291,62 @@ class _SalesListScreenState extends State<SalesListScreen> {
               ),
             ),
           Expanded(
-            child: FutureBuilder<List<Sale>>(
-              future: _salesFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                if (snapshot.hasError) {
-                  return Center(
-                    child: Text('Error: ${snapshot.error}'),
-                  );
-                }
-
-                final sales = snapshot.data ?? [];
-
-                if (sales.isEmpty) {
-                  return const Center(
-                    child: Text('No hay ventas registradas'),
-                  );
-                }
-
-                return RefreshIndicator(
-                  onRefresh: () async {
-                    _loadSales();
-                  },
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(8.0),
-                    itemCount: sales.length,
-                    itemBuilder: (context, index) {
-                      final sale = sales[index];
-                      return _buildSaleCard(sale);
-                    },
-                  ),
-                );
-              },
-            ),
+            child: _buildContent(),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildContent() {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_error != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, size: 64, color: Colors.red),
+            const SizedBox(height: 16),
+            Text('Error: $_error'),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _loadSales,
+              child: const Text('Reintentar'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (_filteredSales.isEmpty) {
+      return const Center(
+        child: Text('No hay ventas registradas'),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: () async {
+        await _loadSales();
+      },
+      child: ListView.builder(
+        controller: _scrollController,
+        padding: const EdgeInsets.all(8.0),
+        itemCount: _filteredSales.length + (_hasMore ? 1 : 0),
+        itemBuilder: (context, index) {
+          if (index == _filteredSales.length) {
+            return const Center(
+              child: Padding(
+                padding: EdgeInsets.all(16.0),
+                child: CircularProgressIndicator(),
+              ),
+            );
+          }
+          final sale = _filteredSales[index];
+          return _buildSaleCard(sale);
+        },
       ),
     );
   }

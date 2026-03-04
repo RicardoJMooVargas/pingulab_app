@@ -20,9 +20,11 @@ class _QuotesListScreenState extends State<QuotesListScreen> {
   List<Quote> _quotes = [];
   List<Quote>? _filteredQuotes;
   List<Customer> _customers = [];
-  Map<int, QuoteDetails> _quoteDetailsMap = {};
+  Map<int, Customer> _customerMap = {};
   Map<String, bool> _expandedGroups = {}; // Control de grupos expandidos
   bool _isLoading = true;
+  bool _isLoadingMore = false;
+  bool _hasMore = true;
   String? _error;
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
@@ -30,9 +32,13 @@ class _QuotesListScreenState extends State<QuotesListScreen> {
   String? _filterCustomerName;
   QuoteStatus? _filterStatus;
 
+  static const int _pageSize = 20;
+  int _currentOffset = 0;
+
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(_onScroll);
     _loadCustomers();
     _loadQuotes();
   }
@@ -40,16 +46,27 @@ class _QuotesListScreenState extends State<QuotesListScreen> {
   @override
   void dispose() {
     _searchController.dispose();
+    _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 300) {
+      _loadMoreQuotes();
+    }
   }
 
   Future<void> _loadCustomers() async {
     try {
       final customers = await client.catalogs.getCustomers();
-      setState(() {
-        _customers = customers;
-      });
+      if (mounted) {
+        setState(() {
+          _customers = customers;
+          _customerMap = {for (var c in customers) c.id!: c};
+        });
+      }
     } catch (e) {
       debugPrint('Error loading customers: $e');
     }
@@ -60,29 +77,25 @@ class _QuotesListScreenState extends State<QuotesListScreen> {
       _isLoading = true;
       _error = null;
       _quotes = [];
-      _quoteDetailsMap = {};
+      _currentOffset = 0;
+      _hasMore = true;
     });
 
     try {
-      final quotes = await client.quote.getAllQuotes();
-      
-      // Cargar detalles para obtener información de clientes
-      for (var quote in quotes) {
-        try {
-          final detail = await client.quote.getQuoteDetails(quote.id!);
-          if (detail != null) {
-            _quoteDetailsMap[quote.id!] = detail;
-          }
-        } catch (e) {
-          debugPrint('Error loading quote details for ${quote.id}: $e');
-        }
-      }
-      
+      final quotes = await client.quote.getQuotesPaginated(
+        limit: _pageSize,
+        offset: 0,
+        status: _filterStatus,
+        customerId: _filterCustomerId,
+      );
+
       setState(() {
         _quotes = quotes;
+        _currentOffset = quotes.length;
+        _hasMore = quotes.length >= _pageSize;
         _isLoading = false;
       });
-      
+
       _applyFilters();
     } catch (e) {
       setState(() {
@@ -92,20 +105,40 @@ class _QuotesListScreenState extends State<QuotesListScreen> {
     }
   }
 
+  Future<void> _loadMoreQuotes() async {
+    if (_isLoadingMore || !_hasMore || _isLoading) return;
+
+    setState(() {
+      _isLoadingMore = true;
+    });
+
+    try {
+      final quotes = await client.quote.getQuotesPaginated(
+        limit: _pageSize,
+        offset: _currentOffset,
+        status: _filterStatus,
+        customerId: _filterCustomerId,
+      );
+
+      setState(() {
+        _quotes.addAll(quotes);
+        _currentOffset += quotes.length;
+        _hasMore = quotes.length >= _pageSize;
+        _isLoadingMore = false;
+      });
+
+      _applyFilters();
+    } catch (e) {
+      setState(() {
+        _isLoadingMore = false;
+      });
+    }
+  }
+
   void _applyFilters() {
     List<Quote> filtered = List.from(_quotes);
 
-    // Filtrar por estado
-    if (_filterStatus != null) {
-      filtered = filtered.where((quote) => quote.status == _filterStatus).toList();
-    }
-
-    // Filtrar por cliente
-    if (_filterCustomerId != null) {
-      filtered = filtered.where((quote) => quote.customerId == _filterCustomerId).toList();
-    }
-
-    // Filtrar por búsqueda de texto
+    // Text search (client-side on loaded data)
     final searchQuery = _searchController.text.toLowerCase().trim();
     if (searchQuery.isNotEmpty) {
       filtered = filtered.where((quote) {
@@ -113,9 +146,10 @@ class _QuotesListScreenState extends State<QuotesListScreen> {
         final quoteId = 'cotización #${quote.id}';
         final quoteIdAlt = '#${quote.id}';
         
-        // Buscar por nombre de cliente si existe
-        final detail = _quoteDetailsMap[quote.id];
-        final customerName = (detail?.customer?.apodo ?? '').toLowerCase();
+        // Use customer map for name lookup
+        final customerName = quote.customerId != null
+            ? (_customerMap[quote.customerId]?.apodo ?? '').toLowerCase()
+            : '';
         
         return quoteName.contains(searchQuery) ||
                quoteId.contains(searchQuery) ||
@@ -394,8 +428,9 @@ class _QuotesListScreenState extends State<QuotesListScreen> {
     // Agrupar cotizaciones por cliente
     final Map<String, List<Quote>> groupedQuotes = {};
     for (var quote in quotesToShow) {
-      final detail = _quoteDetailsMap[quote.id];
-      final customerKey = detail?.customer?.apodo ?? 'Sin cliente';
+      final customerKey = quote.customerId != null
+          ? (_customerMap[quote.customerId]?.apodo ?? 'Sin cliente')
+          : 'Sin cliente';
       if (!groupedQuotes.containsKey(customerKey)) {
         groupedQuotes[customerKey] = [];
       }
@@ -412,8 +447,16 @@ class _QuotesListScreenState extends State<QuotesListScreen> {
       child: ListView.builder(
         controller: _scrollController,
         padding: const EdgeInsets.all(16),
-        itemCount: groupedQuotes.length,
+        itemCount: groupedQuotes.length + (_hasMore ? 1 : 0),
         itemBuilder: (context, index) {
+          if (index == groupedQuotes.length) {
+            return const Center(
+              child: Padding(
+                padding: EdgeInsets.all(16.0),
+                child: CircularProgressIndicator(),
+              ),
+            );
+          }
           final entry = groupedQuotes.entries.elementAt(index);
           final customerName = entry.key;
           final quotes = entry.value;
@@ -517,7 +560,7 @@ class _QuotesListScreenState extends State<QuotesListScreen> {
                         itemCount: quotes.length,
                         itemBuilder: (context, quoteIndex) {
                           final quote = quotes[quoteIndex];
-                          final detail = _quoteDetailsMap[quote.id];
+                          
                           return Card(
                             elevation: 1,
                             clipBehavior: Clip.antiAlias,
@@ -769,9 +812,11 @@ class _QuotesListContentState extends State<QuotesListContent> {
   List<Quote> _quotes = [];
   List<Quote>? _filteredQuotes;
   List<Customer> _customers = [];
-  Map<int, QuoteDetails> _quoteDetailsMap = {};
+  Map<int, Customer> _customerMap = {};
   Map<String, bool> _expandedGroups = {};
   bool _isLoading = true;
+  bool _isLoadingMore = false;
+  bool _hasMore = true;
   String? _error;
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
@@ -779,9 +824,13 @@ class _QuotesListContentState extends State<QuotesListContent> {
   String? _filterCustomerName;
   QuoteStatus? _filterStatus;
 
+  static const int _pageSize = 20;
+  int _currentOffset = 0;
+
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(_onScroll);
     _loadCustomers();
     _loadQuotes();
   }
@@ -789,16 +838,27 @@ class _QuotesListContentState extends State<QuotesListContent> {
   @override
   void dispose() {
     _searchController.dispose();
+    _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 300) {
+      _loadMoreQuotes();
+    }
   }
 
   Future<void> _loadCustomers() async {
     try {
       final customers = await client.catalogs.getCustomers();
-      setState(() {
-        _customers = customers;
-      });
+      if (mounted) {
+        setState(() {
+          _customers = customers;
+          _customerMap = {for (var c in customers) c.id!: c};
+        });
+      }
     } catch (e) {
       debugPrint('Error loading customers: $e');
     }
@@ -809,28 +869,25 @@ class _QuotesListContentState extends State<QuotesListContent> {
       _isLoading = true;
       _error = null;
       _quotes = [];
-      _quoteDetailsMap = {};
+      _currentOffset = 0;
+      _hasMore = true;
     });
 
     try {
-      final quotes = await client.quote.getAllQuotes();
-      
-      for (var quote in quotes) {
-        try {
-          final detail = await client.quote.getQuoteDetails(quote.id!);
-          if (detail != null) {
-            _quoteDetailsMap[quote.id!] = detail;
-          }
-        } catch (e) {
-          debugPrint('Error loading quote details for ${quote.id}: $e');
-        }
-      }
-      
+      final quotes = await client.quote.getQuotesPaginated(
+        limit: _pageSize,
+        offset: 0,
+        status: _filterStatus,
+        customerId: _filterCustomerId,
+      );
+
       setState(() {
         _quotes = quotes;
+        _currentOffset = quotes.length;
+        _hasMore = quotes.length >= _pageSize;
         _isLoading = false;
       });
-      
+
       _applyFilters();
     } catch (e) {
       setState(() {
@@ -840,31 +897,55 @@ class _QuotesListContentState extends State<QuotesListContent> {
     }
   }
 
+  Future<void> _loadMoreQuotes() async {
+    if (_isLoadingMore || !_hasMore || _isLoading) return;
+
+    setState(() {
+      _isLoadingMore = true;
+    });
+
+    try {
+      final quotes = await client.quote.getQuotesPaginated(
+        limit: _pageSize,
+        offset: _currentOffset,
+        status: _filterStatus,
+        customerId: _filterCustomerId,
+      );
+
+      setState(() {
+        _quotes.addAll(quotes);
+        _currentOffset += quotes.length;
+        _hasMore = quotes.length >= _pageSize;
+        _isLoadingMore = false;
+      });
+
+      _applyFilters();
+    } catch (e) {
+      setState(() {
+        _isLoadingMore = false;
+      });
+    }
+  }
+
   void _applyFilters() {
     List<Quote> filtered = List.from(_quotes);
 
-    if (_filterStatus != null) {
-      filtered = filtered.where((quote) => quote.status == _filterStatus).toList();
-    }
-
-    if (_filterCustomerId != null) {
-      filtered = filtered.where((quote) => quote.customerId == _filterCustomerId).toList();
-    }
-
+    // Text search (client-side on loaded data)
     final searchQuery = _searchController.text.toLowerCase().trim();
     if (searchQuery.isNotEmpty) {
       filtered = filtered.where((quote) {
         final quoteName = quote.name.toLowerCase();
         final quoteId = 'cotización #${quote.id}';
         final quoteIdAlt = '#${quote.id}';
-        
-        final detail = _quoteDetailsMap[quote.id];
-        final customerName = (detail?.customer?.apodo ?? '').toLowerCase();
-        
+
+        final customerName = quote.customerId != null
+            ? (_customerMap[quote.customerId]?.apodo ?? '').toLowerCase()
+            : '';
+
         return quoteName.contains(searchQuery) ||
-               quoteId.contains(searchQuery) ||
-               quoteIdAlt.contains(searchQuery) ||
-               customerName.contains(searchQuery);
+            quoteId.contains(searchQuery) ||
+            quoteIdAlt.contains(searchQuery) ||
+            customerName.contains(searchQuery);
       }).toList();
     }
 
@@ -1068,8 +1149,9 @@ class _QuotesListContentState extends State<QuotesListContent> {
 
     final Map<String, List<Quote>> groupedQuotes = {};
     for (var quote in quotesToShow) {
-      final detail = _quoteDetailsMap[quote.id];
-      final customerKey = detail?.customer?.apodo ?? 'Sin cliente';
+      final customerKey = quote.customerId != null
+          ? (_customerMap[quote.customerId]?.apodo ?? 'Sin cliente')
+          : 'Sin cliente';
       if (!groupedQuotes.containsKey(customerKey)) {
         groupedQuotes[customerKey] = [];
       }
@@ -1085,8 +1167,16 @@ class _QuotesListContentState extends State<QuotesListContent> {
       child: ListView.builder(
         controller: _scrollController,
         padding: const EdgeInsets.all(16),
-        itemCount: groupedQuotes.length,
+        itemCount: groupedQuotes.length + (_hasMore ? 1 : 0),
         itemBuilder: (context, index) {
+          if (index == groupedQuotes.length) {
+            return const Center(
+              child: Padding(
+                padding: EdgeInsets.all(16.0),
+                child: CircularProgressIndicator(),
+              ),
+            );
+          }
           final entry = groupedQuotes.entries.elementAt(index);
           final customerName = entry.key;
           final quotes = entry.value;
@@ -1187,7 +1277,7 @@ class _QuotesListContentState extends State<QuotesListContent> {
                         itemCount: quotes.length,
                         itemBuilder: (context, quoteIndex) {
                           final quote = quotes[quoteIndex];
-                          final detail = _quoteDetailsMap[quote.id];
+                          
                           return Card(
                             elevation: 1,
                             clipBehavior: Clip.antiAlias,

@@ -163,20 +163,37 @@ class QuoteEndpoint extends Endpoint {
     return quotes;
   }
 
-  /// Get quotes with pagination
+  /// Get quotes with pagination and optional filtering
   Future<List<Quote>> getQuotesPaginated(
     Session session, {
     int limit = 20,
     int offset = 0,
+    QuoteStatus? status,
+    int? customerId,
   }) async {
+    final hasFilters = status != null || customerId != null;
+
     final quotes = await Quote.db.find(
       session,
+      where: hasFilters
+          ? (t) {
+              Expression? w;
+              if (status != null) {
+                w = t.status.equals(status);
+              }
+              if (customerId != null) {
+                final e = t.customerId.equals(customerId);
+                w = w != null ? (w & e) : e;
+              }
+              return w!;
+            }
+          : null,
       orderBy: (t) => t.id,
       orderDescending: true,
       limit: limit,
       offset: offset,
     );
-    
+
     return quotes;
   }
 
