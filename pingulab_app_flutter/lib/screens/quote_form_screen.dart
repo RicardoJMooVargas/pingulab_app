@@ -28,9 +28,14 @@ class _QuoteFormScreenState extends State<QuoteFormScreen> {
   final _quantityController = TextEditingController(text: '1');
   final _pieceWeightGramsController = TextEditingController();
   final _printHoursController = TextEditingController();
+  final _printHoursOnlyController = TextEditingController();
+  final _printMinutesController = TextEditingController();
   final _postProcessingCostController = TextEditingController();
   final _measurementsController = TextEditingController();
   final _marginPercentController = TextEditingController(text: '0.30');
+
+  // Time input mode
+  bool _useHoursMinutesFormat = false;
 
   // Imagen
   Uint8List? _selectedImage;
@@ -96,6 +101,14 @@ class _QuoteFormScreenState extends State<QuoteFormScreen> {
       _quantityController.text = quote.quantity.toString();
       _pieceWeightGramsController.text = quote.pieceWeightGrams.toString();
       _printHoursController.text = quote.printHours.toString();
+      
+      // Initialize hours/minutes from decimal
+      final totalHours = quote.printHours;
+      final hours = totalHours.floor();
+      final minutes = ((totalHours - hours) * 60).round();
+      _printHoursOnlyController.text = hours.toString();
+      _printMinutesController.text = minutes.toString();
+      
       _postProcessingCostController.text =
           quote.postProcessingCost?.toString() ?? '';
       _measurementsController.text = quote.measurements ?? '';
@@ -160,6 +173,49 @@ class _QuoteFormScreenState extends State<QuoteFormScreen> {
         );
       }
     }
+  }
+
+  /// Convert hours and minutes to decimal hours
+  double _getDecimalHours() {
+    if (_useHoursMinutesFormat) {
+      final hours = int.tryParse(_printHoursOnlyController.text) ?? 0;
+      final minutes = int.tryParse(_printMinutesController.text) ?? 0;
+      return hours + (minutes / 60.0);
+    } else {
+      return double.tryParse(_printHoursController.text) ?? 0.0;
+    }
+  }
+
+  /// Update controllers when switching between input modes
+  void _toggleTimeInputMode() {
+    setState(() {
+      if (_useHoursMinutesFormat) {
+        // Switching from hours/minutes to decimal
+        final decimalHours = _getDecimalHours();
+        _printHoursController.text = decimalHours.toStringAsFixed(2);
+        _useHoursMinutesFormat = false;
+      } else {
+        // Switching from decimal to hours/minutes
+        final decimalHours = double.tryParse(_printHoursController.text) ?? 0.0;
+        final hours = decimalHours.floor();
+        final minutes = ((decimalHours - hours) * 60).round();
+        _printHoursOnlyController.text = hours.toString();
+        _printMinutesController.text = minutes.toString();
+        _useHoursMinutesFormat = true;
+      }
+    });
+  }
+
+  /// Update decimal display when hours or minutes change
+  void _updateDecimalFromHoursMinutes() {
+    setState(() {});
+  }
+
+  /// Format decimal hours to "Xh Ymin" string
+  String _formatDecimalToHoursMinutes(double decimalHours) {
+    final hours = decimalHours.floor();
+    final minutes = ((decimalHours - hours) * 60).round();
+    return '≈ ${hours}h ${minutes}min';
   }
 
   Future<Uint8List> _compressImage(Uint8List bytes) async {
@@ -243,7 +299,7 @@ class _QuoteFormScreenState extends State<QuoteFormScreen> {
         name: _nameController.text,
         quantity: int.parse(_quantityController.text),
         pieceWeightGrams: double.parse(_pieceWeightGramsController.text),
-        printHours: double.parse(_printHoursController.text),
+        printHours: _getDecimalHours(),
         postProcessingCost: _postProcessingCostController.text.isEmpty
             ? null
             : double.parse(_postProcessingCostController.text),
@@ -328,8 +384,133 @@ class _QuoteFormScreenState extends State<QuoteFormScreen> {
                       ),
                     ),
                   
-                  _field(_printHoursController, 'Horas de impresión *', true,
-                      isNumeric: true, suffix: 'hrs'),
+                  // Print hours input with mode toggle
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Horas de impresión *',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.grey[800],
+                          ),
+                        ),
+                      ),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Decimal',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: !_useHoursMinutesFormat ? Colors.teal : Colors.grey,
+                            ),
+                          ),
+                          Switch(
+                            value: _useHoursMinutesFormat,
+                            onChanged: (value) => _toggleTimeInputMode(),
+                            activeColor: Colors.teal,
+                          ),
+                          Text(
+                            'H:M',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: _useHoursMinutesFormat ? Colors.teal : Colors.grey,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  
+                  if (_useHoursMinutesFormat) ...[
+                    // Hours and Minutes input
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextFormField(
+                            controller: _printHoursOnlyController,
+                            keyboardType: TextInputType.number,
+                            validator: (v) {
+                              if (v == null || v.isEmpty) {
+                                return 'Requerido';
+                              }
+                              if (int.tryParse(v) == null) {
+                                return 'Número inválido';
+                              }
+                              return null;
+                            },
+                            onChanged: (_) => _updateDecimalFromHoursMinutes(),
+                            decoration: const InputDecoration(
+                              labelText: 'Horas',
+                              suffixText: 'h',
+                              border: OutlineInputBorder(),
+                              hintText: '0',
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: TextFormField(
+                            controller: _printMinutesController,
+                            keyboardType: TextInputType.number,
+                            validator: (v) {
+                              if (v == null || v.isEmpty) {
+                                return 'Requerido';
+                              }
+                              final minutes = int.tryParse(v);
+                              if (minutes == null) {
+                                return 'Número inválido';
+                              }
+                              if (minutes < 0 || minutes >= 60) {
+                                return '0-59';
+                              }
+                              return null;
+                            },
+                            onChanged: (_) => _updateDecimalFromHoursMinutes(),
+                            decoration: const InputDecoration(
+                              labelText: 'Minutos',
+                              suffixText: 'min',
+                              border: OutlineInputBorder(),
+                              hintText: '0',
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 16, top: 8, bottom: 12),
+                      child: Text(
+                        '≈ ${_getDecimalHours().toStringAsFixed(2)} horas',
+                        style: TextStyle(
+                          color: Colors.teal[700],
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ] else ...[
+                    // Decimal input
+                    _field(_printHoursController, 'Horas', true,
+                        isNumeric: true, suffix: 'hrs'),
+                    if (_printHoursController.text.isNotEmpty &&
+                        double.tryParse(_printHoursController.text) != null)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 16, bottom: 12),
+                        child: Text(
+                          _formatDecimalToHoursMinutes(
+                              double.parse(_printHoursController.text)),
+                          style: TextStyle(
+                            color: Colors.teal[700],
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                  ],
+                  
                   _field(_measurementsController, 'Medidas', false,
                       suffix: 'cm', hint: 'Ej: 10 x 20 x 5'),
                   _field(_postProcessingCostController, 'Costo de post-procesado', false,
@@ -995,6 +1176,8 @@ class _QuoteFormScreenState extends State<QuoteFormScreen> {
     _quantityController.dispose();
     _pieceWeightGramsController.dispose();
     _printHoursController.dispose();
+    _printHoursOnlyController.dispose();
+    _printMinutesController.dispose();
     _postProcessingCostController.dispose();
     _measurementsController.dispose();
     _marginPercentController.dispose();
