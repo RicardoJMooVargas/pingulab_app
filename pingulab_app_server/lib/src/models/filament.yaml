@@ -7,3 +7,4 @@ fields:
   color: String  # Hex color code (e.g., #FF5733)
   spoolWeightKg: double
   spoolCost: double
+  remainingGrams: double  # Inventario disponible en gramos

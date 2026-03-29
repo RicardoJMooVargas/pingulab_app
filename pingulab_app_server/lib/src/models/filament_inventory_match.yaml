@@ -1,0 +1,7 @@
+class: FilamentInventoryMatch
+fields:
+  filament: Filament
+  requiredGrams: double
+  remainingGrams: double
+  isSufficient: bool
+  shortageGrams: double

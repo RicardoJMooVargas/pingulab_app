@@ -1,0 +1,10 @@
+class: FilamentCatalogItem
+table: filament_catalog_items
+fields:
+  materialType: String
+  color: String  # Hex color code (e.g., #FF5733)
+  active: bool
+indexes:
+  material_color_unique:
+    fields: materialType, color
+    unique: true

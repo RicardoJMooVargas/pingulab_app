@@ -1,0 +1,12 @@
+class: SaleFilamentConsumption
+table: sale_filament_consumptions
+fields:
+  saleId: int
+  filamentId: int
+  gramsConsumed: double
+indexes:
+  sale_filament_unique:
+    fields: saleId, filamentId
+    unique: true
+  sale_consumptions:
+    fields: saleId
