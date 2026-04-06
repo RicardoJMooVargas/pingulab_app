@@ -52,8 +52,10 @@ import 'package:pingulab_app_server/src/generated/electricity_rate.dart'
 import 'package:pingulab_app_server/src/generated/extra_supply.dart' as _i40;
 import 'package:pingulab_app_server/src/generated/quote.dart' as _i41;
 import 'package:pingulab_app_server/src/generated/quote_version.dart' as _i42;
-import 'package:pingulab_app_server/src/generated/quote_category.dart' as _i43;
-import 'package:pingulab_app_server/src/generated/sale.dart' as _i44;
+import 'package:pingulab_app_server/src/generated/filament_catalog_item.dart'
+    as _i43;
+import 'package:pingulab_app_server/src/generated/quote_category.dart' as _i44;
+import 'package:pingulab_app_server/src/generated/sale.dart' as _i45;
 export 'greeting.dart';
 export 'backup_data.dart';
 export 'customer.dart';
@@ -1761,13 +1763,18 @@ class Protocol extends _i1.SerializationManagerServer {
           .map((e) => deserialize<_i42.QuoteVersion>(e))
           .toList() as T;
     }
-    if (t == List<_i43.QuoteCategory>) {
+    if (t == List<_i43.FilamentCatalogItem>) {
       return (data as List)
-          .map((e) => deserialize<_i43.QuoteCategory>(e))
+          .map((e) => deserialize<_i43.FilamentCatalogItem>(e))
           .toList() as T;
     }
-    if (t == List<_i44.Sale>) {
-      return (data as List).map((e) => deserialize<_i44.Sale>(e)).toList() as T;
+    if (t == List<_i44.QuoteCategory>) {
+      return (data as List)
+          .map((e) => deserialize<_i44.QuoteCategory>(e))
+          .toList() as T;
+    }
+    if (t == List<_i45.Sale>) {
+      return (data as List).map((e) => deserialize<_i45.Sale>(e)).toList() as T;
     }
     if (t == Map<String, dynamic>) {
       return (data as Map).map((k, v) =>

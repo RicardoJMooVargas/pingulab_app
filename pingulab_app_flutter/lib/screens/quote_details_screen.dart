@@ -51,7 +51,8 @@ class _QuoteDetailsScreenState extends State<QuoteDetailsScreen> {
       });
     }
   }
-Future<void> _loadSales() async {
+
+  Future<void> _loadSales() async {
     try {
       final sales = await client.sales.getSalesByQuoteId(widget.quoteId);
       setState(() {
@@ -62,7 +63,28 @@ Future<void> _loadSales() async {
     }
   }
 
-  
+  Map<String, double> _forecastInventoryAutocorrection() {
+    final details = _quoteDetails?.filamentDetails ?? const [];
+    double usedGrams = 0;
+    double missingGrams = 0;
+    double affectedSpools = 0;
+
+    for (final detail in details) {
+      usedGrams += detail.gramsUsed;
+      final missing = detail.gramsUsed - detail.filament.remainingGrams;
+      if (missing > 0) {
+        missingGrams += missing;
+        affectedSpools += 1;
+      }
+    }
+
+    return {
+      'usedGrams': usedGrams,
+      'missingGrams': missingGrams,
+      'affectedSpools': affectedSpools,
+    };
+  }
+
   Color _getStatusColor(QuoteStatus status) {
     switch (status) {
       case QuoteStatus.PENDIENTE:
@@ -151,7 +173,8 @@ Future<void> _loadSales() async {
     if (_quoteDetails == null) return;
 
     final quote = _quoteDetails!.quote;
-    
+    final inventoryForecast = _forecastInventoryAutocorrection();
+
     // Cargar la lista de clientes disponibles
     List<Customer> customers = [];
     try {
@@ -188,7 +211,8 @@ Future<void> _loadSales() async {
             QuoteVersion? selectedVersion;
             if (selectedVersionId != null) {
               try {
-                selectedVersion = versions.firstWhere((v) => v.id == selectedVersionId);
+                selectedVersion =
+                    versions.firstWhere((v) => v.id == selectedVersionId);
               } catch (e) {
                 selectedVersion = null;
               }
@@ -224,9 +248,11 @@ Future<void> _loadSales() async {
                                   child: const Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Icon(Icons.error_outline, color: Colors.red, size: 16),
+                                      Icon(Icons.error_outline,
+                                          color: Colors.red, size: 16),
                                       SizedBox(width: 8),
-                                      Text('Error al cargar imagen', style: TextStyle(fontSize: 12)),
+                                      Text('Error al cargar imagen',
+                                          style: TextStyle(fontSize: 12)),
                                     ],
                                   ),
                                 );
@@ -236,20 +262,22 @@ Future<void> _loadSales() async {
                         ),
                         const SizedBox(height: 16),
                       ],
-                      
+
                       // Información de precio
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           color: Colors.deepPurple.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.deepPurple.withOpacity(0.3)),
+                          border: Border.all(
+                              color: Colors.deepPurple.withOpacity(0.3)),
                         ),
                         child: Column(
                           children: [
                             if (quote.quantity > 1) ...[
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   const Text(
                                     'Precio por pieza:',
@@ -276,7 +304,9 @@ Future<void> _loadSales() async {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  quote.quantity > 1 ? 'Total (${quote.quantity} piezas):' : 'Total:',
+                                  quote.quantity > 1
+                                      ? 'Total (${quote.quantity} piezas):'
+                                      : 'Total:',
                                   style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
@@ -296,7 +326,7 @@ Future<void> _loadSales() async {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      
+
                       // Selector de Cliente
                       const Text(
                         'Cliente',
@@ -326,7 +356,7 @@ Future<void> _loadSales() async {
                         },
                       ),
                       const SizedBox(height: 16),
-                      
+
                       // Nombre personalizado del cliente (opcional)
                       TextField(
                         controller: customerNameController,
@@ -338,7 +368,7 @@ Future<void> _loadSales() async {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      
+
                       // Selector de Versión (si hay versiones disponibles)
                       if (versions.isNotEmpty) ...[
                         const Text(
@@ -380,7 +410,7 @@ Future<void> _loadSales() async {
                         ),
                         const SizedBox(height: 16),
                       ],
-                      
+
                       // Notas
                       TextField(
                         controller: notesController,
@@ -393,7 +423,7 @@ Future<void> _loadSales() async {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      
+
                       // Programar Entrega
                       ListTile(
                         contentPadding: EdgeInsets.zero,
@@ -409,7 +439,8 @@ Future<void> _loadSales() async {
                             context: context,
                             initialDate: DateTime.now(),
                             firstDate: DateTime.now(),
-                            lastDate: DateTime.now().add(const Duration(days: 365)),
+                            lastDate:
+                                DateTime.now().add(const Duration(days: 365)),
                           );
                           if (date != null) {
                             setDialogState(() {
@@ -418,7 +449,52 @@ Future<void> _loadSales() async {
                           }
                         },
                       ),
-                      
+
+                      const SizedBox(height: 12),
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: inventoryForecast['missingGrams']! > 0
+                              ? Colors.orange.withOpacity(0.1)
+                              : Colors.green.withOpacity(0.08),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: inventoryForecast['missingGrams']! > 0
+                                ? Colors.orange.withOpacity(0.4)
+                                : Colors.green.withOpacity(0.3),
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Impacto de inventario al convertir',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              'Consumo total estimado: ${inventoryForecast['usedGrams']!.toStringAsFixed(1)}g',
+                            ),
+                            if (inventoryForecast['missingGrams']! > 0)
+                              Text(
+                                'Auto-correccion estimada: +${inventoryForecast['missingGrams']!.toStringAsFixed(1)}g en ${inventoryForecast['affectedSpools']!.toStringAsFixed(0)} rollo(s)',
+                                style: TextStyle(
+                                  color: Colors.orange[800],
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              )
+                            else
+                              Text(
+                                'Stock suficiente para descontar sin ajuste.',
+                                style: TextStyle(
+                                  color: Colors.green[800],
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+
                       // Información de la versión seleccionada
                       if (selectedVersion != null) ...[
                         const Divider(),
@@ -427,7 +503,8 @@ Future<void> _loadSales() async {
                           decoration: BoxDecoration(
                             color: Colors.blue.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.blue.withOpacity(0.3)),
+                            border:
+                                Border.all(color: Colors.blue.withOpacity(0.3)),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -440,8 +517,10 @@ Future<void> _loadSales() async {
                                 ),
                               ),
                               const SizedBox(height: 8),
-                              Text('Peso: ${selectedVersion.pieceWeightGrams}g'),
-                              Text('Horas de impresión: ${selectedVersion.printHours}hrs'),
+                              Text(
+                                  'Peso: ${selectedVersion.pieceWeightGrams}g'),
+                              Text(
+                                  'Horas de impresión: ${selectedVersion.printHours}hrs'),
                               Text('Cantidad: ${selectedVersion.quantity}'),
                             ],
                           ),
@@ -483,10 +562,16 @@ Future<void> _loadSales() async {
         );
 
         if (mounted) {
+          final missingGrams = inventoryForecast['missingGrams']!;
+          final affectedSpools = inventoryForecast['affectedSpools']!;
+          final feedbackText = missingGrams > 0
+              ? 'Venta creada. Inventario auto-corregido: +${missingGrams.toStringAsFixed(1)}g en ${affectedSpools.toStringAsFixed(0)} rollo(s).'
+              : 'Venta creada e inventario descontado correctamente.';
+
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('✅ Venta creada exitosamente')),
+            SnackBar(content: Text(feedbackText)),
           );
-          
+
           // Navigate to sale details
           Navigator.push(
             context,
@@ -628,7 +713,9 @@ Future<void> _loadSales() async {
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   children: [
                     pw.Text(
-                      quote.quantity > 1 ? 'TOTAL (${quote.quantity} piezas)' : 'TOTAL',
+                      quote.quantity > 1
+                          ? 'TOTAL (${quote.quantity} piezas)'
+                          : 'TOTAL',
                       style: pw.TextStyle(
                         fontSize: 20,
                         fontWeight: pw.FontWeight.bold,
@@ -651,7 +738,8 @@ Future<void> _loadSales() async {
 
           // Detalles de impresión
           _buildPdfSection('Detalles de Impresión', [
-            _buildPdfRow('Cantidad', '${quote.quantity} ${quote.quantity == 1 ? 'pieza' : 'piezas'}'),
+            _buildPdfRow('Cantidad',
+                '${quote.quantity} ${quote.quantity == 1 ? 'pieza' : 'piezas'}'),
             if (customer != null) ...[
               _buildPdfRow('Cliente', customer.apodo),
               if (customer.nombre != null || customer.apellido != null)
@@ -671,8 +759,7 @@ Future<void> _loadSales() async {
             _buildPdfRow('Horas de impresión', '${quote.printHours}hrs'),
             if (quote.measurements != null)
               _buildPdfRow('Medidas', quote.measurements!),
-            if (printer != null)
-              _buildPdfRow('Impresora', printer.name),
+            if (printer != null) _buildPdfRow('Impresora', printer.name),
           ]),
 
           // Filamentos
@@ -766,7 +853,8 @@ Future<void> _loadSales() async {
     // Mostrar el PDF
     await Printing.layoutPdf(
       onLayout: (format) async => pdf.save(),
-      name: 'cotizacion_${widget.quoteId}_${quote.name.replaceAll(' ', '_')}.pdf',
+      name:
+          'cotizacion_${widget.quoteId}_${quote.name.replaceAll(' ', '_')}.pdf',
     );
   }
 
@@ -892,7 +980,9 @@ Future<void> _loadSales() async {
               onPressed: _convertToSale,
               backgroundColor: Colors.deepPurple,
               icon: const Icon(Icons.add_shopping_cart),
-              label: Text(_sales != null && _sales!.isNotEmpty ? 'Nueva Venta' : 'Crear Venta'),
+              label: Text(_sales != null && _sales!.isNotEmpty
+                  ? 'Nueva Venta'
+                  : 'Crear Venta'),
             )
           : null,
     );
@@ -1030,7 +1120,8 @@ Future<void> _loadSales() async {
                       children: [
                         const Text(
                           'Precio por pieza',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                         Text(
                           '\$${(quote.total / quote.quantity).toStringAsFixed(2)}',
@@ -1050,8 +1141,11 @@ Future<void> _loadSales() async {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        quote.quantity > 1 ? 'TOTAL (${quote.quantity} piezas)' : 'TOTAL',
-                        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                        quote.quantity > 1
+                            ? 'TOTAL (${quote.quantity} piezas)'
+                            : 'TOTAL',
+                        style: const TextStyle(
+                            fontSize: 24, fontWeight: FontWeight.bold),
                       ),
                       Text(
                         '\$${quote.total.toStringAsFixed(2)}',
@@ -1073,7 +1167,8 @@ Future<void> _loadSales() async {
           _buildSection(
             'Detalles de Impresión',
             [
-              _buildDetailRow('Cantidad', '${quote.quantity} ${quote.quantity == 1 ? 'pieza' : 'piezas'}'),
+              _buildDetailRow('Cantidad',
+                  '${quote.quantity} ${quote.quantity == 1 ? 'pieza' : 'piezas'}'),
               if (customer != null) ...[
                 _buildDetailRow('Cliente', customer.apodo),
                 if (customer.nombre != null || customer.apellido != null)
@@ -1177,7 +1272,8 @@ Future<void> _loadSales() async {
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.shopping_cart, color: Colors.deepPurple),
+                        const Icon(Icons.shopping_cart,
+                            color: Colors.deepPurple),
                         const SizedBox(width: 8),
                         Text(
                           'Ventas Realizadas (${_sales!.length})',
@@ -1194,7 +1290,8 @@ Future<void> _loadSales() async {
                         margin: const EdgeInsets.only(bottom: 8),
                         child: ListTile(
                           leading: CircleAvatar(
-                            backgroundColor: _getSaleStatusColor(sale.saleStatus),
+                            backgroundColor:
+                                _getSaleStatusColor(sale.saleStatus),
                             child: Text(
                               '#${sale.id}',
                               style: const TextStyle(
@@ -1212,7 +1309,8 @@ Future<void> _loadSales() async {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               const SizedBox(height: 4),
-                              Text('Total: \$${sale.totalAmount.toStringAsFixed(2)}'),
+                              Text(
+                                  'Total: \$${sale.totalAmount.toStringAsFixed(2)}'),
                               Text(
                                 _getSaleStatusLabel(sale.saleStatus),
                                 style: TextStyle(
@@ -1227,7 +1325,8 @@ Future<void> _loadSales() async {
                             await Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => SaleDetailsScreen(saleId: sale.id!),
+                                builder: (context) =>
+                                    SaleDetailsScreen(saleId: sale.id!),
                               ),
                             );
                             _loadSales();

@@ -24,12 +24,14 @@ import 'package:pingulab_app_client/src/protocol/quote_input.dart' as _i12;
 import 'package:pingulab_app_client/src/protocol/quote_details.dart' as _i13;
 import 'package:pingulab_app_client/src/protocol/quote_status.dart' as _i14;
 import 'package:pingulab_app_client/src/protocol/quote_version.dart' as _i15;
-import 'package:pingulab_app_client/src/protocol/quote_category.dart' as _i16;
-import 'package:pingulab_app_client/src/protocol/sale.dart' as _i17;
-import 'package:pingulab_app_client/src/protocol/sale_status.dart' as _i18;
-import 'package:pingulab_app_client/src/protocol/payment_status.dart' as _i19;
-import 'package:pingulab_app_client/src/protocol/greeting.dart' as _i20;
-import 'protocol.dart' as _i21;
+import 'package:pingulab_app_client/src/protocol/filament_catalog_item.dart'
+    as _i16;
+import 'package:pingulab_app_client/src/protocol/quote_category.dart' as _i17;
+import 'package:pingulab_app_client/src/protocol/sale.dart' as _i18;
+import 'package:pingulab_app_client/src/protocol/sale_status.dart' as _i19;
+import 'package:pingulab_app_client/src/protocol/payment_status.dart' as _i20;
+import 'package:pingulab_app_client/src/protocol/greeting.dart' as _i21;
+import 'protocol.dart' as _i22;
 
 /// Endpoint para análisis de gráficas, ventas netas, amortización y ganancias
 /// {@category Endpoint}
@@ -898,6 +900,71 @@ class EndpointResources extends _i1.EndpointRef {
         {},
       );
 
+  /// Get filament catalog items used by UI (material + color)
+  _i2.Future<List<_i16.FilamentCatalogItem>> getFilamentCatalogItems(
+          {required bool onlyActive}) =>
+      caller.callServerEndpoint<List<_i16.FilamentCatalogItem>>(
+        'resources',
+        'getFilamentCatalogItems',
+        {'onlyActive': onlyActive},
+      );
+
+  /// Get available filament spools for a catalog item.
+  _i2.Future<List<_i5.Filament>> getFilamentInventoryByCatalog(
+    String materialType,
+    String color, {
+    required bool onlyWithStock,
+  }) =>
+      caller.callServerEndpoint<List<_i5.Filament>>(
+        'resources',
+        'getFilamentInventoryByCatalog',
+        {
+          'materialType': materialType,
+          'color': color,
+          'onlyWithStock': onlyWithStock,
+        },
+      );
+
+  /// Suggests which real spool should be used for a quote requirement.
+  /// Selection priority:
+  /// 1) preferredFilamentId (if valid)
+  /// 2) spool with most stock that can cover required grams
+  /// 3) spool with most stock (same material+color)
+  /// 4) last used spool (same material+color)
+  /// 5) any spool with same color
+  _i2.Future<String> suggestFilamentForRequirement(
+    String materialType,
+    String color,
+    double requiredGrams, {
+    int? preferredFilamentId,
+  }) =>
+      caller.callServerEndpoint<String>(
+        'resources',
+        'suggestFilamentForRequirement',
+        {
+          'materialType': materialType,
+          'color': color,
+          'requiredGrams': requiredGrams,
+          'preferredFilamentId': preferredFilamentId,
+        },
+      );
+
+  /// Applies inventory movement when a sale is completed.
+  /// If there is not enough stock in a linked spool, auto-corrects by
+  /// adding the missing grams first, then discounting used grams.
+  _i2.Future<String> applySaleFilamentInventoryImpact(
+    int saleId, {
+    required bool autoCorrectIfInsufficient,
+  }) =>
+      caller.callServerEndpoint<String>(
+        'resources',
+        'applySaleFilamentInventoryImpact',
+        {
+          'saleId': saleId,
+          'autoCorrectIfInsufficient': autoCorrectIfInsufficient,
+        },
+      );
+
   /// Create filament
   _i2.Future<_i5.Filament> createFilament(
     String name,
@@ -1103,30 +1170,30 @@ class EndpointResources extends _i1.EndpointRef {
       );
 
   /// Get all quote categories
-  _i2.Future<List<_i16.QuoteCategory>> getAllQuoteCategories() =>
-      caller.callServerEndpoint<List<_i16.QuoteCategory>>(
+  _i2.Future<List<_i17.QuoteCategory>> getAllQuoteCategories() =>
+      caller.callServerEndpoint<List<_i17.QuoteCategory>>(
         'resources',
         'getAllQuoteCategories',
         {},
       );
 
   /// Get active quote categories only
-  _i2.Future<List<_i16.QuoteCategory>> getActiveQuoteCategories() =>
-      caller.callServerEndpoint<List<_i16.QuoteCategory>>(
+  _i2.Future<List<_i17.QuoteCategory>> getActiveQuoteCategories() =>
+      caller.callServerEndpoint<List<_i17.QuoteCategory>>(
         'resources',
         'getActiveQuoteCategories',
         {},
       );
 
   /// Create a new quote category
-  _i2.Future<_i16.QuoteCategory> createQuoteCategory(
+  _i2.Future<_i17.QuoteCategory> createQuoteCategory(
     String name,
     bool active, {
     String? description,
     String? icon,
     String? color,
   }) =>
-      caller.callServerEndpoint<_i16.QuoteCategory>(
+      caller.callServerEndpoint<_i17.QuoteCategory>(
         'resources',
         'createQuoteCategory',
         {
@@ -1139,7 +1206,7 @@ class EndpointResources extends _i1.EndpointRef {
       );
 
   /// Update quote category
-  _i2.Future<_i16.QuoteCategory> updateQuoteCategory(
+  _i2.Future<_i17.QuoteCategory> updateQuoteCategory(
     int categoryId,
     String name,
     bool active, {
@@ -1147,7 +1214,7 @@ class EndpointResources extends _i1.EndpointRef {
     String? icon,
     String? color,
   }) =>
-      caller.callServerEndpoint<_i16.QuoteCategory>(
+      caller.callServerEndpoint<_i17.QuoteCategory>(
         'resources',
         'updateQuoteCategory',
         {
@@ -1179,11 +1246,11 @@ class EndpointSales extends _i1.EndpointRef {
   String get name => 'sales';
 
   /// Get all sales with optional filtering by status
-  _i2.Future<List<_i17.Sale>> getAllSales({
-    _i18.SaleStatus? status,
-    _i19.PaymentStatus? paymentStatus,
+  _i2.Future<List<_i18.Sale>> getAllSales({
+    _i19.SaleStatus? status,
+    _i20.PaymentStatus? paymentStatus,
   }) =>
-      caller.callServerEndpoint<List<_i17.Sale>>(
+      caller.callServerEndpoint<List<_i18.Sale>>(
         'sales',
         'getAllSales',
         {
@@ -1193,14 +1260,14 @@ class EndpointSales extends _i1.EndpointRef {
       );
 
   /// Get sales with pagination and optional filtering
-  _i2.Future<List<_i17.Sale>> getSalesPaginated({
+  _i2.Future<List<_i18.Sale>> getSalesPaginated({
     required int limit,
     required int offset,
-    _i18.SaleStatus? status,
-    _i19.PaymentStatus? paymentStatus,
+    _i19.SaleStatus? status,
+    _i20.PaymentStatus? paymentStatus,
     int? customerId,
   }) =>
-      caller.callServerEndpoint<List<_i17.Sale>>(
+      caller.callServerEndpoint<List<_i18.Sale>>(
         'sales',
         'getSalesPaginated',
         {
@@ -1213,34 +1280,34 @@ class EndpointSales extends _i1.EndpointRef {
       );
 
   /// Get a specific sale by ID
-  _i2.Future<_i17.Sale?> getSaleById(int saleId) =>
-      caller.callServerEndpoint<_i17.Sale?>(
+  _i2.Future<_i18.Sale?> getSaleById(int saleId) =>
+      caller.callServerEndpoint<_i18.Sale?>(
         'sales',
         'getSaleById',
         {'saleId': saleId},
       );
 
   /// Get sales by quote ID
-  _i2.Future<List<_i17.Sale>> getSalesByQuoteId(int quoteId) =>
-      caller.callServerEndpoint<List<_i17.Sale>>(
+  _i2.Future<List<_i18.Sale>> getSalesByQuoteId(int quoteId) =>
+      caller.callServerEndpoint<List<_i18.Sale>>(
         'sales',
         'getSalesByQuoteId',
         {'quoteId': quoteId},
       );
 
   /// Convert a quote to a sale
-  _i2.Future<_i17.Sale> convertQuoteToSale(
+  _i2.Future<_i18.Sale> convertQuoteToSale(
     int quoteId, {
     int? quoteVersionId,
     int? customerId,
-    _i18.SaleStatus? initialStatus,
-    _i19.PaymentStatus? initialPaymentStatus,
+    _i19.SaleStatus? initialStatus,
+    _i20.PaymentStatus? initialPaymentStatus,
     double? paidAmount,
     DateTime? scheduledDeliveryDate,
     String? customerName,
     String? notes,
   }) =>
-      caller.callServerEndpoint<_i17.Sale>(
+      caller.callServerEndpoint<_i18.Sale>(
         'sales',
         'convertQuoteToSale',
         {
@@ -1257,12 +1324,12 @@ class EndpointSales extends _i1.EndpointRef {
       );
 
   /// Update sale status
-  _i2.Future<_i17.Sale> updateSaleStatus(
+  _i2.Future<_i18.Sale> updateSaleStatus(
     int saleId,
-    _i18.SaleStatus newStatus, {
+    _i19.SaleStatus newStatus, {
     String? notes,
   }) =>
-      caller.callServerEndpoint<_i17.Sale>(
+      caller.callServerEndpoint<_i18.Sale>(
         'sales',
         'updateSaleStatus',
         {
@@ -1273,13 +1340,13 @@ class EndpointSales extends _i1.EndpointRef {
       );
 
   /// Update payment status and paid amount
-  _i2.Future<_i17.Sale> updatePaymentStatus(
+  _i2.Future<_i18.Sale> updatePaymentStatus(
     int saleId,
-    _i19.PaymentStatus newPaymentStatus, {
+    _i20.PaymentStatus newPaymentStatus, {
     double? paidAmount,
     String? notes,
   }) =>
-      caller.callServerEndpoint<_i17.Sale>(
+      caller.callServerEndpoint<_i18.Sale>(
         'sales',
         'updatePaymentStatus',
         {
@@ -1291,13 +1358,13 @@ class EndpointSales extends _i1.EndpointRef {
       );
 
   /// Update delivery scheduling
-  _i2.Future<_i17.Sale> updateDeliverySchedule(
+  _i2.Future<_i18.Sale> updateDeliverySchedule(
     int saleId, {
     DateTime? scheduledDeliveryDate,
     DateTime? reminderDate,
     DateTime? actualDeliveryDate,
   }) =>
-      caller.callServerEndpoint<_i17.Sale>(
+      caller.callServerEndpoint<_i18.Sale>(
         'sales',
         'updateDeliverySchedule',
         {
@@ -1309,11 +1376,11 @@ class EndpointSales extends _i1.EndpointRef {
       );
 
   /// Update sale notes
-  _i2.Future<_i17.Sale> updateSaleNotes(
+  _i2.Future<_i18.Sale> updateSaleNotes(
     int saleId,
     String notes,
   ) =>
-      caller.callServerEndpoint<_i17.Sale>(
+      caller.callServerEndpoint<_i18.Sale>(
         'sales',
         'updateSaleNotes',
         {
@@ -1344,16 +1411,16 @@ class EndpointSales extends _i1.EndpointRef {
       );
 
   /// Get upcoming deliveries (scheduled for the next N days)
-  _i2.Future<List<_i17.Sale>> getUpcomingDeliveries({required int daysAhead}) =>
-      caller.callServerEndpoint<List<_i17.Sale>>(
+  _i2.Future<List<_i18.Sale>> getUpcomingDeliveries({required int daysAhead}) =>
+      caller.callServerEndpoint<List<_i18.Sale>>(
         'sales',
         'getUpcomingDeliveries',
         {'daysAhead': daysAhead},
       );
 
   /// Get overdue deliveries (scheduled delivery date passed but not delivered)
-  _i2.Future<List<_i17.Sale>> getOverdueDeliveries() =>
-      caller.callServerEndpoint<List<_i17.Sale>>(
+  _i2.Future<List<_i18.Sale>> getOverdueDeliveries() =>
+      caller.callServerEndpoint<List<_i18.Sale>>(
         'sales',
         'getOverdueDeliveries',
         {},
@@ -1370,8 +1437,8 @@ class EndpointGreeting extends _i1.EndpointRef {
   String get name => 'greeting';
 
   /// Returns a personalized greeting message: "Hello {name}".
-  _i2.Future<_i20.Greeting> hello(String name) =>
-      caller.callServerEndpoint<_i20.Greeting>(
+  _i2.Future<_i21.Greeting> hello(String name) =>
+      caller.callServerEndpoint<_i21.Greeting>(
         'greeting',
         'hello',
         {'name': name},
@@ -1394,7 +1461,7 @@ class Client extends _i1.ServerpodClientShared {
     bool? disconnectStreamsOnLostInternetConnection,
   }) : super(
           host,
-          _i21.Protocol(),
+          _i22.Protocol(),
           securityContext: securityContext,
           authenticationKeyManager: authenticationKeyManager,
           streamingConnectionTimeout: streamingConnectionTimeout,

@@ -76,6 +76,10 @@ resources:
   - updatePrinter:
   - deletePrinter:
   - getAllFilaments:
+  - getFilamentCatalogItems:
+  - getFilamentInventoryByCatalog:
+  - suggestFilamentForRequirement:
+  - applySaleFilamentInventoryImpact:
   - createFilament:
   - updateFilament:
   - deleteFilament:

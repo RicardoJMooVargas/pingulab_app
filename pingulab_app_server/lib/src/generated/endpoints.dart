@@ -1771,6 +1771,118 @@ class Endpoints extends _i1.EndpointDispatch {
               (endpoints['resources'] as _i10.ResourcesEndpoint)
                   .getAllFilaments(session),
         ),
+        'getFilamentCatalogItems': _i1.MethodConnector(
+          name: 'getFilamentCatalogItems',
+          params: {
+            'onlyActive': _i1.ParameterDescription(
+              name: 'onlyActive',
+              type: _i1.getType<bool>(),
+              nullable: false,
+            )
+          },
+          call: (
+            _i1.Session session,
+            Map<String, dynamic> params,
+          ) async =>
+              (endpoints['resources'] as _i10.ResourcesEndpoint)
+                  .getFilamentCatalogItems(
+            session,
+            onlyActive: params['onlyActive'],
+          ),
+        ),
+        'getFilamentInventoryByCatalog': _i1.MethodConnector(
+          name: 'getFilamentInventoryByCatalog',
+          params: {
+            'materialType': _i1.ParameterDescription(
+              name: 'materialType',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+            'color': _i1.ParameterDescription(
+              name: 'color',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+            'onlyWithStock': _i1.ParameterDescription(
+              name: 'onlyWithStock',
+              type: _i1.getType<bool>(),
+              nullable: false,
+            ),
+          },
+          call: (
+            _i1.Session session,
+            Map<String, dynamic> params,
+          ) async =>
+              (endpoints['resources'] as _i10.ResourcesEndpoint)
+                  .getFilamentInventoryByCatalog(
+            session,
+            params['materialType'],
+            params['color'],
+            onlyWithStock: params['onlyWithStock'],
+          ),
+        ),
+        'suggestFilamentForRequirement': _i1.MethodConnector(
+          name: 'suggestFilamentForRequirement',
+          params: {
+            'materialType': _i1.ParameterDescription(
+              name: 'materialType',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+            'color': _i1.ParameterDescription(
+              name: 'color',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+            'requiredGrams': _i1.ParameterDescription(
+              name: 'requiredGrams',
+              type: _i1.getType<double>(),
+              nullable: false,
+            ),
+            'preferredFilamentId': _i1.ParameterDescription(
+              name: 'preferredFilamentId',
+              type: _i1.getType<int?>(),
+              nullable: true,
+            ),
+          },
+          call: (
+            _i1.Session session,
+            Map<String, dynamic> params,
+          ) async =>
+              (endpoints['resources'] as _i10.ResourcesEndpoint)
+                  .suggestFilamentForRequirement(
+            session,
+            params['materialType'],
+            params['color'],
+            params['requiredGrams'],
+            preferredFilamentId: params['preferredFilamentId'],
+          ),
+        ),
+        'applySaleFilamentInventoryImpact': _i1.MethodConnector(
+          name: 'applySaleFilamentInventoryImpact',
+          params: {
+            'saleId': _i1.ParameterDescription(
+              name: 'saleId',
+              type: _i1.getType<int>(),
+              nullable: false,
+            ),
+            'autoCorrectIfInsufficient': _i1.ParameterDescription(
+              name: 'autoCorrectIfInsufficient',
+              type: _i1.getType<bool>(),
+              nullable: false,
+            ),
+          },
+          call: (
+            _i1.Session session,
+            Map<String, dynamic> params,
+          ) async =>
+              (endpoints['resources'] as _i10.ResourcesEndpoint)
+                  .applySaleFilamentInventoryImpact(
+            session,
+            params['saleId'],
+            autoCorrectIfInsufficient: params['autoCorrectIfInsufficient'],
+          ),
+        ),
         'createFilament': _i1.MethodConnector(
           name: 'createFilament',
           params: {

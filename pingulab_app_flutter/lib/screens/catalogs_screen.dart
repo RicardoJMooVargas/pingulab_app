@@ -192,6 +192,10 @@ class _FilamentsTabState extends State<FilamentsTab> {
                   itemCount: _filaments.length,
                   itemBuilder: (context, index) {
                     final filament = _filaments[index];
+                    final totalGrams = filament.spoolWeightKg * 1000;
+                    final stockPercent = totalGrams <= 0
+                        ? 0.0
+                        : (filament.remainingGrams / totalGrams) * 100;
                     return Card(
                       margin: const EdgeInsets.symmetric(
                           horizontal: 16, vertical: 4),
@@ -206,8 +210,26 @@ class _FilamentsTabState extends State<FilamentsTab> {
                           ),
                         ),
                         title: Text(filament.name),
-                        subtitle: Text(
-                            '${filament.brand} - ${filament.materialType} - ${filament.spoolWeightKg}kg - \$${filament.spoolCost.toStringAsFixed(2)}'),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${filament.brand} - ${filament.materialType} - ${filament.spoolWeightKg}kg - \$${filament.spoolCost.toStringAsFixed(2)}',
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'Stock: ${filament.remainingGrams.toStringAsFixed(1)}g (${stockPercent.toStringAsFixed(0)}%)',
+                              style: TextStyle(
+                                color: stockPercent < 20
+                                    ? Colors.red[700]
+                                    : Colors.grey[700],
+                                fontWeight: stockPercent < 20
+                                    ? FontWeight.w600
+                                    : FontWeight.normal,
+                              ),
+                            ),
+                          ],
+                        ),
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -335,9 +357,8 @@ class _FilamentsTabState extends State<FilamentsTab> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-                content: Text(isEdit
-                    ? 'Filamento actualizado'
-                    : 'Filamento creado')),
+                content: Text(
+                    isEdit ? 'Filamento actualizado' : 'Filamento creado')),
           );
         }
       } catch (e) {
@@ -495,8 +516,8 @@ class _PrintersTabState extends State<PrintersTab> {
     final nameController = TextEditingController(text: printer?.name ?? '');
     final powerController = TextEditingController(
         text: printer?.powerConsumptionWatts.toString() ?? '0');
-    final costController = TextEditingController(
-        text: printer?.purchaseCost.toString() ?? '0.0');
+    final costController =
+        TextEditingController(text: printer?.purchaseCost.toString() ?? '0.0');
     bool available = printer?.available ?? true;
 
     final result = await showDialog<bool>(
@@ -699,8 +720,7 @@ class _ShippingsTabState extends State<ShippingsTab> {
                       margin: const EdgeInsets.symmetric(
                           horizontal: 16, vertical: 4),
                       child: ListTile(
-                        leading:
-                            const Icon(Icons.local_shipping, size: 40),
+                        leading: const Icon(Icons.local_shipping, size: 40),
                         title: Text(shipping.shippingType),
                         subtitle: Text(
                             '${shipping.carrierName} - \$${shipping.cost.toStringAsFixed(2)}'),
@@ -745,8 +765,7 @@ class _ShippingsTabState extends State<ShippingsTab> {
           children: [
             TextField(
               controller: typeController,
-              decoration:
-                  const InputDecoration(labelText: 'Tipo de envío'),
+              decoration: const InputDecoration(labelText: 'Tipo de envío'),
             ),
             TextField(
               controller: carrierController,
@@ -792,8 +811,7 @@ class _ShippingsTabState extends State<ShippingsTab> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-                content:
-                    Text(isEdit ? 'Envío actualizado' : 'Envío creado')),
+                content: Text(isEdit ? 'Envío actualizado' : 'Envío creado')),
           );
         }
       } catch (e) {
@@ -949,8 +967,7 @@ class _CustomersTabState extends State<CustomersTab> {
 
   Future<void> _showCustomerDialog({Customer? customer}) async {
     final isEdit = customer != null;
-    final apodoController =
-        TextEditingController(text: customer?.apodo ?? '');
+    final apodoController = TextEditingController(text: customer?.apodo ?? '');
     final nombreController =
         TextEditingController(text: customer?.nombre ?? '');
     final apellidoController =
@@ -959,8 +976,7 @@ class _CustomersTabState extends State<CustomersTab> {
         TextEditingController(text: customer?.numero ?? '');
     final direccionController =
         TextEditingController(text: customer?.direccion ?? '');
-    final notesController =
-        TextEditingController(text: customer?.notes ?? '');
+    final notesController = TextEditingController(text: customer?.notes ?? '');
 
     final result = await showDialog<bool>(
       context: context,
@@ -1018,48 +1034,40 @@ class _CustomersTabState extends State<CustomersTab> {
           await client.catalogs.updateCustomer(
             customer!.id!,
             apodoController.text,
-            nombre: nombreController.text.isEmpty
-                ? null
-                : nombreController.text,
+            nombre:
+                nombreController.text.isEmpty ? null : nombreController.text,
             apellido: apellidoController.text.isEmpty
                 ? null
                 : apellidoController.text,
-            numero: numeroController.text.isEmpty
-                ? null
-                : numeroController.text,
+            numero:
+                numeroController.text.isEmpty ? null : numeroController.text,
             direccion: direccionController.text.isEmpty
                 ? null
                 : direccionController.text,
-            notes: notesController.text.isEmpty
-                ? null
-                : notesController.text,
+            notes: notesController.text.isEmpty ? null : notesController.text,
           );
         } else {
           await client.catalogs.createCustomer(
             apodoController.text,
-            nombre: nombreController.text.isEmpty
-                ? null
-                : nombreController.text,
+            nombre:
+                nombreController.text.isEmpty ? null : nombreController.text,
             apellido: apellidoController.text.isEmpty
                 ? null
                 : apellidoController.text,
-            numero: numeroController.text.isEmpty
-                ? null
-                : numeroController.text,
+            numero:
+                numeroController.text.isEmpty ? null : numeroController.text,
             direccion: direccionController.text.isEmpty
                 ? null
                 : direccionController.text,
-            notes: notesController.text.isEmpty
-                ? null
-                : notesController.text,
+            notes: notesController.text.isEmpty ? null : notesController.text,
           );
         }
         _loadCustomers();
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-                content: Text(
-                    isEdit ? 'Cliente actualizado' : 'Cliente creado')),
+                content:
+                    Text(isEdit ? 'Cliente actualizado' : 'Cliente creado')),
           );
         }
       } catch (e) {
@@ -1185,9 +1193,7 @@ class _ElectricityRatesTabState extends State<ElectricityRatesTab> {
                     return Card(
                       margin: const EdgeInsets.symmetric(
                           horizontal: 16, vertical: 4),
-                      color: rate.active
-                          ? Colors.green.shade50
-                          : null,
+                      color: rate.active ? Colors.green.shade50 : null,
                       child: ListTile(
                         leading: Icon(
                           rate.active ? Icons.bolt : Icons.bolt_outlined,
@@ -1241,8 +1247,8 @@ class _ElectricityRatesTabState extends State<ElectricityRatesTab> {
               ),
               SwitchListTile(
                 title: const Text('Activa'),
-                subtitle: const Text(
-                    'Solo una tarifa puede estar activa a la vez'),
+                subtitle:
+                    const Text('Solo una tarifa puede estar activa a la vez'),
                 value: active,
                 onChanged: (value) {
                   setDialogState(() {
@@ -1284,8 +1290,7 @@ class _ElectricityRatesTabState extends State<ElectricityRatesTab> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-                content: Text(
-                    isEdit ? 'Tarifa actualizada' : 'Tarifa creada')),
+                content: Text(isEdit ? 'Tarifa actualizada' : 'Tarifa creada')),
           );
         }
       } catch (e) {
@@ -1492,9 +1497,8 @@ class _ExtraSuppliesTabState extends State<ExtraSuppliesTab> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-                content: Text(isEdit
-                    ? 'Suministro actualizado'
-                    : 'Suministro creado')),
+                content: Text(
+                    isEdit ? 'Suministro actualizado' : 'Suministro creado')),
           );
         }
       } catch (e) {
@@ -1613,7 +1617,8 @@ class _CategoriesTabState extends State<CategoriesTab> {
                     return Card(
                       child: ListTile(
                         leading: CircleAvatar(
-                          backgroundColor: _parseColor(category.color ?? '#808080'),
+                          backgroundColor:
+                              _parseColor(category.color ?? '#808080'),
                           child: Text(
                             category.icon ?? '📁',
                             style: const TextStyle(fontSize: 20),
@@ -1640,7 +1645,8 @@ class _CategoriesTabState extends State<CategoriesTab> {
                             ),
                             IconButton(
                               icon: const Icon(Icons.edit, color: Colors.blue),
-                              onPressed: () => _showCategoryDialog(category: category),
+                              onPressed: () =>
+                                  _showCategoryDialog(category: category),
                             ),
                             IconButton(
                               icon: const Icon(Icons.delete, color: Colors.red),
@@ -1670,9 +1676,11 @@ class _CategoriesTabState extends State<CategoriesTab> {
   Future<void> _showCategoryDialog({QuoteCategory? category}) async {
     final isEdit = category != null;
     final nameController = TextEditingController(text: category?.name ?? '');
-    final descController = TextEditingController(text: category?.description ?? '');
+    final descController =
+        TextEditingController(text: category?.description ?? '');
     final iconController = TextEditingController(text: category?.icon ?? '📁');
-    final colorController = TextEditingController(text: category?.color ?? '#808080');
+    final colorController =
+        TextEditingController(text: category?.color ?? '#808080');
     bool active = category?.active ?? true;
 
     final result = await showDialog<bool>(
@@ -1740,7 +1748,8 @@ class _CategoriesTabState extends State<CategoriesTab> {
             category!.id!,
             nameController.text,
             active,
-            description: descController.text.isEmpty ? null : descController.text,
+            description:
+                descController.text.isEmpty ? null : descController.text,
             icon: iconController.text.isEmpty ? null : iconController.text,
             color: colorController.text.isEmpty ? null : colorController.text,
           );
@@ -1748,7 +1757,8 @@ class _CategoriesTabState extends State<CategoriesTab> {
           await client.resources.createQuoteCategory(
             nameController.text,
             active,
-            description: descController.text.isEmpty ? null : descController.text,
+            description:
+                descController.text.isEmpty ? null : descController.text,
             icon: iconController.text.isEmpty ? null : iconController.text,
             color: colorController.text.isEmpty ? null : colorController.text,
           );
@@ -1757,7 +1767,9 @@ class _CategoriesTabState extends State<CategoriesTab> {
         _loadCategories();
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(isEdit ? 'Categoría actualizada' : 'Categoría creada')),
+            SnackBar(
+                content: Text(
+                    isEdit ? 'Categoría actualizada' : 'Categoría creada')),
           );
         }
       } catch (e) {
@@ -1809,4 +1821,3 @@ class _CategoriesTabState extends State<CategoriesTab> {
     }
   }
 }
-

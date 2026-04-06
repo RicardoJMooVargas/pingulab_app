@@ -1,7 +1,31 @@
+import 'dart:convert';
 import 'package:serverpod/serverpod.dart';
 import '../generated/protocol.dart';
 
 class ResourcesEndpoint extends Endpoint {
+  Future<Filament?> _findLastUsedFilamentForCatalog(
+    Session session,
+    String materialType,
+    String color,
+  ) async {
+    final quoteFilaments = await QuoteFilament.db.find(
+      session,
+      orderBy: (t) => t.id,
+      orderDescending: true,
+      limit: 100,
+    );
+
+    for (final qf in quoteFilaments) {
+      final filament = await Filament.db.findById(session, qf.filamentId);
+      if (filament == null) continue;
+      if (filament.materialType == materialType && filament.color == color) {
+        return filament;
+      }
+    }
+
+    return null;
+  }
+
   // ========== PRINTERS ==========
   
   /// Get all printers
@@ -76,6 +100,183 @@ class ResourcesEndpoint extends Endpoint {
   /// Get all filaments
   Future<List<Filament>> getAllFilaments(Session session) async {
     return await Filament.db.find(session, orderBy: (t) => t.name);
+  }
+
+  /// Get filament catalog items used by UI (material + color)
+  Future<List<FilamentCatalogItem>> getFilamentCatalogItems(
+    Session session, {
+    bool onlyActive = true,
+  }) async {
+    return await FilamentCatalogItem.db.find(
+      session,
+      where: onlyActive ? (t) => t.active.equals(true) : null,
+      orderBy: (t) => t.materialType,
+    );
+  }
+
+  /// Get available filament spools for a catalog item.
+  Future<List<Filament>> getFilamentInventoryByCatalog(
+    Session session,
+    String materialType,
+    String color, {
+    bool onlyWithStock = false,
+  }) async {
+    final filaments = await Filament.db.find(
+      session,
+      where: (t) => t.materialType.equals(materialType) & t.color.equals(color),
+      orderBy: (t) => t.remainingGrams,
+      orderDescending: true,
+    );
+
+    if (!onlyWithStock) return filaments;
+    return filaments.where((f) => f.remainingGrams > 0).toList();
+  }
+
+  /// Suggests which real spool should be used for a quote requirement.
+  /// Selection priority:
+  /// 1) preferredFilamentId (if valid)
+  /// 2) spool with most stock that can cover required grams
+  /// 3) spool with most stock (same material+color)
+  /// 4) last used spool (same material+color)
+  /// 5) any spool with same color
+  Future<String> suggestFilamentForRequirement(
+    Session session,
+    String materialType,
+    String color,
+    double requiredGrams, {
+    int? preferredFilamentId,
+  }) async {
+    final filaments = await Filament.db.find(
+      session,
+      where: (t) => t.materialType.equals(materialType) & t.color.equals(color),
+      orderBy: (t) => t.remainingGrams,
+      orderDescending: true,
+    );
+
+    Filament? selected;
+    String reason = 'none_found';
+
+    if (preferredFilamentId != null) {
+      final preferred = await Filament.db.findById(session, preferredFilamentId);
+      if (preferred != null && preferred.materialType == materialType && preferred.color == color) {
+        selected = preferred;
+        reason = 'preferred';
+      }
+    }
+
+    if (selected == null) {
+      final withEnough = filaments.where((f) => f.remainingGrams >= requiredGrams).toList();
+      if (withEnough.isNotEmpty) {
+        selected = withEnough.first;
+        reason = 'most_available_with_stock';
+      }
+    }
+
+    if (selected == null && filaments.isNotEmpty) {
+      selected = filaments.first;
+      reason = 'most_available_same_catalog';
+    }
+
+    if (selected == null) {
+      final lastUsed = await _findLastUsedFilamentForCatalog(session, materialType, color);
+      if (lastUsed != null) {
+        selected = lastUsed;
+        reason = 'last_used_same_catalog';
+      }
+    }
+
+    if (selected == null) {
+      final sameColor = await Filament.db.find(
+        session,
+        where: (t) => t.color.equals(color),
+        orderBy: (t) => t.remainingGrams,
+        orderDescending: true,
+        limit: 1,
+      );
+      if (sameColor.isNotEmpty) {
+        selected = sameColor.first;
+        reason = 'same_color_fallback';
+      }
+    }
+
+    return jsonEncode({
+      'materialType': materialType,
+      'color': color,
+      'requiredGrams': requiredGrams,
+      'selectedFilamentId': selected?.id,
+      'selectionReason': reason,
+      'hasAvailableStock': selected != null ? selected.remainingGrams > 0 : false,
+      'selectedRemainingGrams': selected?.remainingGrams,
+      'candidates': filaments
+          .map((f) => {
+                'filamentId': f.id,
+                'name': f.name,
+                'brand': f.brand,
+                'remainingGrams': f.remainingGrams,
+                'isSufficient': f.remainingGrams >= requiredGrams,
+              })
+          .toList(),
+    });
+  }
+
+  /// Applies inventory movement when a sale is completed.
+  /// If there is not enough stock in a linked spool, auto-corrects by
+  /// adding the missing grams first, then discounting used grams.
+  Future<String> applySaleFilamentInventoryImpact(
+    Session session,
+    int saleId, {
+    bool autoCorrectIfInsufficient = true,
+  }) async {
+    final sale = await Sale.db.findById(session, saleId);
+    if (sale == null) {
+      throw Exception('Sale not found');
+    }
+
+    final quoteFilaments = await QuoteFilament.db.find(
+      session,
+      where: (t) => t.quoteId.equals(sale.quoteId),
+    );
+
+    final movements = <Map<String, dynamic>>[];
+
+    for (final qf in quoteFilaments) {
+      final filament = await Filament.db.findById(session, qf.filamentId);
+      if (filament == null) {
+        movements.add({
+          'filamentId': qf.filamentId,
+          'status': 'missing_filament',
+          'usedGrams': qf.gramsUsed,
+        });
+        continue;
+      }
+
+      final before = filament.remainingGrams;
+      double added = 0.0;
+      if (before < qf.gramsUsed && autoCorrectIfInsufficient) {
+        added = qf.gramsUsed - before;
+        filament.remainingGrams = before + added;
+      }
+
+      filament.remainingGrams = (filament.remainingGrams - qf.gramsUsed).clamp(0.0, double.infinity);
+      await Filament.db.updateRow(session, filament);
+
+      movements.add({
+        'filamentId': filament.id,
+        'name': filament.name,
+        'usedGrams': qf.gramsUsed,
+        'beforeGrams': before,
+        'addedForCorrection': added,
+        'afterGrams': filament.remainingGrams,
+        'status': added > 0 ? 'auto_corrected' : 'discounted',
+      });
+    }
+
+    return jsonEncode({
+      'saleId': saleId,
+      'quoteId': sale.quoteId,
+      'autoCorrectIfInsufficient': autoCorrectIfInsufficient,
+      'movements': movements,
+    });
   }
   
   /// Create filament
