@@ -5,6 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../main.dart';
+import 'analytics_screen.dart';
 
 class BackupScreen extends StatefulWidget {
   const BackupScreen({super.key});
@@ -306,6 +307,31 @@ class _BackupScreenState extends State<BackupScreen> {
                     ),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: _importDatabase,
+                  ),
+                ),
+                const SizedBox(height: 8),
+
+                // Análisis y Gráficas
+                Card(
+                  child: ListTile(
+                    leading: const CircleAvatar(
+                      backgroundColor: Colors.deepPurple,
+                      child: Icon(Icons.analytics, color: Colors.white),
+                    ),
+                    title: const Text(
+                      'Análisis de Ventas',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: const Text(
+                      'Gráficas de ventas, ganancias y amortización de impresoras',
+                    ),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const AnalyticsScreen()),
+                      );
+                    },
                   ),
                 ),
                 const SizedBox(height: 24),
