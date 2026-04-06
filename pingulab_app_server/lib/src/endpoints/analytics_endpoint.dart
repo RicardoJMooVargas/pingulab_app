@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:serverpod/serverpod.dart';
 import '../generated/protocol.dart';
 
@@ -10,7 +11,7 @@ class AnalyticsEndpoint extends Endpoint {
   }
 
   /// Obtiene datos de ventas mensuales para la gráfica
-  Future<Map<String, dynamic>> getMonthlySalesData(
+  Future<String> getMonthlySalesData(
     Session session, {
     int monthsBack = 12,
   }) async {
@@ -38,15 +39,15 @@ class AnalyticsEndpoint extends Endpoint {
       }
     }
 
-    return {
+    return jsonEncode({
       'months': monthlyData.keys.toList(),
       'totalSales': monthlyData.values.toList(),
       'totalRevenue': monthlyData.values.fold<double>(0.0, (sum, value) => sum + value),
-    };
+    });
   }
 
   /// Obtiene datos de ganancias netas (ingresos - costos)
-  Future<Map<String, dynamic>> getNetProfitData(
+  Future<String> getNetProfitData(
     Session session, {
     int monthsBack = 12,
   }) async {
@@ -84,15 +85,15 @@ class AnalyticsEndpoint extends Endpoint {
       }
     }
 
-    return {
+    return jsonEncode({
       'months': monthlyData.keys.toList(),
       'netProfit': monthlyData.values.toList(),
       'totalProfit': monthlyData.values.fold<double>(0.0, (sum, value) => sum + value),
-    };
+    });
   }
 
   /// Obtiene datos de amortización de impresoras
-  Future<Map<String, dynamic>> getPrinterDepreciationData(
+  Future<String> getPrinterDepreciationData(
     Session session, {
     int depreciationYears = 5,
   }) async {
@@ -130,17 +131,17 @@ class AnalyticsEndpoint extends Endpoint {
       });
     }
 
-    return {
+    return jsonEncode({
       'printers': depreciationData,
       'totalDepreciation': totalDepreciation,
       'averageDepreciation': depreciationData.isEmpty 
           ? 0.0 
           : totalDepreciation / depreciationData.length,
-    };
+    });
   }
 
   /// Obtiene datos de análisis comparativo: ventas vs costos
-  Future<Map<String, dynamic>> getSalesVsCostsAnalysis(
+  Future<String> getSalesVsCostsAnalysis(
     Session session, {
     int monthsBack = 12,
   }) async {
@@ -211,7 +212,7 @@ class AnalyticsEndpoint extends Endpoint {
       totalDepreciationCost += data['depreciationCost']!;
     }
 
-    return {
+    return jsonEncode({
       'months': monthlyData.keys.toList(),
       'data': monthlyData,
       'totals': {
@@ -228,11 +229,11 @@ class AnalyticsEndpoint extends Endpoint {
                 totalSuppliesCost +
                 totalDepreciationCost),
       },
-    };
+    });
   }
 
   /// Obtiene datos de rentabilidad de categorías de cotización
-  Future<Map<String, dynamic>> getCategoryProfitabilityData(Session session) async {
+  Future<String> getCategoryProfitabilityData(Session session) async {
     final categories = await QuoteCategory.db.find(session);
     final categoryData = <Map<String, dynamic>>[];
 
@@ -274,14 +275,14 @@ class AnalyticsEndpoint extends Endpoint {
     // Ordenar por rentabilidad descendente
     categoryData.sort((a, b) => (b['profit'] as num).compareTo(a['profit'] as num));
 
-    return {
+    return jsonEncode({
       'categories': categoryData,
       'totalCategories': categories.length,
-    };
+    });
   }
 
   /// Obtiene un resumen general de métricas clave
-  Future<Map<String, dynamic>> getOverallMetrics(Session session) async {
+  Future<String> getOverallMetrics(Session session) async {
     final now = DateTime.now();
     final thisMonthStart = DateTime(now.year, now.month, 1);
     final lastMonthStart = DateTime(now.year, now.month - 1, 1);
@@ -341,7 +342,7 @@ class AnalyticsEndpoint extends Endpoint {
     final totalCustomers = await Customer.db.find(session);
     final totalQuotes = await Quote.db.find(session);
 
-    return {
+    return jsonEncode({
       'thisMonth': {
         'revenue': thisMonthRevenue,
         'costs': thisMonthCosts,
@@ -362,6 +363,6 @@ class AnalyticsEndpoint extends Endpoint {
         'customers': totalCustomers.length,
         'quotes': totalQuotes.length,
       },
-    };
+    });
   }
 }

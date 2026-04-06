@@ -206,7 +206,7 @@ class _AnalyticsEndpoint {
 
   final _i2.SerializationManager _serializationManager;
 
-  _i3.Future<Map<String, dynamic>> getMonthlySalesData(
+  _i3.Future<String> getMonthlySalesData(
     _i1.TestSessionBuilder sessionBuilder, {
     required int monthsBack,
   }) async {
@@ -227,7 +227,7 @@ class _AnalyticsEndpoint {
         var _localReturnValue = await (_localCallContext.method.call(
           _localUniqueSession,
           _localCallContext.arguments,
-        ) as _i3.Future<Map<String, dynamic>>);
+        ) as _i3.Future<String>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -235,7 +235,7 @@ class _AnalyticsEndpoint {
     });
   }
 
-  _i3.Future<Map<String, dynamic>> getNetProfitData(
+  _i3.Future<String> getNetProfitData(
     _i1.TestSessionBuilder sessionBuilder, {
     required int monthsBack,
   }) async {
@@ -256,7 +256,7 @@ class _AnalyticsEndpoint {
         var _localReturnValue = await (_localCallContext.method.call(
           _localUniqueSession,
           _localCallContext.arguments,
-        ) as _i3.Future<Map<String, dynamic>>);
+        ) as _i3.Future<String>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -264,7 +264,7 @@ class _AnalyticsEndpoint {
     });
   }
 
-  _i3.Future<Map<String, dynamic>> getPrinterDepreciationData(
+  _i3.Future<String> getPrinterDepreciationData(
     _i1.TestSessionBuilder sessionBuilder, {
     required int depreciationYears,
   }) async {
@@ -286,7 +286,7 @@ class _AnalyticsEndpoint {
         var _localReturnValue = await (_localCallContext.method.call(
           _localUniqueSession,
           _localCallContext.arguments,
-        ) as _i3.Future<Map<String, dynamic>>);
+        ) as _i3.Future<String>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -294,7 +294,7 @@ class _AnalyticsEndpoint {
     });
   }
 
-  _i3.Future<Map<String, dynamic>> getSalesVsCostsAnalysis(
+  _i3.Future<String> getSalesVsCostsAnalysis(
     _i1.TestSessionBuilder sessionBuilder, {
     required int monthsBack,
   }) async {
@@ -315,7 +315,7 @@ class _AnalyticsEndpoint {
         var _localReturnValue = await (_localCallContext.method.call(
           _localUniqueSession,
           _localCallContext.arguments,
-        ) as _i3.Future<Map<String, dynamic>>);
+        ) as _i3.Future<String>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -323,7 +323,7 @@ class _AnalyticsEndpoint {
     });
   }
 
-  _i3.Future<Map<String, dynamic>> getCategoryProfitabilityData(
+  _i3.Future<String> getCategoryProfitabilityData(
       _i1.TestSessionBuilder sessionBuilder) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -342,7 +342,7 @@ class _AnalyticsEndpoint {
         var _localReturnValue = await (_localCallContext.method.call(
           _localUniqueSession,
           _localCallContext.arguments,
-        ) as _i3.Future<Map<String, dynamic>>);
+        ) as _i3.Future<String>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -350,7 +350,7 @@ class _AnalyticsEndpoint {
     });
   }
 
-  _i3.Future<Map<String, dynamic>> getOverallMetrics(
+  _i3.Future<String> getOverallMetrics(
       _i1.TestSessionBuilder sessionBuilder) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
       var _localUniqueSession =
@@ -369,7 +369,7 @@ class _AnalyticsEndpoint {
         var _localReturnValue = await (_localCallContext.method.call(
           _localUniqueSession,
           _localCallContext.arguments,
-        ) as _i3.Future<Map<String, dynamic>>);
+        ) as _i3.Future<String>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();

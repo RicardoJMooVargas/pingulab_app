@@ -40,52 +40,48 @@ class EndpointAnalytics extends _i1.EndpointRef {
   String get name => 'analytics';
 
   /// Obtiene datos de ventas mensuales para la gráfica
-  _i2.Future<Map<String, dynamic>> getMonthlySalesData(
-          {required int monthsBack}) =>
-      caller.callServerEndpoint<Map<String, dynamic>>(
+  _i2.Future<String> getMonthlySalesData({required int monthsBack}) =>
+      caller.callServerEndpoint<String>(
         'analytics',
         'getMonthlySalesData',
         {'monthsBack': monthsBack},
       );
 
   /// Obtiene datos de ganancias netas (ingresos - costos)
-  _i2.Future<Map<String, dynamic>> getNetProfitData(
-          {required int monthsBack}) =>
-      caller.callServerEndpoint<Map<String, dynamic>>(
+  _i2.Future<String> getNetProfitData({required int monthsBack}) =>
+      caller.callServerEndpoint<String>(
         'analytics',
         'getNetProfitData',
         {'monthsBack': monthsBack},
       );
 
   /// Obtiene datos de amortización de impresoras
-  _i2.Future<Map<String, dynamic>> getPrinterDepreciationData(
+  _i2.Future<String> getPrinterDepreciationData(
           {required int depreciationYears}) =>
-      caller.callServerEndpoint<Map<String, dynamic>>(
+      caller.callServerEndpoint<String>(
         'analytics',
         'getPrinterDepreciationData',
         {'depreciationYears': depreciationYears},
       );
 
   /// Obtiene datos de análisis comparativo: ventas vs costos
-  _i2.Future<Map<String, dynamic>> getSalesVsCostsAnalysis(
-          {required int monthsBack}) =>
-      caller.callServerEndpoint<Map<String, dynamic>>(
+  _i2.Future<String> getSalesVsCostsAnalysis({required int monthsBack}) =>
+      caller.callServerEndpoint<String>(
         'analytics',
         'getSalesVsCostsAnalysis',
         {'monthsBack': monthsBack},
       );
 
   /// Obtiene datos de rentabilidad de categorías de cotización
-  _i2.Future<Map<String, dynamic>> getCategoryProfitabilityData() =>
-      caller.callServerEndpoint<Map<String, dynamic>>(
+  _i2.Future<String> getCategoryProfitabilityData() =>
+      caller.callServerEndpoint<String>(
         'analytics',
         'getCategoryProfitabilityData',
         {},
       );
 
   /// Obtiene un resumen general de métricas clave
-  _i2.Future<Map<String, dynamic>> getOverallMetrics() =>
-      caller.callServerEndpoint<Map<String, dynamic>>(
+  _i2.Future<String> getOverallMetrics() => caller.callServerEndpoint<String>(
         'analytics',
         'getOverallMetrics',
         {},

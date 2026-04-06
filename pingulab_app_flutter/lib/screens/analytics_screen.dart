@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
+import 'dart:convert';
 import '../main.dart';
 
 class AnalyticsScreen extends StatefulWidget {
@@ -32,11 +33,17 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     });
 
     try {
-      final sales = await client.analytics.getMonthlySalesData(monthsBack: 12);
-      final profit = await client.analytics.getNetProfitData(monthsBack: 12);
-      final depreciation = await client.analytics.getPrinterDepreciationData(depreciationYears: 5);
-      final analysis = await client.analytics.getSalesVsCostsAnalysis(monthsBack: 12);
-      final metrics = await client.analytics.getOverallMetrics();
+      final salesJson = await client.analytics.getMonthlySalesData(monthsBack: 12);
+      final profitJson = await client.analytics.getNetProfitData(monthsBack: 12);
+      final depreciationJson = await client.analytics.getPrinterDepreciationData(depreciationYears: 5);
+      final analysisJson = await client.analytics.getSalesVsCostsAnalysis(monthsBack: 12);
+      final metricsJson = await client.analytics.getOverallMetrics();
+
+      final sales = jsonDecode(salesJson) as Map<String, dynamic>;
+      final profit = jsonDecode(profitJson) as Map<String, dynamic>;
+      final depreciation = jsonDecode(depreciationJson) as Map<String, dynamic>;
+      final analysis = jsonDecode(analysisJson) as Map<String, dynamic>;
+      final metrics = jsonDecode(metricsJson) as Map<String, dynamic>;
 
       setState(() {
         _salesData = sales;
