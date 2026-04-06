@@ -3,11 +3,18 @@ import '../generated/protocol.dart';
 
 /// Endpoint para análisis de gráficas, ventas netas, amortización y ganancias
 class AnalyticsEndpoint extends Endpoint {
+  int _normalizeMonthsBack(int monthsBack) {
+    if (monthsBack < 1) return 1;
+    if (monthsBack > 120) return 120;
+    return monthsBack;
+  }
+
   /// Obtiene datos de ventas mensuales para la gráfica
   Future<Map<String, dynamic>> getMonthlySalesData(
     Session session, {
     int monthsBack = 12,
   }) async {
+    monthsBack = _normalizeMonthsBack(monthsBack);
     final now = DateTime.now();
     final startDate = DateTime(now.year, now.month - monthsBack, now.day);
 
@@ -34,7 +41,7 @@ class AnalyticsEndpoint extends Endpoint {
     return {
       'months': monthlyData.keys.toList(),
       'totalSales': monthlyData.values.toList(),
-      'totalRevenue': monthlyData.values.reduce((a, b) => a + b),
+      'totalRevenue': monthlyData.values.fold<double>(0.0, (sum, value) => sum + value),
     };
   }
 
@@ -43,6 +50,7 @@ class AnalyticsEndpoint extends Endpoint {
     Session session, {
     int monthsBack = 12,
   }) async {
+    monthsBack = _normalizeMonthsBack(monthsBack);
     final now = DateTime.now();
     final startDate = DateTime(now.year, now.month - monthsBack, now.day);
 
@@ -79,7 +87,7 @@ class AnalyticsEndpoint extends Endpoint {
     return {
       'months': monthlyData.keys.toList(),
       'netProfit': monthlyData.values.toList(),
-      'totalProfit': monthlyData.values.reduce((a, b) => a + b),
+      'totalProfit': monthlyData.values.fold<double>(0.0, (sum, value) => sum + value),
     };
   }
 
@@ -136,6 +144,7 @@ class AnalyticsEndpoint extends Endpoint {
     Session session, {
     int monthsBack = 12,
   }) async {
+    monthsBack = _normalizeMonthsBack(monthsBack);
     final now = DateTime.now();
     final startDate = DateTime(now.year, now.month - monthsBack, now.day);
 
