@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:intl/intl.dart';
 import 'dart:convert';
 import '../main.dart';
 
@@ -19,6 +18,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   Map<String, dynamic>? _depreciationData;
   Map<String, dynamic>? _analysisData;
   Map<String, dynamic>? _metrics;
+  bool _isHistoricalRange = true;
+  int _monthsBack = 12;
+  static const List<int> _monthOptions = [1, 3, 6, 12, 24];
+
+  int get _rangeMonthsBack => _isHistoricalRange ? 0 : _monthsBack;
 
   @override
   void initState() {
@@ -33,10 +37,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     });
 
     try {
-      final salesJson = await client.analytics.getMonthlySalesData(monthsBack: 12);
-      final profitJson = await client.analytics.getNetProfitData(monthsBack: 12);
+      final salesJson = await client.analytics.getMonthlySalesData(monthsBack: _rangeMonthsBack);
+      final profitJson = await client.analytics.getNetProfitData(monthsBack: _rangeMonthsBack);
       final depreciationJson = await client.analytics.getPrinterDepreciationData(depreciationYears: 5);
-      final analysisJson = await client.analytics.getSalesVsCostsAnalysis(monthsBack: 12);
+      final analysisJson = await client.analytics.getSalesVsCostsAnalysis(monthsBack: _rangeMonthsBack);
       final metricsJson = await client.analytics.getOverallMetrics();
 
       final sales = jsonDecode(salesJson) as Map<String, dynamic>;
@@ -96,6 +100,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        _buildRangeSelector(),
+                        const SizedBox(height: 16),
+
                         // Métricas generales
                         if (_metrics != null) _buildMetricsCards(),
                         const SizedBox(height: 24),
@@ -119,6 +126,71 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                     ),
                   ),
                 ),
+    );
+  }
+
+  Widget _buildRangeSelector() {
+    return Card(
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Rango de gráficas',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 12,
+              runSpacing: 8,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                DropdownButton<bool>(
+                  value: _isHistoricalRange,
+                  items: const [
+                    DropdownMenuItem<bool>(
+                      value: true,
+                      child: Text('Histórico (hasta hoy)'),
+                    ),
+                    DropdownMenuItem<bool>(
+                      value: false,
+                      child: Text('Por mes'),
+                    ),
+                  ],
+                  onChanged: (value) {
+                    if (value == null) return;
+                    setState(() {
+                      _isHistoricalRange = value;
+                    });
+                    _loadAnalyticsData();
+                  },
+                ),
+                if (!_isHistoricalRange)
+                  DropdownButton<int>(
+                    value: _monthsBack,
+                    items: _monthOptions
+                        .map(
+                          (months) => DropdownMenuItem<int>(
+                            value: months,
+                            child: Text('$months mes${months == 1 ? '' : 'es'}'),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (value) {
+                      if (value == null) return;
+                      setState(() {
+                        _monthsBack = value;
+                      });
+                      _loadAnalyticsData();
+                    },
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 

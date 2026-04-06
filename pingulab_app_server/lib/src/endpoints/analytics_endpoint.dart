@@ -4,10 +4,26 @@ import '../generated/protocol.dart';
 
 /// Endpoint para análisis de gráficas, ventas netas, amortización y ganancias
 class AnalyticsEndpoint extends Endpoint {
-  int _normalizeMonthsBack(int monthsBack) {
-    if (monthsBack < 1) return 1;
-    if (monthsBack > 120) return 120;
-    return monthsBack;
+  Future<int> _resolveMonthsBack(Session session, int monthsBack) async {
+    if (monthsBack > 0) {
+      if (monthsBack > 120) return 120;
+      return monthsBack;
+    }
+
+    final firstSale = await Sale.db.findFirstRow(
+      session,
+      orderBy: (t) => t.created,
+    );
+
+    if (firstSale == null) return 1;
+
+    final now = DateTime.now();
+    final firstDate = firstSale.created;
+    final diffMonths = ((now.year - firstDate.year) * 12) + (now.month - firstDate.month) + 1;
+
+    if (diffMonths < 1) return 1;
+    if (diffMonths > 240) return 240;
+    return diffMonths;
   }
 
   /// Obtiene datos de ventas mensuales para la gráfica
@@ -15,7 +31,7 @@ class AnalyticsEndpoint extends Endpoint {
     Session session, {
     int monthsBack = 12,
   }) async {
-    monthsBack = _normalizeMonthsBack(monthsBack);
+    monthsBack = await _resolveMonthsBack(session, monthsBack);
     final now = DateTime.now();
     final startDate = DateTime(now.year, now.month - monthsBack, now.day);
 
@@ -51,7 +67,7 @@ class AnalyticsEndpoint extends Endpoint {
     Session session, {
     int monthsBack = 12,
   }) async {
-    monthsBack = _normalizeMonthsBack(monthsBack);
+    monthsBack = await _resolveMonthsBack(session, monthsBack);
     final now = DateTime.now();
     final startDate = DateTime(now.year, now.month - monthsBack, now.day);
 
@@ -145,7 +161,7 @@ class AnalyticsEndpoint extends Endpoint {
     Session session, {
     int monthsBack = 12,
   }) async {
-    monthsBack = _normalizeMonthsBack(monthsBack);
+    monthsBack = await _resolveMonthsBack(session, monthsBack);
     final now = DateTime.now();
     final startDate = DateTime(now.year, now.month - monthsBack, now.day);
 
