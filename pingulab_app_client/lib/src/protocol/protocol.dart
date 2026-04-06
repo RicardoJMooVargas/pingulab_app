@@ -42,10 +42,16 @@ import 'supply_usage.dart' as _i30;
 import 'user.dart' as _i31;
 import 'user_role.dart' as _i32;
 import 'package:pingulab_app_client/src/protocol/user.dart' as _i33;
-import 'package:pingulab_app_client/src/protocol/customer.dart' as _i34;
-import 'package:pingulab_app_client/src/protocol/quote.dart' as _i35;
-import 'package:pingulab_app_client/src/protocol/quote_version.dart' as _i36;
-import 'package:pingulab_app_client/src/protocol/sale.dart' as _i37;
+import 'package:pingulab_app_client/src/protocol/filament.dart' as _i34;
+import 'package:pingulab_app_client/src/protocol/printer.dart' as _i35;
+import 'package:pingulab_app_client/src/protocol/shipping.dart' as _i36;
+import 'package:pingulab_app_client/src/protocol/customer.dart' as _i37;
+import 'package:pingulab_app_client/src/protocol/electricity_rate.dart' as _i38;
+import 'package:pingulab_app_client/src/protocol/extra_supply.dart' as _i39;
+import 'package:pingulab_app_client/src/protocol/quote.dart' as _i40;
+import 'package:pingulab_app_client/src/protocol/quote_version.dart' as _i41;
+import 'package:pingulab_app_client/src/protocol/quote_category.dart' as _i42;
+import 'package:pingulab_app_client/src/protocol/sale.dart' as _i43;
 export 'greeting.dart';
 export 'backup_data.dart';
 export 'customer.dart';
@@ -313,28 +319,55 @@ class Protocol extends _i1.SerializationManager {
           ? (data as List).map((e) => deserialize<_i30.SupplyUsage>(e)).toList()
           : null) as T;
     }
-    if (t == List<_i33.User>) {
-      return (data as List).map((e) => deserialize<_i33.User>(e)).toList() as T;
-    }
-    if (t == List<_i34.Customer>) {
-      return (data as List).map((e) => deserialize<_i34.Customer>(e)).toList()
-          as T;
-    }
-    if (t == List<_i35.Quote>) {
-      return (data as List).map((e) => deserialize<_i35.Quote>(e)).toList()
-          as T;
-    }
-    if (t == List<_i36.QuoteVersion>) {
-      return (data as List)
-          .map((e) => deserialize<_i36.QuoteVersion>(e))
-          .toList() as T;
-    }
-    if (t == List<_i37.Sale>) {
-      return (data as List).map((e) => deserialize<_i37.Sale>(e)).toList() as T;
-    }
     if (t == Map<String, dynamic>) {
       return (data as Map).map((k, v) =>
           MapEntry(deserialize<String>(k), deserialize<dynamic>(v))) as T;
+    }
+    if (t == List<_i33.User>) {
+      return (data as List).map((e) => deserialize<_i33.User>(e)).toList() as T;
+    }
+    if (t == List<_i34.Filament>) {
+      return (data as List).map((e) => deserialize<_i34.Filament>(e)).toList()
+          as T;
+    }
+    if (t == List<_i35.Printer>) {
+      return (data as List).map((e) => deserialize<_i35.Printer>(e)).toList()
+          as T;
+    }
+    if (t == List<_i36.Shipping>) {
+      return (data as List).map((e) => deserialize<_i36.Shipping>(e)).toList()
+          as T;
+    }
+    if (t == List<_i37.Customer>) {
+      return (data as List).map((e) => deserialize<_i37.Customer>(e)).toList()
+          as T;
+    }
+    if (t == List<_i38.ElectricityRate>) {
+      return (data as List)
+          .map((e) => deserialize<_i38.ElectricityRate>(e))
+          .toList() as T;
+    }
+    if (t == List<_i39.ExtraSupply>) {
+      return (data as List)
+          .map((e) => deserialize<_i39.ExtraSupply>(e))
+          .toList() as T;
+    }
+    if (t == List<_i40.Quote>) {
+      return (data as List).map((e) => deserialize<_i40.Quote>(e)).toList()
+          as T;
+    }
+    if (t == List<_i41.QuoteVersion>) {
+      return (data as List)
+          .map((e) => deserialize<_i41.QuoteVersion>(e))
+          .toList() as T;
+    }
+    if (t == List<_i42.QuoteCategory>) {
+      return (data as List)
+          .map((e) => deserialize<_i42.QuoteCategory>(e))
+          .toList() as T;
+    }
+    if (t == List<_i43.Sale>) {
+      return (data as List).map((e) => deserialize<_i43.Sale>(e)).toList() as T;
     }
     return super.deserialize<T>(data, t);
   }

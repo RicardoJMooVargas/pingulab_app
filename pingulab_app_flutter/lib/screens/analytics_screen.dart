@@ -34,7 +34,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     try {
       final sales = await client.analytics.getMonthlySalesData(monthsBack: 12);
       final profit = await client.analytics.getNetProfitData(monthsBack: 12);
-      final depreciation = await client.analytics.getPrinterDepreciationData();
+      final depreciation = await client.analytics.getPrinterDepreciationData(depreciationYears: 5);
       final analysis = await client.analytics.getSalesVsCostsAnalysis(monthsBack: 12);
       final metrics = await client.analytics.getOverallMetrics();
 

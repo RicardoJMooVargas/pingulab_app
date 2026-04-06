@@ -12,10 +12,8 @@ class AnalyticsEndpoint extends Endpoint {
     final startDate = DateTime(now.year, now.month - monthsBack, now.day);
 
     // Obtener todas las ventas completadas en el rango
-    final sales = await Sale.db.find(
-      session,
-      where: (t) => t.created.afterOrEquals(startDate),
-    );
+    final allSales = await Sale.db.find(session);
+    final sales = allSales.where((s) => !s.created.isBefore(startDate)).toList();
 
     // Agrupar por mes-año
     final monthlyData = <String, double>{};
@@ -49,10 +47,8 @@ class AnalyticsEndpoint extends Endpoint {
     final startDate = DateTime(now.year, now.month - monthsBack, now.day);
 
     // Obtener todas las ventas en el rango
-    final sales = await Sale.db.find(
-      session,
-      where: (t) => t.created.afterOrEquals(startDate),
-    );
+    final allSales = await Sale.db.find(session);
+    final sales = allSales.where((s) => !s.created.isBefore(startDate)).toList();
 
     // Agrupar por mes-año y calcular ganancias
     final monthlyData = <String, double>{};
@@ -94,7 +90,7 @@ class AnalyticsEndpoint extends Endpoint {
   }) async {
     final printers = await Printer.db.find(session);
 
-    final depreciationData = <String, dynamic>[];
+    final depreciationData = <Map<String, dynamic>>[];
     double totalDepreciation = 0.0;
 
     for (var printer in printers) {
@@ -144,10 +140,8 @@ class AnalyticsEndpoint extends Endpoint {
     final startDate = DateTime(now.year, now.month - monthsBack, now.day);
 
     // Obtener todas las ventas en el rango
-    final sales = await Sale.db.find(
-      session,
-      where: (t) => t.created.afterOrEquals(startDate),
-    );
+    final allSales = await Sale.db.find(session);
+    final sales = allSales.where((s) => !s.created.isBefore(startDate)).toList();
 
     // Agrupar datos por mes
     final monthlyData = <String, Map<String, double>>{};
@@ -231,7 +225,7 @@ class AnalyticsEndpoint extends Endpoint {
   /// Obtiene datos de rentabilidad de categorías de cotización
   Future<Map<String, dynamic>> getCategoryProfitabilityData(Session session) async {
     final categories = await QuoteCategory.db.find(session);
-    final categoryData = <String, dynamic>[];
+    final categoryData = <Map<String, dynamic>>[];
 
     for (var category in categories) {
       // Obtener quotes de esta categoría
@@ -282,21 +276,18 @@ class AnalyticsEndpoint extends Endpoint {
     final now = DateTime.now();
     final thisMonthStart = DateTime(now.year, now.month, 1);
     final lastMonthStart = DateTime(now.year, now.month - 1, 1);
-    final lastMonthEnd = DateTime(now.year, now.month, 0);
+    final thisMonthEnd = DateTime(now.year, now.month + 1, 1);
+    final allSales = await Sale.db.find(session);
 
     // Ventas este mes
-    final thisMonthSales = await Sale.db.find(
-      session,
-      where: (t) => t.created.afterOrEquals(thisMonthStart),
-    );
+    final thisMonthSales = allSales
+        .where((s) => !s.created.isBefore(thisMonthStart) && s.created.isBefore(thisMonthEnd))
+        .toList();
 
     // Ventas mes pasado
-    final lastMonthSales = await Sale.db.find(
-      session,
-      where: (t) =>
-          t.created.afterOrEquals(lastMonthStart) &
-          t.created.before(DateTime(now.year, now.month + 1, 1)),
-    );
+    final lastMonthSales = allSales
+        .where((s) => !s.created.isBefore(lastMonthStart) && s.created.isBefore(thisMonthStart))
+        .toList();
 
     // Calcular ingresos
     double thisMonthRevenue = 0;
