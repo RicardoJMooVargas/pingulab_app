@@ -20,6 +20,7 @@ abstract class Filament implements _i1.SerializableModel {
     required this.color,
     required this.spoolWeightKg,
     required this.spoolCost,
+    required this.remainingGrams,
   });
 
   factory Filament({
@@ -30,6 +31,7 @@ abstract class Filament implements _i1.SerializableModel {
     required String color,
     required double spoolWeightKg,
     required double spoolCost,
+    required double remainingGrams,
   }) = _FilamentImpl;
 
   factory Filament.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -41,6 +43,7 @@ abstract class Filament implements _i1.SerializableModel {
       color: jsonSerialization['color'] as String,
       spoolWeightKg: (jsonSerialization['spoolWeightKg'] as num).toDouble(),
       spoolCost: (jsonSerialization['spoolCost'] as num).toDouble(),
+      remainingGrams: (jsonSerialization['remainingGrams'] as num).toDouble(),
     );
   }
 
@@ -61,6 +64,8 @@ abstract class Filament implements _i1.SerializableModel {
 
   double spoolCost;
 
+  double remainingGrams;
+
   /// Returns a shallow copy of this [Filament]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
@@ -72,6 +77,7 @@ abstract class Filament implements _i1.SerializableModel {
     String? color,
     double? spoolWeightKg,
     double? spoolCost,
+    double? remainingGrams,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -83,6 +89,7 @@ abstract class Filament implements _i1.SerializableModel {
       'color': color,
       'spoolWeightKg': spoolWeightKg,
       'spoolCost': spoolCost,
+      'remainingGrams': remainingGrams,
     };
   }
 
@@ -103,6 +110,7 @@ class _FilamentImpl extends Filament {
     required String color,
     required double spoolWeightKg,
     required double spoolCost,
+    required double remainingGrams,
   }) : super._(
           id: id,
           name: name,
@@ -111,6 +119,7 @@ class _FilamentImpl extends Filament {
           color: color,
           spoolWeightKg: spoolWeightKg,
           spoolCost: spoolCost,
+          remainingGrams: remainingGrams,
         );
 
   /// Returns a shallow copy of this [Filament]
@@ -125,6 +134,7 @@ class _FilamentImpl extends Filament {
     String? color,
     double? spoolWeightKg,
     double? spoolCost,
+    double? remainingGrams,
   }) {
     return Filament(
       id: id is int? ? id : this.id,
@@ -134,6 +144,7 @@ class _FilamentImpl extends Filament {
       color: color ?? this.color,
       spoolWeightKg: spoolWeightKg ?? this.spoolWeightKg,
       spoolCost: spoolCost ?? this.spoolCost,
+      remainingGrams: remainingGrams ?? this.remainingGrams,
     );
   }
 }

@@ -13,23 +13,17 @@ import 'package:serverpod_client/serverpod_client.dart' as _i1;
 import 'dart:async' as _i2;
 import 'package:pingulab_app_client/src/protocol/user.dart' as _i3;
 import 'package:pingulab_app_client/src/protocol/user_role.dart' as _i4;
-import 'package:pingulab_app_client/src/protocol/filament.dart' as _i5;
-import 'package:pingulab_app_client/src/protocol/printer.dart' as _i6;
-import 'package:pingulab_app_client/src/protocol/shipping.dart' as _i7;
-import 'package:pingulab_app_client/src/protocol/customer.dart' as _i8;
-import 'package:pingulab_app_client/src/protocol/electricity_rate.dart' as _i9;
-import 'package:pingulab_app_client/src/protocol/extra_supply.dart' as _i10;
-import 'package:pingulab_app_client/src/protocol/quote.dart' as _i11;
-import 'package:pingulab_app_client/src/protocol/quote_input.dart' as _i12;
-import 'package:pingulab_app_client/src/protocol/quote_details.dart' as _i13;
-import 'package:pingulab_app_client/src/protocol/quote_status.dart' as _i14;
-import 'package:pingulab_app_client/src/protocol/quote_version.dart' as _i15;
-import 'package:pingulab_app_client/src/protocol/quote_category.dart' as _i16;
-import 'package:pingulab_app_client/src/protocol/sale.dart' as _i17;
-import 'package:pingulab_app_client/src/protocol/sale_status.dart' as _i18;
-import 'package:pingulab_app_client/src/protocol/payment_status.dart' as _i19;
-import 'package:pingulab_app_client/src/protocol/greeting.dart' as _i20;
-import 'protocol.dart' as _i21;
+import 'package:pingulab_app_client/src/protocol/customer.dart' as _i5;
+import 'package:pingulab_app_client/src/protocol/quote.dart' as _i6;
+import 'package:pingulab_app_client/src/protocol/quote_input.dart' as _i7;
+import 'package:pingulab_app_client/src/protocol/quote_details.dart' as _i8;
+import 'package:pingulab_app_client/src/protocol/quote_status.dart' as _i9;
+import 'package:pingulab_app_client/src/protocol/quote_version.dart' as _i10;
+import 'package:pingulab_app_client/src/protocol/sale.dart' as _i11;
+import 'package:pingulab_app_client/src/protocol/sale_status.dart' as _i12;
+import 'package:pingulab_app_client/src/protocol/payment_status.dart' as _i13;
+import 'package:pingulab_app_client/src/protocol/greeting.dart' as _i14;
+import 'protocol.dart' as _i15;
 
 /// {@category Endpoint}
 class EndpointAuth extends _i1.EndpointRef {
@@ -172,310 +166,6 @@ class EndpointBackup extends _i1.EndpointRef {
       );
 }
 
-/// Endpoint para gestión de catálogos (listas maestras)
-/// {@category Endpoint}
-class EndpointCatalogs extends _i1.EndpointRef {
-  EndpointCatalogs(_i1.EndpointCaller caller) : super(caller);
-
-  @override
-  String get name => 'catalogs';
-
-  _i2.Future<List<_i5.Filament>> getFilaments() =>
-      caller.callServerEndpoint<List<_i5.Filament>>(
-        'catalogs',
-        'getFilaments',
-        {},
-      );
-
-  _i2.Future<_i5.Filament> createFilament(
-    String name,
-    String brand,
-    String materialType,
-    String color,
-    double spoolWeightKg,
-    double spoolCost,
-  ) =>
-      caller.callServerEndpoint<_i5.Filament>(
-        'catalogs',
-        'createFilament',
-        {
-          'name': name,
-          'brand': brand,
-          'materialType': materialType,
-          'color': color,
-          'spoolWeightKg': spoolWeightKg,
-          'spoolCost': spoolCost,
-        },
-      );
-
-  _i2.Future<_i5.Filament> updateFilament(
-    int id,
-    String name,
-    String brand,
-    String materialType,
-    String color,
-    double spoolWeightKg,
-    double spoolCost,
-  ) =>
-      caller.callServerEndpoint<_i5.Filament>(
-        'catalogs',
-        'updateFilament',
-        {
-          'id': id,
-          'name': name,
-          'brand': brand,
-          'materialType': materialType,
-          'color': color,
-          'spoolWeightKg': spoolWeightKg,
-          'spoolCost': spoolCost,
-        },
-      );
-
-  _i2.Future<void> deleteFilament(int id) => caller.callServerEndpoint<void>(
-        'catalogs',
-        'deleteFilament',
-        {'id': id},
-      );
-
-  _i2.Future<List<_i6.Printer>> getPrinters() =>
-      caller.callServerEndpoint<List<_i6.Printer>>(
-        'catalogs',
-        'getPrinters',
-        {},
-      );
-
-  _i2.Future<_i6.Printer> createPrinter(
-    String name,
-    int powerConsumptionWatts,
-    double purchaseCost,
-    bool available, {
-    String? imageBase64,
-  }) =>
-      caller.callServerEndpoint<_i6.Printer>(
-        'catalogs',
-        'createPrinter',
-        {
-          'name': name,
-          'powerConsumptionWatts': powerConsumptionWatts,
-          'purchaseCost': purchaseCost,
-          'available': available,
-          'imageBase64': imageBase64,
-        },
-      );
-
-  _i2.Future<_i6.Printer> updatePrinter(
-    int id,
-    String name,
-    int powerConsumptionWatts,
-    double purchaseCost,
-    bool available, {
-    String? imageBase64,
-  }) =>
-      caller.callServerEndpoint<_i6.Printer>(
-        'catalogs',
-        'updatePrinter',
-        {
-          'id': id,
-          'name': name,
-          'powerConsumptionWatts': powerConsumptionWatts,
-          'purchaseCost': purchaseCost,
-          'available': available,
-          'imageBase64': imageBase64,
-        },
-      );
-
-  _i2.Future<void> deletePrinter(int id) => caller.callServerEndpoint<void>(
-        'catalogs',
-        'deletePrinter',
-        {'id': id},
-      );
-
-  _i2.Future<List<_i7.Shipping>> getShippings() =>
-      caller.callServerEndpoint<List<_i7.Shipping>>(
-        'catalogs',
-        'getShippings',
-        {},
-      );
-
-  _i2.Future<_i7.Shipping> createShipping(
-    String shippingType,
-    String carrierName,
-    double cost,
-  ) =>
-      caller.callServerEndpoint<_i7.Shipping>(
-        'catalogs',
-        'createShipping',
-        {
-          'shippingType': shippingType,
-          'carrierName': carrierName,
-          'cost': cost,
-        },
-      );
-
-  _i2.Future<_i7.Shipping> updateShipping(
-    int id,
-    String shippingType,
-    String carrierName,
-    double cost,
-  ) =>
-      caller.callServerEndpoint<_i7.Shipping>(
-        'catalogs',
-        'updateShipping',
-        {
-          'id': id,
-          'shippingType': shippingType,
-          'carrierName': carrierName,
-          'cost': cost,
-        },
-      );
-
-  _i2.Future<void> deleteShipping(int id) => caller.callServerEndpoint<void>(
-        'catalogs',
-        'deleteShipping',
-        {'id': id},
-      );
-
-  _i2.Future<List<_i8.Customer>> getCustomers() =>
-      caller.callServerEndpoint<List<_i8.Customer>>(
-        'catalogs',
-        'getCustomers',
-        {},
-      );
-
-  _i2.Future<_i8.Customer> createCustomer(
-    String apodo, {
-    String? nombre,
-    String? apellido,
-    String? numero,
-    String? direccion,
-    String? notes,
-  }) =>
-      caller.callServerEndpoint<_i8.Customer>(
-        'catalogs',
-        'createCustomer',
-        {
-          'apodo': apodo,
-          'nombre': nombre,
-          'apellido': apellido,
-          'numero': numero,
-          'direccion': direccion,
-          'notes': notes,
-        },
-      );
-
-  _i2.Future<_i8.Customer> updateCustomer(
-    int id,
-    String apodo, {
-    String? nombre,
-    String? apellido,
-    String? numero,
-    String? direccion,
-    String? notes,
-  }) =>
-      caller.callServerEndpoint<_i8.Customer>(
-        'catalogs',
-        'updateCustomer',
-        {
-          'id': id,
-          'apodo': apodo,
-          'nombre': nombre,
-          'apellido': apellido,
-          'numero': numero,
-          'direccion': direccion,
-          'notes': notes,
-        },
-      );
-
-  _i2.Future<void> deleteCustomer(int id) => caller.callServerEndpoint<void>(
-        'catalogs',
-        'deleteCustomer',
-        {'id': id},
-      );
-
-  _i2.Future<List<_i9.ElectricityRate>> getElectricityRates() =>
-      caller.callServerEndpoint<List<_i9.ElectricityRate>>(
-        'catalogs',
-        'getElectricityRates',
-        {},
-      );
-
-  _i2.Future<_i9.ElectricityRate> createElectricityRate(
-    double costPerKwh,
-    bool active,
-  ) =>
-      caller.callServerEndpoint<_i9.ElectricityRate>(
-        'catalogs',
-        'createElectricityRate',
-        {
-          'costPerKwh': costPerKwh,
-          'active': active,
-        },
-      );
-
-  _i2.Future<_i9.ElectricityRate> updateElectricityRate(
-    int id,
-    double costPerKwh,
-    bool active,
-  ) =>
-      caller.callServerEndpoint<_i9.ElectricityRate>(
-        'catalogs',
-        'updateElectricityRate',
-        {
-          'id': id,
-          'costPerKwh': costPerKwh,
-          'active': active,
-        },
-      );
-
-  _i2.Future<void> deleteElectricityRate(int id) =>
-      caller.callServerEndpoint<void>(
-        'catalogs',
-        'deleteElectricityRate',
-        {'id': id},
-      );
-
-  _i2.Future<List<_i10.ExtraSupply>> getExtraSupplies() =>
-      caller.callServerEndpoint<List<_i10.ExtraSupply>>(
-        'catalogs',
-        'getExtraSupplies',
-        {},
-      );
-
-  _i2.Future<_i10.ExtraSupply> createExtraSupply(
-    String name,
-    double cost,
-  ) =>
-      caller.callServerEndpoint<_i10.ExtraSupply>(
-        'catalogs',
-        'createExtraSupply',
-        {
-          'name': name,
-          'cost': cost,
-        },
-      );
-
-  _i2.Future<_i10.ExtraSupply> updateExtraSupply(
-    int id,
-    String name,
-    double cost,
-  ) =>
-      caller.callServerEndpoint<_i10.ExtraSupply>(
-        'catalogs',
-        'updateExtraSupply',
-        {
-          'id': id,
-          'name': name,
-          'cost': cost,
-        },
-      );
-
-  _i2.Future<void> deleteExtraSupply(int id) => caller.callServerEndpoint<void>(
-        'catalogs',
-        'deleteExtraSupply',
-        {'id': id},
-      );
-}
-
 /// {@category Endpoint}
 class EndpointCustomer extends _i1.EndpointRef {
   EndpointCustomer(_i1.EndpointCaller caller) : super(caller);
@@ -484,31 +174,31 @@ class EndpointCustomer extends _i1.EndpointRef {
   String get name => 'customer';
 
   /// Search customers by apodo, nombre or apellido
-  _i2.Future<List<_i8.Customer>> searchCustomers(String query) =>
-      caller.callServerEndpoint<List<_i8.Customer>>(
+  _i2.Future<List<_i5.Customer>> searchCustomers(String query) =>
+      caller.callServerEndpoint<List<_i5.Customer>>(
         'customer',
         'searchCustomers',
         {'query': query},
       );
 
   /// Get all customers
-  _i2.Future<List<_i8.Customer>> getAllCustomers() =>
-      caller.callServerEndpoint<List<_i8.Customer>>(
+  _i2.Future<List<_i5.Customer>> getAllCustomers() =>
+      caller.callServerEndpoint<List<_i5.Customer>>(
         'customer',
         'getAllCustomers',
         {},
       );
 
   /// Get customer by ID
-  _i2.Future<_i8.Customer?> getCustomer(int id) =>
-      caller.callServerEndpoint<_i8.Customer?>(
+  _i2.Future<_i5.Customer?> getCustomer(int id) =>
+      caller.callServerEndpoint<_i5.Customer?>(
         'customer',
         'getCustomer',
         {'id': id},
       );
 
   /// Create a new customer
-  _i2.Future<_i8.Customer> createCustomer(
+  _i2.Future<_i5.Customer> createCustomer(
     String apodo,
     String? nombre,
     String? apellido,
@@ -516,7 +206,7 @@ class EndpointCustomer extends _i1.EndpointRef {
     String? direccion,
     String? notes,
   ) =>
-      caller.callServerEndpoint<_i8.Customer>(
+      caller.callServerEndpoint<_i5.Customer>(
         'customer',
         'createCustomer',
         {
@@ -530,7 +220,7 @@ class EndpointCustomer extends _i1.EndpointRef {
       );
 
   /// Update an existing customer
-  _i2.Future<_i8.Customer> updateCustomer(
+  _i2.Future<_i5.Customer> updateCustomer(
     int customerId,
     String apodo,
     String? nombre,
@@ -539,7 +229,7 @@ class EndpointCustomer extends _i1.EndpointRef {
     String? direccion,
     String? notes,
   ) =>
-      caller.callServerEndpoint<_i8.Customer>(
+      caller.callServerEndpoint<_i5.Customer>(
         'customer',
         'updateCustomer',
         {
@@ -595,11 +285,11 @@ class EndpointQuote extends _i1.EndpointRef {
   String get name => 'quote';
 
   /// Create a new quote from input data
-  _i2.Future<_i11.Quote> createQuote(
-    _i12.QuoteInput input, {
+  _i2.Future<_i6.Quote> createQuote(
+    _i7.QuoteInput input, {
     int? userId,
   }) =>
-      caller.callServerEndpoint<_i11.Quote>(
+      caller.callServerEndpoint<_i6.Quote>(
         'quote',
         'createQuote',
         {
@@ -609,37 +299,37 @@ class EndpointQuote extends _i1.EndpointRef {
       );
 
   /// Get a quote by ID with all relations
-  _i2.Future<_i11.Quote?> getQuote(int id) =>
-      caller.callServerEndpoint<_i11.Quote?>(
+  _i2.Future<_i6.Quote?> getQuote(int id) =>
+      caller.callServerEndpoint<_i6.Quote?>(
         'quote',
         'getQuote',
         {'id': id},
       );
 
   /// Get a quote with all its detailed information
-  _i2.Future<_i13.QuoteDetails?> getQuoteDetails(int id) =>
-      caller.callServerEndpoint<_i13.QuoteDetails?>(
+  _i2.Future<_i8.QuoteDetails?> getQuoteDetails(int id) =>
+      caller.callServerEndpoint<_i8.QuoteDetails?>(
         'quote',
         'getQuoteDetails',
         {'id': id},
       );
 
   /// Get all quotes
-  _i2.Future<List<_i11.Quote>> getAllQuotes() =>
-      caller.callServerEndpoint<List<_i11.Quote>>(
+  _i2.Future<List<_i6.Quote>> getAllQuotes() =>
+      caller.callServerEndpoint<List<_i6.Quote>>(
         'quote',
         'getAllQuotes',
         {},
       );
 
   /// Get quotes with pagination and optional filtering
-  _i2.Future<List<_i11.Quote>> getQuotesPaginated({
+  _i2.Future<List<_i6.Quote>> getQuotesPaginated({
     required int limit,
     required int offset,
-    _i14.QuoteStatus? status,
+    _i9.QuoteStatus? status,
     int? customerId,
   }) =>
-      caller.callServerEndpoint<List<_i11.Quote>>(
+      caller.callServerEndpoint<List<_i6.Quote>>(
         'quote',
         'getQuotesPaginated',
         {
@@ -651,12 +341,12 @@ class EndpointQuote extends _i1.EndpointRef {
       );
 
   /// Update an existing quote
-  _i2.Future<_i11.Quote> updateQuote(
+  _i2.Future<_i6.Quote> updateQuote(
     int quoteId,
-    _i12.QuoteInput input, {
+    _i7.QuoteInput input, {
     int? userId,
   }) =>
-      caller.callServerEndpoint<_i11.Quote>(
+      caller.callServerEndpoint<_i6.Quote>(
         'quote',
         'updateQuote',
         {
@@ -674,11 +364,11 @@ class EndpointQuote extends _i1.EndpointRef {
       );
 
   /// Update quote status
-  _i2.Future<_i11.Quote> updateQuoteStatus(
+  _i2.Future<_i6.Quote> updateQuoteStatus(
     int id,
-    _i14.QuoteStatus status,
+    _i9.QuoteStatus status,
   ) =>
-      caller.callServerEndpoint<_i11.Quote>(
+      caller.callServerEndpoint<_i6.Quote>(
         'quote',
         'updateQuoteStatus',
         {
@@ -696,29 +386,29 @@ class EndpointQuoteVersion extends _i1.EndpointRef {
   String get name => 'quoteVersion';
 
   /// Get all versions for a quote
-  _i2.Future<List<_i15.QuoteVersion>> getQuoteVersions(int quoteId) =>
-      caller.callServerEndpoint<List<_i15.QuoteVersion>>(
+  _i2.Future<List<_i10.QuoteVersion>> getQuoteVersions(int quoteId) =>
+      caller.callServerEndpoint<List<_i10.QuoteVersion>>(
         'quoteVersion',
         'getQuoteVersions',
         {'quoteId': quoteId},
       );
 
   /// Get primary version for a quote
-  _i2.Future<_i15.QuoteVersion?> getPrimaryVersion(int quoteId) =>
-      caller.callServerEndpoint<_i15.QuoteVersion?>(
+  _i2.Future<_i10.QuoteVersion?> getPrimaryVersion(int quoteId) =>
+      caller.callServerEndpoint<_i10.QuoteVersion?>(
         'quoteVersion',
         'getPrimaryVersion',
         {'quoteId': quoteId},
       );
 
   /// Create new version from current quote
-  _i2.Future<_i15.QuoteVersion> createVersionFromQuote(
+  _i2.Future<_i10.QuoteVersion> createVersionFromQuote(
     int quoteId,
     String? versionName,
     bool isPrimary,
     int? userId,
   ) =>
-      caller.callServerEndpoint<_i15.QuoteVersion>(
+      caller.callServerEndpoint<_i10.QuoteVersion>(
         'quoteVersion',
         'createVersionFromQuote',
         {
@@ -738,11 +428,11 @@ class EndpointQuoteVersion extends _i1.EndpointRef {
       );
 
   /// Apply version to quote (update quote with version data)
-  _i2.Future<_i11.Quote> applyVersionToQuote(
+  _i2.Future<_i6.Quote> applyVersionToQuote(
     int versionId,
     int? userId,
   ) =>
-      caller.callServerEndpoint<_i11.Quote>(
+      caller.callServerEndpoint<_i6.Quote>(
         'quoteVersion',
         'applyVersionToQuote',
         {
@@ -760,358 +450,6 @@ class EndpointQuoteVersion extends _i1.EndpointRef {
       );
 }
 
-/// {@category Endpoint}
-class EndpointResources extends _i1.EndpointRef {
-  EndpointResources(_i1.EndpointCaller caller) : super(caller);
-
-  @override
-  String get name => 'resources';
-
-  /// Get all printers
-  _i2.Future<List<_i6.Printer>> getAllPrinters() =>
-      caller.callServerEndpoint<List<_i6.Printer>>(
-        'resources',
-        'getAllPrinters',
-        {},
-      );
-
-  /// Get available printers only
-  _i2.Future<List<_i6.Printer>> getAvailablePrinters() =>
-      caller.callServerEndpoint<List<_i6.Printer>>(
-        'resources',
-        'getAvailablePrinters',
-        {},
-      );
-
-  /// Create a new printer
-  _i2.Future<_i6.Printer> createPrinter(
-    String name,
-    int powerConsumptionWatts,
-    double purchaseCost,
-    bool available, {
-    String? imageBase64,
-  }) =>
-      caller.callServerEndpoint<_i6.Printer>(
-        'resources',
-        'createPrinter',
-        {
-          'name': name,
-          'powerConsumptionWatts': powerConsumptionWatts,
-          'purchaseCost': purchaseCost,
-          'available': available,
-          'imageBase64': imageBase64,
-        },
-      );
-
-  /// Update printer
-  _i2.Future<_i6.Printer> updatePrinter(
-    int printerId,
-    String name,
-    int powerConsumptionWatts,
-    double purchaseCost,
-    bool available, {
-    String? imageBase64,
-  }) =>
-      caller.callServerEndpoint<_i6.Printer>(
-        'resources',
-        'updatePrinter',
-        {
-          'printerId': printerId,
-          'name': name,
-          'powerConsumptionWatts': powerConsumptionWatts,
-          'purchaseCost': purchaseCost,
-          'available': available,
-          'imageBase64': imageBase64,
-        },
-      );
-
-  /// Delete printer
-  _i2.Future<void> deletePrinter(int printerId) =>
-      caller.callServerEndpoint<void>(
-        'resources',
-        'deletePrinter',
-        {'printerId': printerId},
-      );
-
-  /// Get all filaments
-  _i2.Future<List<_i5.Filament>> getAllFilaments() =>
-      caller.callServerEndpoint<List<_i5.Filament>>(
-        'resources',
-        'getAllFilaments',
-        {},
-      );
-
-  /// Create filament
-  _i2.Future<_i5.Filament> createFilament(
-    String name,
-    String brand,
-    String materialType,
-    String color,
-    double spoolWeightKg,
-    double spoolCost,
-  ) =>
-      caller.callServerEndpoint<_i5.Filament>(
-        'resources',
-        'createFilament',
-        {
-          'name': name,
-          'brand': brand,
-          'materialType': materialType,
-          'color': color,
-          'spoolWeightKg': spoolWeightKg,
-          'spoolCost': spoolCost,
-        },
-      );
-
-  /// Update filament
-  _i2.Future<_i5.Filament> updateFilament(
-    int filamentId,
-    String name,
-    String brand,
-    String materialType,
-    String color,
-    double spoolWeightKg,
-    double spoolCost,
-  ) =>
-      caller.callServerEndpoint<_i5.Filament>(
-        'resources',
-        'updateFilament',
-        {
-          'filamentId': filamentId,
-          'name': name,
-          'brand': brand,
-          'materialType': materialType,
-          'color': color,
-          'spoolWeightKg': spoolWeightKg,
-          'spoolCost': spoolCost,
-        },
-      );
-
-  /// Delete filament
-  _i2.Future<void> deleteFilament(int filamentId) =>
-      caller.callServerEndpoint<void>(
-        'resources',
-        'deleteFilament',
-        {'filamentId': filamentId},
-      );
-
-  /// Get all extra supplies
-  _i2.Future<List<_i10.ExtraSupply>> getAllExtraSupplies() =>
-      caller.callServerEndpoint<List<_i10.ExtraSupply>>(
-        'resources',
-        'getAllExtraSupplies',
-        {},
-      );
-
-  /// Create extra supply
-  _i2.Future<_i10.ExtraSupply> createExtraSupply(
-    String name,
-    double cost,
-  ) =>
-      caller.callServerEndpoint<_i10.ExtraSupply>(
-        'resources',
-        'createExtraSupply',
-        {
-          'name': name,
-          'cost': cost,
-        },
-      );
-
-  /// Update extra supply
-  _i2.Future<_i10.ExtraSupply> updateExtraSupply(
-    int supplyId,
-    String name,
-    double cost,
-  ) =>
-      caller.callServerEndpoint<_i10.ExtraSupply>(
-        'resources',
-        'updateExtraSupply',
-        {
-          'supplyId': supplyId,
-          'name': name,
-          'cost': cost,
-        },
-      );
-
-  /// Delete extra supply
-  _i2.Future<void> deleteExtraSupply(int supplyId) =>
-      caller.callServerEndpoint<void>(
-        'resources',
-        'deleteExtraSupply',
-        {'supplyId': supplyId},
-      );
-
-  /// Get all shipping options
-  _i2.Future<List<_i7.Shipping>> getAllShippings() =>
-      caller.callServerEndpoint<List<_i7.Shipping>>(
-        'resources',
-        'getAllShippings',
-        {},
-      );
-
-  /// Create shipping option
-  _i2.Future<_i7.Shipping> createShipping(
-    String shippingType,
-    String carrierName,
-    double cost,
-  ) =>
-      caller.callServerEndpoint<_i7.Shipping>(
-        'resources',
-        'createShipping',
-        {
-          'shippingType': shippingType,
-          'carrierName': carrierName,
-          'cost': cost,
-        },
-      );
-
-  /// Update shipping option
-  _i2.Future<_i7.Shipping> updateShipping(
-    int shippingId,
-    String shippingType,
-    String carrierName,
-    double cost,
-  ) =>
-      caller.callServerEndpoint<_i7.Shipping>(
-        'resources',
-        'updateShipping',
-        {
-          'shippingId': shippingId,
-          'shippingType': shippingType,
-          'carrierName': carrierName,
-          'cost': cost,
-        },
-      );
-
-  /// Delete shipping option
-  _i2.Future<void> deleteShipping(int shippingId) =>
-      caller.callServerEndpoint<void>(
-        'resources',
-        'deleteShipping',
-        {'shippingId': shippingId},
-      );
-
-  /// Get active electricity rate
-  _i2.Future<_i9.ElectricityRate?> getActiveElectricityRate() =>
-      caller.callServerEndpoint<_i9.ElectricityRate?>(
-        'resources',
-        'getActiveElectricityRate',
-        {},
-      );
-
-  /// Get all electricity rates
-  _i2.Future<List<_i9.ElectricityRate>> getAllElectricityRates() =>
-      caller.callServerEndpoint<List<_i9.ElectricityRate>>(
-        'resources',
-        'getAllElectricityRates',
-        {},
-      );
-
-  /// Create electricity rate
-  _i2.Future<_i9.ElectricityRate> createElectricityRate(
-    double costPerKwh,
-    bool active,
-  ) =>
-      caller.callServerEndpoint<_i9.ElectricityRate>(
-        'resources',
-        'createElectricityRate',
-        {
-          'costPerKwh': costPerKwh,
-          'active': active,
-        },
-      );
-
-  /// Update electricity rate
-  _i2.Future<_i9.ElectricityRate> updateElectricityRate(
-    int rateId,
-    double costPerKwh,
-    bool active,
-  ) =>
-      caller.callServerEndpoint<_i9.ElectricityRate>(
-        'resources',
-        'updateElectricityRate',
-        {
-          'rateId': rateId,
-          'costPerKwh': costPerKwh,
-          'active': active,
-        },
-      );
-
-  /// Delete electricity rate
-  _i2.Future<void> deleteElectricityRate(int rateId) =>
-      caller.callServerEndpoint<void>(
-        'resources',
-        'deleteElectricityRate',
-        {'rateId': rateId},
-      );
-
-  /// Get all quote categories
-  _i2.Future<List<_i16.QuoteCategory>> getAllQuoteCategories() =>
-      caller.callServerEndpoint<List<_i16.QuoteCategory>>(
-        'resources',
-        'getAllQuoteCategories',
-        {},
-      );
-
-  /// Get active quote categories only
-  _i2.Future<List<_i16.QuoteCategory>> getActiveQuoteCategories() =>
-      caller.callServerEndpoint<List<_i16.QuoteCategory>>(
-        'resources',
-        'getActiveQuoteCategories',
-        {},
-      );
-
-  /// Create a new quote category
-  _i2.Future<_i16.QuoteCategory> createQuoteCategory(
-    String name,
-    bool active, {
-    String? description,
-    String? icon,
-    String? color,
-  }) =>
-      caller.callServerEndpoint<_i16.QuoteCategory>(
-        'resources',
-        'createQuoteCategory',
-        {
-          'name': name,
-          'active': active,
-          'description': description,
-          'icon': icon,
-          'color': color,
-        },
-      );
-
-  /// Update quote category
-  _i2.Future<_i16.QuoteCategory> updateQuoteCategory(
-    int categoryId,
-    String name,
-    bool active, {
-    String? description,
-    String? icon,
-    String? color,
-  }) =>
-      caller.callServerEndpoint<_i16.QuoteCategory>(
-        'resources',
-        'updateQuoteCategory',
-        {
-          'categoryId': categoryId,
-          'name': name,
-          'active': active,
-          'description': description,
-          'icon': icon,
-          'color': color,
-        },
-      );
-
-  /// Delete quote category
-  _i2.Future<void> deleteQuoteCategory(int categoryId) =>
-      caller.callServerEndpoint<void>(
-        'resources',
-        'deleteQuoteCategory',
-        {'categoryId': categoryId},
-      );
-}
-
 /// Endpoint for managing sales operations.
 /// Handles conversion from quotes to sales, status tracking, and payment management.
 /// {@category Endpoint}
@@ -1122,11 +460,11 @@ class EndpointSales extends _i1.EndpointRef {
   String get name => 'sales';
 
   /// Get all sales with optional filtering by status
-  _i2.Future<List<_i17.Sale>> getAllSales({
-    _i18.SaleStatus? status,
-    _i19.PaymentStatus? paymentStatus,
+  _i2.Future<List<_i11.Sale>> getAllSales({
+    _i12.SaleStatus? status,
+    _i13.PaymentStatus? paymentStatus,
   }) =>
-      caller.callServerEndpoint<List<_i17.Sale>>(
+      caller.callServerEndpoint<List<_i11.Sale>>(
         'sales',
         'getAllSales',
         {
@@ -1136,14 +474,14 @@ class EndpointSales extends _i1.EndpointRef {
       );
 
   /// Get sales with pagination and optional filtering
-  _i2.Future<List<_i17.Sale>> getSalesPaginated({
+  _i2.Future<List<_i11.Sale>> getSalesPaginated({
     required int limit,
     required int offset,
-    _i18.SaleStatus? status,
-    _i19.PaymentStatus? paymentStatus,
+    _i12.SaleStatus? status,
+    _i13.PaymentStatus? paymentStatus,
     int? customerId,
   }) =>
-      caller.callServerEndpoint<List<_i17.Sale>>(
+      caller.callServerEndpoint<List<_i11.Sale>>(
         'sales',
         'getSalesPaginated',
         {
@@ -1156,34 +494,34 @@ class EndpointSales extends _i1.EndpointRef {
       );
 
   /// Get a specific sale by ID
-  _i2.Future<_i17.Sale?> getSaleById(int saleId) =>
-      caller.callServerEndpoint<_i17.Sale?>(
+  _i2.Future<_i11.Sale?> getSaleById(int saleId) =>
+      caller.callServerEndpoint<_i11.Sale?>(
         'sales',
         'getSaleById',
         {'saleId': saleId},
       );
 
   /// Get sales by quote ID
-  _i2.Future<List<_i17.Sale>> getSalesByQuoteId(int quoteId) =>
-      caller.callServerEndpoint<List<_i17.Sale>>(
+  _i2.Future<List<_i11.Sale>> getSalesByQuoteId(int quoteId) =>
+      caller.callServerEndpoint<List<_i11.Sale>>(
         'sales',
         'getSalesByQuoteId',
         {'quoteId': quoteId},
       );
 
   /// Convert a quote to a sale
-  _i2.Future<_i17.Sale> convertQuoteToSale(
+  _i2.Future<_i11.Sale> convertQuoteToSale(
     int quoteId, {
     int? quoteVersionId,
     int? customerId,
-    _i18.SaleStatus? initialStatus,
-    _i19.PaymentStatus? initialPaymentStatus,
+    _i12.SaleStatus? initialStatus,
+    _i13.PaymentStatus? initialPaymentStatus,
     double? paidAmount,
     DateTime? scheduledDeliveryDate,
     String? customerName,
     String? notes,
   }) =>
-      caller.callServerEndpoint<_i17.Sale>(
+      caller.callServerEndpoint<_i11.Sale>(
         'sales',
         'convertQuoteToSale',
         {
@@ -1200,12 +538,12 @@ class EndpointSales extends _i1.EndpointRef {
       );
 
   /// Update sale status
-  _i2.Future<_i17.Sale> updateSaleStatus(
+  _i2.Future<_i11.Sale> updateSaleStatus(
     int saleId,
-    _i18.SaleStatus newStatus, {
+    _i12.SaleStatus newStatus, {
     String? notes,
   }) =>
-      caller.callServerEndpoint<_i17.Sale>(
+      caller.callServerEndpoint<_i11.Sale>(
         'sales',
         'updateSaleStatus',
         {
@@ -1216,13 +554,13 @@ class EndpointSales extends _i1.EndpointRef {
       );
 
   /// Update payment status and paid amount
-  _i2.Future<_i17.Sale> updatePaymentStatus(
+  _i2.Future<_i11.Sale> updatePaymentStatus(
     int saleId,
-    _i19.PaymentStatus newPaymentStatus, {
+    _i13.PaymentStatus newPaymentStatus, {
     double? paidAmount,
     String? notes,
   }) =>
-      caller.callServerEndpoint<_i17.Sale>(
+      caller.callServerEndpoint<_i11.Sale>(
         'sales',
         'updatePaymentStatus',
         {
@@ -1234,13 +572,13 @@ class EndpointSales extends _i1.EndpointRef {
       );
 
   /// Update delivery scheduling
-  _i2.Future<_i17.Sale> updateDeliverySchedule(
+  _i2.Future<_i11.Sale> updateDeliverySchedule(
     int saleId, {
     DateTime? scheduledDeliveryDate,
     DateTime? reminderDate,
     DateTime? actualDeliveryDate,
   }) =>
-      caller.callServerEndpoint<_i17.Sale>(
+      caller.callServerEndpoint<_i11.Sale>(
         'sales',
         'updateDeliverySchedule',
         {
@@ -1252,11 +590,11 @@ class EndpointSales extends _i1.EndpointRef {
       );
 
   /// Update sale notes
-  _i2.Future<_i17.Sale> updateSaleNotes(
+  _i2.Future<_i11.Sale> updateSaleNotes(
     int saleId,
     String notes,
   ) =>
-      caller.callServerEndpoint<_i17.Sale>(
+      caller.callServerEndpoint<_i11.Sale>(
         'sales',
         'updateSaleNotes',
         {
@@ -1287,16 +625,16 @@ class EndpointSales extends _i1.EndpointRef {
       );
 
   /// Get upcoming deliveries (scheduled for the next N days)
-  _i2.Future<List<_i17.Sale>> getUpcomingDeliveries({required int daysAhead}) =>
-      caller.callServerEndpoint<List<_i17.Sale>>(
+  _i2.Future<List<_i11.Sale>> getUpcomingDeliveries({required int daysAhead}) =>
+      caller.callServerEndpoint<List<_i11.Sale>>(
         'sales',
         'getUpcomingDeliveries',
         {'daysAhead': daysAhead},
       );
 
   /// Get overdue deliveries (scheduled delivery date passed but not delivered)
-  _i2.Future<List<_i17.Sale>> getOverdueDeliveries() =>
-      caller.callServerEndpoint<List<_i17.Sale>>(
+  _i2.Future<List<_i11.Sale>> getOverdueDeliveries() =>
+      caller.callServerEndpoint<List<_i11.Sale>>(
         'sales',
         'getOverdueDeliveries',
         {},
@@ -1313,8 +651,8 @@ class EndpointGreeting extends _i1.EndpointRef {
   String get name => 'greeting';
 
   /// Returns a personalized greeting message: "Hello {name}".
-  _i2.Future<_i20.Greeting> hello(String name) =>
-      caller.callServerEndpoint<_i20.Greeting>(
+  _i2.Future<_i14.Greeting> hello(String name) =>
+      caller.callServerEndpoint<_i14.Greeting>(
         'greeting',
         'hello',
         {'name': name},
@@ -1337,7 +675,7 @@ class Client extends _i1.ServerpodClientShared {
     bool? disconnectStreamsOnLostInternetConnection,
   }) : super(
           host,
-          _i21.Protocol(),
+          _i15.Protocol(),
           securityContext: securityContext,
           authenticationKeyManager: authenticationKeyManager,
           streamingConnectionTimeout: streamingConnectionTimeout,
@@ -1349,12 +687,10 @@ class Client extends _i1.ServerpodClientShared {
         ) {
     auth = EndpointAuth(this);
     backup = EndpointBackup(this);
-    catalogs = EndpointCatalogs(this);
     customer = EndpointCustomer(this);
     init = EndpointInit(this);
     quote = EndpointQuote(this);
     quoteVersion = EndpointQuoteVersion(this);
-    resources = EndpointResources(this);
     sales = EndpointSales(this);
     greeting = EndpointGreeting(this);
   }
@@ -1362,8 +698,6 @@ class Client extends _i1.ServerpodClientShared {
   late final EndpointAuth auth;
 
   late final EndpointBackup backup;
-
-  late final EndpointCatalogs catalogs;
 
   late final EndpointCustomer customer;
 
@@ -1373,8 +707,6 @@ class Client extends _i1.ServerpodClientShared {
 
   late final EndpointQuoteVersion quoteVersion;
 
-  late final EndpointResources resources;
-
   late final EndpointSales sales;
 
   late final EndpointGreeting greeting;
@@ -1383,12 +715,10 @@ class Client extends _i1.ServerpodClientShared {
   Map<String, _i1.EndpointRef> get endpointRefLookup => {
         'auth': auth,
         'backup': backup,
-        'catalogs': catalogs,
         'customer': customer,
         'init': init,
         'quote': quote,
         'quoteVersion': quoteVersion,
-        'resources': resources,
         'sales': sales,
         'greeting': greeting,
       };
