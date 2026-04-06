@@ -114,45 +114,60 @@ class AnalyticsEndpoint extends Endpoint {
     int depreciationYears = 5,
   }) async {
     final printers = await Printer.db.find(session);
+    final sales = await Sale.db.find(session);
 
     final depreciationData = <Map<String, dynamic>>[];
-    double totalDepreciation = 0.0;
+    double totalPrinterInvestment = 0.0;
+    double totalAmortized = 0.0;
 
     for (var printer in printers) {
       // Calcular depreciación: costo / años de vida útil
       final monthlyDepreciation = printer.purchaseCost / (depreciationYears * 12);
 
-      // Obtener total de horas de impresion usando esta impresora
-      final quotes = await Quote.db.find(
-        session,
-        where: (t) => t.printerId.equals(printer.id),
-      );
+      // Amortización real: suma de depreciationCost de cotizaciones vendidas
+      double amortizedAmount = 0.0;
+      double totalPrintHours = 0.0;
+      int linkedSales = 0;
 
-      double totalPrintHours = 0;
-      for (var quote in quotes) {
-        totalPrintHours += quote.printHours;
+      for (final sale in sales) {
+        final quote = await Quote.db.findById(session, sale.quoteId);
+        if (quote == null) continue;
+        if (quote.printerId != printer.id) continue;
+
+        amortizedAmount += quote.depreciationCost;
+        totalPrintHours += quote.printHours * quote.quantity;
+        linkedSales++;
       }
 
-      final usagePercentage =
-          totalPrintHours > 0 ? (totalPrintHours / (depreciationYears * 365 * 24)) * 100 : 0.0;
-      totalDepreciation += printer.purchaseCost;
+      final amortizedPercentage =
+          printer.purchaseCost > 0 ? ((amortizedAmount / printer.purchaseCost) * 100).clamp(0.0, 100.0) : 0.0;
+      final pendingAmortization = (printer.purchaseCost - amortizedAmount).clamp(0.0, double.infinity);
+
+      totalPrinterInvestment += printer.purchaseCost;
+      totalAmortized += amortizedAmount;
 
       depreciationData.add({
         'printerName': printer.name,
         'printerId': printer.id,
         'purchaseCost': printer.purchaseCost,
         'monthlyDepreciation': monthlyDepreciation,
-        'depreciationPercentage': (usagePercentage).clamp(0.0, 100.0),
+        'amortizedAmount': amortizedAmount,
+        'amortizedPercentage': amortizedPercentage,
+        'pendingAmortization': pendingAmortization,
         'totalPrintHours': totalPrintHours,
+        'linkedSales': linkedSales,
       });
     }
 
     return jsonEncode({
       'printers': depreciationData,
-      'totalDepreciation': totalDepreciation,
+      'totalDepreciation': totalPrinterInvestment,
+      'totalAmortized': totalAmortized,
+      'totalPendingAmortization':
+          (totalPrinterInvestment - totalAmortized).clamp(0.0, double.infinity),
       'averageDepreciation': depreciationData.isEmpty 
           ? 0.0 
-          : totalDepreciation / depreciationData.length,
+          : totalAmortized / depreciationData.length,
     });
   }
 

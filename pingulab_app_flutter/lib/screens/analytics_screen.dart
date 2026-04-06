@@ -560,7 +560,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Amortización de Impresoras',
+              'Amortización Real de Impresoras',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
@@ -575,9 +575,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                         x: index,
                         barRods: [
                           BarChartRodData(
-                            toY: (printers[index]['depreciationPercentage'] as num).toDouble(),
+                            toY: (printers[index]['amortizedPercentage'] as num).toDouble(),
                             color: _getDepreciationColor(
-                              (printers[index]['depreciationPercentage'] as num).toDouble(),
+                              (printers[index]['amortizedPercentage'] as num).toDouble(),
                             ),
                           ),
                         ],
@@ -650,12 +650,24 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                           '\$${(printer['monthlyDepreciation'] as num).toStringAsFixed(2)}',
                         ),
                         _buildStatRow(
-                          'Uso',
-                          '${(printer['depreciationPercentage'] as num).toStringAsFixed(1)}%',
+                          'Amortizado',
+                          '${(printer['amortizedPercentage'] as num).toStringAsFixed(1)}%',
+                        ),
+                        _buildStatRow(
+                          'Monto Amortizado',
+                          '\$${(printer['amortizedAmount'] as num).toStringAsFixed(2)}',
+                        ),
+                        _buildStatRow(
+                          'Pendiente por Amortizar',
+                          '\$${(printer['pendingAmortization'] as num).toStringAsFixed(2)}',
                         ),
                         _buildStatRow(
                           'Horas de Impresión',
                           '${(printer['totalPrintHours'] as num).toStringAsFixed(0)} hrs',
+                        ),
+                        _buildStatRow(
+                          'Ventas Vinculadas',
+                          '${printer['linkedSales']}',
                         ),
                       ],
                     ),
