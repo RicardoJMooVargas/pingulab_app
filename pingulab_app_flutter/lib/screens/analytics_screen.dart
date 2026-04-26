@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:intl/intl.dart';
+import 'dart:convert';
 import '../main.dart';
 
 class AnalyticsScreen extends StatefulWidget {
@@ -23,6 +23,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   Map<String, dynamic>? _depreciationData;
   Map<String, dynamic>? _analysisData;
   Map<String, dynamic>? _metrics;
+  bool _isHistoricalRange = true;
+  int _monthsBack = 12;
+  static const List<int> _monthOptions = [1, 3, 6, 12, 24];
+
+  int get _rangeMonthsBack => _isHistoricalRange ? 0 : _monthsBack;
 
   @override
   void initState() {
@@ -745,7 +750,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Amortización de Impresoras',
+              'Amortización Real de Impresoras',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
@@ -760,9 +765,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                         x: index,
                         barRods: [
                           BarChartRodData(
-                            toY: (printers[index]['depreciationPercentage'] as num).toDouble(),
+                            toY: (printers[index]['amortizedPercentage'] as num).toDouble(),
                             color: _getDepreciationColor(
-                              (printers[index]['depreciationPercentage'] as num).toDouble(),
+                              (printers[index]['amortizedPercentage'] as num).toDouble(),
                             ),
                           ),
                         ],
@@ -835,12 +840,24 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                           '\$${(printer['monthlyDepreciation'] as num).toStringAsFixed(2)}',
                         ),
                         _buildStatRow(
-                          'Uso',
-                          '${(printer['depreciationPercentage'] as num).toStringAsFixed(1)}%',
+                          'Amortizado',
+                          '${(printer['amortizedPercentage'] as num).toStringAsFixed(1)}%',
+                        ),
+                        _buildStatRow(
+                          'Monto Amortizado',
+                          '\$${(printer['amortizedAmount'] as num).toStringAsFixed(2)}',
+                        ),
+                        _buildStatRow(
+                          'Pendiente por Amortizar',
+                          '\$${(printer['pendingAmortization'] as num).toStringAsFixed(2)}',
                         ),
                         _buildStatRow(
                           'Horas de Impresión',
                           '${(printer['totalPrintHours'] as num).toStringAsFixed(0)} hrs',
+                        ),
+                        _buildStatRow(
+                          'Ventas Vinculadas',
+                          '${printer['linkedSales']}',
                         ),
                       ],
                     ),

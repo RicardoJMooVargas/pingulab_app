@@ -60,6 +60,8 @@ export 'extra_supply.dart';
 export 'filament.dart';
 export 'filament_catalog_item.dart';
 export 'filament_inventory_match.dart';
+export 'filament_catalog_item.dart';
+export 'filament_inventory_match.dart';
 export 'filament_usage.dart';
 export 'import_result.dart';
 export 'payment_status.dart';
@@ -77,6 +79,7 @@ export 'quote_version.dart';
 export 'quote_version_filament.dart';
 export 'quote_version_supply.dart';
 export 'sale.dart';
+export 'sale_filament_consumption.dart';
 export 'sale_filament_consumption.dart';
 export 'sale_status.dart';
 export 'shipping.dart';
@@ -124,52 +127,92 @@ class Protocol extends _i1.SerializationManager {
     }
     if (t == _i10.FilamentUsage) {
       return _i10.FilamentUsage.fromJson(data) as T;
+    if (t == _i8.FilamentCatalogItem) {
+      return _i8.FilamentCatalogItem.fromJson(data) as T;
     }
+    if (t == _i9.FilamentInventoryMatch) {
+      return _i9.FilamentInventoryMatch.fromJson(data) as T;
+    }
+    if (t == _i10.FilamentUsage) {
+      return _i10.FilamentUsage.fromJson(data) as T;
+    }
+    if (t == _i11.ImportResult) {
+      return _i11.ImportResult.fromJson(data) as T;
     if (t == _i11.ImportResult) {
       return _i11.ImportResult.fromJson(data) as T;
     }
     if (t == _i12.PaymentStatus) {
       return _i12.PaymentStatus.fromJson(data) as T;
+    if (t == _i12.PaymentStatus) {
+      return _i12.PaymentStatus.fromJson(data) as T;
     }
+    if (t == _i13.Printer) {
+      return _i13.Printer.fromJson(data) as T;
     if (t == _i13.Printer) {
       return _i13.Printer.fromJson(data) as T;
     }
     if (t == _i14.Quote) {
       return _i14.Quote.fromJson(data) as T;
+    if (t == _i14.Quote) {
+      return _i14.Quote.fromJson(data) as T;
     }
+    if (t == _i15.QuoteCategory) {
+      return _i15.QuoteCategory.fromJson(data) as T;
     if (t == _i15.QuoteCategory) {
       return _i15.QuoteCategory.fromJson(data) as T;
     }
     if (t == _i16.QuoteDetails) {
       return _i16.QuoteDetails.fromJson(data) as T;
+    if (t == _i16.QuoteDetails) {
+      return _i16.QuoteDetails.fromJson(data) as T;
     }
+    if (t == _i17.QuoteExtraSupply) {
+      return _i17.QuoteExtraSupply.fromJson(data) as T;
     if (t == _i17.QuoteExtraSupply) {
       return _i17.QuoteExtraSupply.fromJson(data) as T;
     }
     if (t == _i18.QuoteFilament) {
       return _i18.QuoteFilament.fromJson(data) as T;
+    if (t == _i18.QuoteFilament) {
+      return _i18.QuoteFilament.fromJson(data) as T;
     }
+    if (t == _i19.QuoteFilamentDetail) {
+      return _i19.QuoteFilamentDetail.fromJson(data) as T;
     if (t == _i19.QuoteFilamentDetail) {
       return _i19.QuoteFilamentDetail.fromJson(data) as T;
     }
     if (t == _i20.QuoteInput) {
       return _i20.QuoteInput.fromJson(data) as T;
+    if (t == _i20.QuoteInput) {
+      return _i20.QuoteInput.fromJson(data) as T;
     }
+    if (t == _i21.QuoteStatus) {
+      return _i21.QuoteStatus.fromJson(data) as T;
     if (t == _i21.QuoteStatus) {
       return _i21.QuoteStatus.fromJson(data) as T;
     }
     if (t == _i22.QuoteSupplyDetail) {
       return _i22.QuoteSupplyDetail.fromJson(data) as T;
+    if (t == _i22.QuoteSupplyDetail) {
+      return _i22.QuoteSupplyDetail.fromJson(data) as T;
     }
+    if (t == _i23.QuoteVersion) {
+      return _i23.QuoteVersion.fromJson(data) as T;
     if (t == _i23.QuoteVersion) {
       return _i23.QuoteVersion.fromJson(data) as T;
     }
     if (t == _i24.QuoteVersionFilament) {
       return _i24.QuoteVersionFilament.fromJson(data) as T;
+    if (t == _i24.QuoteVersionFilament) {
+      return _i24.QuoteVersionFilament.fromJson(data) as T;
     }
     if (t == _i25.QuoteVersionSupply) {
       return _i25.QuoteVersionSupply.fromJson(data) as T;
+    if (t == _i25.QuoteVersionSupply) {
+      return _i25.QuoteVersionSupply.fromJson(data) as T;
     }
+    if (t == _i26.Sale) {
+      return _i26.Sale.fromJson(data) as T;
     if (t == _i26.Sale) {
       return _i26.Sale.fromJson(data) as T;
     }
@@ -178,16 +221,29 @@ class Protocol extends _i1.SerializationManager {
     }
     if (t == _i28.SaleStatus) {
       return _i28.SaleStatus.fromJson(data) as T;
+    if (t == _i27.SaleFilamentConsumption) {
+      return _i27.SaleFilamentConsumption.fromJson(data) as T;
     }
+    if (t == _i28.SaleStatus) {
+      return _i28.SaleStatus.fromJson(data) as T;
+    }
+    if (t == _i29.Shipping) {
+      return _i29.Shipping.fromJson(data) as T;
     if (t == _i29.Shipping) {
       return _i29.Shipping.fromJson(data) as T;
     }
     if (t == _i30.SupplyUsage) {
       return _i30.SupplyUsage.fromJson(data) as T;
+    if (t == _i30.SupplyUsage) {
+      return _i30.SupplyUsage.fromJson(data) as T;
     }
     if (t == _i31.User) {
       return _i31.User.fromJson(data) as T;
+    if (t == _i31.User) {
+      return _i31.User.fromJson(data) as T;
     }
+    if (t == _i32.UserRole) {
+      return _i32.UserRole.fromJson(data) as T;
     if (t == _i32.UserRole) {
       return _i32.UserRole.fromJson(data) as T;
     }
@@ -219,55 +275,97 @@ class Protocol extends _i1.SerializationManager {
     }
     if (t == _i1.getType<_i10.FilamentUsage?>()) {
       return (data != null ? _i10.FilamentUsage.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i8.FilamentCatalogItem?>()) {
+      return (data != null ? _i8.FilamentCatalogItem.fromJson(data) : null)
+          as T;
     }
+    if (t == _i1.getType<_i9.FilamentInventoryMatch?>()) {
+      return (data != null ? _i9.FilamentInventoryMatch.fromJson(data) : null)
+          as T;
+    }
+    if (t == _i1.getType<_i10.FilamentUsage?>()) {
+      return (data != null ? _i10.FilamentUsage.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i11.ImportResult?>()) {
+      return (data != null ? _i11.ImportResult.fromJson(data) : null) as T;
     if (t == _i1.getType<_i11.ImportResult?>()) {
       return (data != null ? _i11.ImportResult.fromJson(data) : null) as T;
     }
     if (t == _i1.getType<_i12.PaymentStatus?>()) {
       return (data != null ? _i12.PaymentStatus.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i12.PaymentStatus?>()) {
+      return (data != null ? _i12.PaymentStatus.fromJson(data) : null) as T;
     }
+    if (t == _i1.getType<_i13.Printer?>()) {
+      return (data != null ? _i13.Printer.fromJson(data) : null) as T;
     if (t == _i1.getType<_i13.Printer?>()) {
       return (data != null ? _i13.Printer.fromJson(data) : null) as T;
     }
     if (t == _i1.getType<_i14.Quote?>()) {
       return (data != null ? _i14.Quote.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i14.Quote?>()) {
+      return (data != null ? _i14.Quote.fromJson(data) : null) as T;
     }
+    if (t == _i1.getType<_i15.QuoteCategory?>()) {
+      return (data != null ? _i15.QuoteCategory.fromJson(data) : null) as T;
     if (t == _i1.getType<_i15.QuoteCategory?>()) {
       return (data != null ? _i15.QuoteCategory.fromJson(data) : null) as T;
     }
     if (t == _i1.getType<_i16.QuoteDetails?>()) {
       return (data != null ? _i16.QuoteDetails.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i16.QuoteDetails?>()) {
+      return (data != null ? _i16.QuoteDetails.fromJson(data) : null) as T;
     }
+    if (t == _i1.getType<_i17.QuoteExtraSupply?>()) {
+      return (data != null ? _i17.QuoteExtraSupply.fromJson(data) : null) as T;
     if (t == _i1.getType<_i17.QuoteExtraSupply?>()) {
       return (data != null ? _i17.QuoteExtraSupply.fromJson(data) : null) as T;
     }
     if (t == _i1.getType<_i18.QuoteFilament?>()) {
       return (data != null ? _i18.QuoteFilament.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i18.QuoteFilament?>()) {
+      return (data != null ? _i18.QuoteFilament.fromJson(data) : null) as T;
     }
+    if (t == _i1.getType<_i19.QuoteFilamentDetail?>()) {
+      return (data != null ? _i19.QuoteFilamentDetail.fromJson(data) : null)
     if (t == _i1.getType<_i19.QuoteFilamentDetail?>()) {
       return (data != null ? _i19.QuoteFilamentDetail.fromJson(data) : null)
           as T;
     }
     if (t == _i1.getType<_i20.QuoteInput?>()) {
       return (data != null ? _i20.QuoteInput.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i20.QuoteInput?>()) {
+      return (data != null ? _i20.QuoteInput.fromJson(data) : null) as T;
     }
+    if (t == _i1.getType<_i21.QuoteStatus?>()) {
+      return (data != null ? _i21.QuoteStatus.fromJson(data) : null) as T;
     if (t == _i1.getType<_i21.QuoteStatus?>()) {
       return (data != null ? _i21.QuoteStatus.fromJson(data) : null) as T;
     }
     if (t == _i1.getType<_i22.QuoteSupplyDetail?>()) {
       return (data != null ? _i22.QuoteSupplyDetail.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i22.QuoteSupplyDetail?>()) {
+      return (data != null ? _i22.QuoteSupplyDetail.fromJson(data) : null) as T;
     }
     if (t == _i1.getType<_i23.QuoteVersion?>()) {
       return (data != null ? _i23.QuoteVersion.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i23.QuoteVersion?>()) {
+      return (data != null ? _i23.QuoteVersion.fromJson(data) : null) as T;
     }
+    if (t == _i1.getType<_i24.QuoteVersionFilament?>()) {
+      return (data != null ? _i24.QuoteVersionFilament.fromJson(data) : null)
     if (t == _i1.getType<_i24.QuoteVersionFilament?>()) {
       return (data != null ? _i24.QuoteVersionFilament.fromJson(data) : null)
           as T;
     }
     if (t == _i1.getType<_i25.QuoteVersionSupply?>()) {
       return (data != null ? _i25.QuoteVersionSupply.fromJson(data) : null)
+    if (t == _i1.getType<_i25.QuoteVersionSupply?>()) {
+      return (data != null ? _i25.QuoteVersionSupply.fromJson(data) : null)
           as T;
     }
+    if (t == _i1.getType<_i26.Sale?>()) {
+      return (data != null ? _i26.Sale.fromJson(data) : null) as T;
     if (t == _i1.getType<_i26.Sale?>()) {
       return (data != null ? _i26.Sale.fromJson(data) : null) as T;
     }
@@ -277,16 +375,30 @@ class Protocol extends _i1.SerializationManager {
     }
     if (t == _i1.getType<_i28.SaleStatus?>()) {
       return (data != null ? _i28.SaleStatus.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i27.SaleFilamentConsumption?>()) {
+      return (data != null ? _i27.SaleFilamentConsumption.fromJson(data) : null)
+          as T;
     }
+    if (t == _i1.getType<_i28.SaleStatus?>()) {
+      return (data != null ? _i28.SaleStatus.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i29.Shipping?>()) {
+      return (data != null ? _i29.Shipping.fromJson(data) : null) as T;
     if (t == _i1.getType<_i29.Shipping?>()) {
       return (data != null ? _i29.Shipping.fromJson(data) : null) as T;
     }
     if (t == _i1.getType<_i30.SupplyUsage?>()) {
       return (data != null ? _i30.SupplyUsage.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i30.SupplyUsage?>()) {
+      return (data != null ? _i30.SupplyUsage.fromJson(data) : null) as T;
     }
     if (t == _i1.getType<_i31.User?>()) {
       return (data != null ? _i31.User.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i31.User?>()) {
+      return (data != null ? _i31.User.fromJson(data) : null) as T;
     }
+    if (t == _i1.getType<_i32.UserRole?>()) {
+      return (data != null ? _i32.UserRole.fromJson(data) : null) as T;
     if (t == _i1.getType<_i32.UserRole?>()) {
       return (data != null ? _i32.UserRole.fromJson(data) : null) as T;
     }
@@ -294,28 +406,36 @@ class Protocol extends _i1.SerializationManager {
       return (data as List).map((e) => deserialize<String>(e)).toList() as T;
     }
     if (t == _i1.getType<List<_i19.QuoteFilamentDetail>?>()) {
+    if (t == _i1.getType<List<_i19.QuoteFilamentDetail>?>()) {
       return (data != null
           ? (data as List)
+              .map((e) => deserialize<_i19.QuoteFilamentDetail>(e))
               .map((e) => deserialize<_i19.QuoteFilamentDetail>(e))
               .toList()
           : null) as T;
     }
     if (t == _i1.getType<List<_i22.QuoteSupplyDetail>?>()) {
+    if (t == _i1.getType<List<_i22.QuoteSupplyDetail>?>()) {
       return (data != null
           ? (data as List)
+              .map((e) => deserialize<_i22.QuoteSupplyDetail>(e))
               .map((e) => deserialize<_i22.QuoteSupplyDetail>(e))
               .toList()
           : null) as T;
     }
     if (t == _i1.getType<List<_i10.FilamentUsage>?>()) {
+    if (t == _i1.getType<List<_i10.FilamentUsage>?>()) {
       return (data != null
           ? (data as List)
+              .map((e) => deserialize<_i10.FilamentUsage>(e))
               .map((e) => deserialize<_i10.FilamentUsage>(e))
               .toList()
           : null) as T;
     }
     if (t == _i1.getType<List<_i30.SupplyUsage>?>()) {
+    if (t == _i1.getType<List<_i30.SupplyUsage>?>()) {
       return (data != null
+          ? (data as List).map((e) => deserialize<_i30.SupplyUsage>(e)).toList()
           ? (data as List).map((e) => deserialize<_i30.SupplyUsage>(e)).toList()
           : null) as T;
     }
@@ -328,30 +448,44 @@ class Protocol extends _i1.SerializationManager {
     }
     if (t == List<_i34.Filament>) {
       return (data as List).map((e) => deserialize<_i34.Filament>(e)).toList()
+    if (t == List<_i34.Filament>) {
+      return (data as List).map((e) => deserialize<_i34.Filament>(e)).toList()
           as T;
     }
+    if (t == List<_i35.Printer>) {
+      return (data as List).map((e) => deserialize<_i35.Printer>(e)).toList()
     if (t == List<_i35.Printer>) {
       return (data as List).map((e) => deserialize<_i35.Printer>(e)).toList()
           as T;
     }
     if (t == List<_i36.Shipping>) {
       return (data as List).map((e) => deserialize<_i36.Shipping>(e)).toList()
+    if (t == List<_i36.Shipping>) {
+      return (data as List).map((e) => deserialize<_i36.Shipping>(e)).toList()
           as T;
     }
+    if (t == List<_i37.Customer>) {
+      return (data as List).map((e) => deserialize<_i37.Customer>(e)).toList()
     if (t == List<_i37.Customer>) {
       return (data as List).map((e) => deserialize<_i37.Customer>(e)).toList()
           as T;
     }
     if (t == List<_i38.ElectricityRate>) {
+    if (t == List<_i38.ElectricityRate>) {
       return (data as List)
+          .map((e) => deserialize<_i38.ElectricityRate>(e))
           .map((e) => deserialize<_i38.ElectricityRate>(e))
           .toList() as T;
     }
     if (t == List<_i39.ExtraSupply>) {
+    if (t == List<_i39.ExtraSupply>) {
       return (data as List)
+          .map((e) => deserialize<_i39.ExtraSupply>(e))
           .map((e) => deserialize<_i39.ExtraSupply>(e))
           .toList() as T;
     }
+    if (t == List<_i40.Quote>) {
+      return (data as List).map((e) => deserialize<_i40.Quote>(e)).toList()
     if (t == List<_i40.Quote>) {
       return (data as List).map((e) => deserialize<_i40.Quote>(e)).toList()
           as T;
@@ -401,53 +535,76 @@ class Protocol extends _i1.SerializationManager {
       return 'FilamentInventoryMatch';
     }
     if (data is _i10.FilamentUsage) {
+    if (data is _i8.FilamentCatalogItem) {
+      return 'FilamentCatalogItem';
+    }
+    if (data is _i9.FilamentInventoryMatch) {
+      return 'FilamentInventoryMatch';
+    }
+    if (data is _i10.FilamentUsage) {
       return 'FilamentUsage';
     }
+    if (data is _i11.ImportResult) {
     if (data is _i11.ImportResult) {
       return 'ImportResult';
     }
     if (data is _i12.PaymentStatus) {
+    if (data is _i12.PaymentStatus) {
       return 'PaymentStatus';
     }
+    if (data is _i13.Printer) {
     if (data is _i13.Printer) {
       return 'Printer';
     }
     if (data is _i14.Quote) {
+    if (data is _i14.Quote) {
       return 'Quote';
     }
+    if (data is _i15.QuoteCategory) {
     if (data is _i15.QuoteCategory) {
       return 'QuoteCategory';
     }
     if (data is _i16.QuoteDetails) {
+    if (data is _i16.QuoteDetails) {
       return 'QuoteDetails';
     }
+    if (data is _i17.QuoteExtraSupply) {
     if (data is _i17.QuoteExtraSupply) {
       return 'QuoteExtraSupply';
     }
     if (data is _i18.QuoteFilament) {
+    if (data is _i18.QuoteFilament) {
       return 'QuoteFilament';
     }
+    if (data is _i19.QuoteFilamentDetail) {
     if (data is _i19.QuoteFilamentDetail) {
       return 'QuoteFilamentDetail';
     }
     if (data is _i20.QuoteInput) {
+    if (data is _i20.QuoteInput) {
       return 'QuoteInput';
     }
+    if (data is _i21.QuoteStatus) {
     if (data is _i21.QuoteStatus) {
       return 'QuoteStatus';
     }
     if (data is _i22.QuoteSupplyDetail) {
+    if (data is _i22.QuoteSupplyDetail) {
       return 'QuoteSupplyDetail';
     }
+    if (data is _i23.QuoteVersion) {
     if (data is _i23.QuoteVersion) {
       return 'QuoteVersion';
     }
     if (data is _i24.QuoteVersionFilament) {
+    if (data is _i24.QuoteVersionFilament) {
       return 'QuoteVersionFilament';
     }
     if (data is _i25.QuoteVersionSupply) {
+    if (data is _i25.QuoteVersionSupply) {
       return 'QuoteVersionSupply';
     }
+    if (data is _i26.Sale) {
     if (data is _i26.Sale) {
       return 'Sale';
     }
@@ -455,17 +612,25 @@ class Protocol extends _i1.SerializationManager {
       return 'SaleFilamentConsumption';
     }
     if (data is _i28.SaleStatus) {
+    if (data is _i27.SaleFilamentConsumption) {
+      return 'SaleFilamentConsumption';
+    }
+    if (data is _i28.SaleStatus) {
       return 'SaleStatus';
     }
+    if (data is _i29.Shipping) {
     if (data is _i29.Shipping) {
       return 'Shipping';
     }
     if (data is _i30.SupplyUsage) {
+    if (data is _i30.SupplyUsage) {
       return 'SupplyUsage';
     }
     if (data is _i31.User) {
+    if (data is _i31.User) {
       return 'User';
     }
+    if (data is _i32.UserRole) {
     if (data is _i32.UserRole) {
       return 'UserRole';
     }
@@ -502,52 +667,74 @@ class Protocol extends _i1.SerializationManager {
     if (dataClassName == 'FilamentInventoryMatch') {
       return deserialize<_i9.FilamentInventoryMatch>(data['data']);
     }
+    if (dataClassName == 'FilamentCatalogItem') {
+      return deserialize<_i8.FilamentCatalogItem>(data['data']);
+    }
+    if (dataClassName == 'FilamentInventoryMatch') {
+      return deserialize<_i9.FilamentInventoryMatch>(data['data']);
+    }
     if (dataClassName == 'FilamentUsage') {
+      return deserialize<_i10.FilamentUsage>(data['data']);
       return deserialize<_i10.FilamentUsage>(data['data']);
     }
     if (dataClassName == 'ImportResult') {
       return deserialize<_i11.ImportResult>(data['data']);
+      return deserialize<_i11.ImportResult>(data['data']);
     }
     if (dataClassName == 'PaymentStatus') {
+      return deserialize<_i12.PaymentStatus>(data['data']);
       return deserialize<_i12.PaymentStatus>(data['data']);
     }
     if (dataClassName == 'Printer') {
       return deserialize<_i13.Printer>(data['data']);
+      return deserialize<_i13.Printer>(data['data']);
     }
     if (dataClassName == 'Quote') {
+      return deserialize<_i14.Quote>(data['data']);
       return deserialize<_i14.Quote>(data['data']);
     }
     if (dataClassName == 'QuoteCategory') {
       return deserialize<_i15.QuoteCategory>(data['data']);
+      return deserialize<_i15.QuoteCategory>(data['data']);
     }
     if (dataClassName == 'QuoteDetails') {
+      return deserialize<_i16.QuoteDetails>(data['data']);
       return deserialize<_i16.QuoteDetails>(data['data']);
     }
     if (dataClassName == 'QuoteExtraSupply') {
       return deserialize<_i17.QuoteExtraSupply>(data['data']);
+      return deserialize<_i17.QuoteExtraSupply>(data['data']);
     }
     if (dataClassName == 'QuoteFilament') {
+      return deserialize<_i18.QuoteFilament>(data['data']);
       return deserialize<_i18.QuoteFilament>(data['data']);
     }
     if (dataClassName == 'QuoteFilamentDetail') {
       return deserialize<_i19.QuoteFilamentDetail>(data['data']);
+      return deserialize<_i19.QuoteFilamentDetail>(data['data']);
     }
     if (dataClassName == 'QuoteInput') {
+      return deserialize<_i20.QuoteInput>(data['data']);
       return deserialize<_i20.QuoteInput>(data['data']);
     }
     if (dataClassName == 'QuoteStatus') {
       return deserialize<_i21.QuoteStatus>(data['data']);
+      return deserialize<_i21.QuoteStatus>(data['data']);
     }
     if (dataClassName == 'QuoteSupplyDetail') {
+      return deserialize<_i22.QuoteSupplyDetail>(data['data']);
       return deserialize<_i22.QuoteSupplyDetail>(data['data']);
     }
     if (dataClassName == 'QuoteVersion') {
       return deserialize<_i23.QuoteVersion>(data['data']);
+      return deserialize<_i23.QuoteVersion>(data['data']);
     }
     if (dataClassName == 'QuoteVersionFilament') {
       return deserialize<_i24.QuoteVersionFilament>(data['data']);
+      return deserialize<_i24.QuoteVersionFilament>(data['data']);
     }
     if (dataClassName == 'QuoteVersionSupply') {
+      return deserialize<_i25.QuoteVersionSupply>(data['data']);
       return deserialize<_i25.QuoteVersionSupply>(data['data']);
     }
     if (dataClassName == 'Sale') {
@@ -555,20 +742,29 @@ class Protocol extends _i1.SerializationManager {
     }
     if (dataClassName == 'SaleFilamentConsumption') {
       return deserialize<_i27.SaleFilamentConsumption>(data['data']);
+      return deserialize<_i26.Sale>(data['data']);
+    }
+    if (dataClassName == 'SaleFilamentConsumption') {
+      return deserialize<_i27.SaleFilamentConsumption>(data['data']);
     }
     if (dataClassName == 'SaleStatus') {
+      return deserialize<_i28.SaleStatus>(data['data']);
       return deserialize<_i28.SaleStatus>(data['data']);
     }
     if (dataClassName == 'Shipping') {
       return deserialize<_i29.Shipping>(data['data']);
+      return deserialize<_i29.Shipping>(data['data']);
     }
     if (dataClassName == 'SupplyUsage') {
+      return deserialize<_i30.SupplyUsage>(data['data']);
       return deserialize<_i30.SupplyUsage>(data['data']);
     }
     if (dataClassName == 'User') {
       return deserialize<_i31.User>(data['data']);
+      return deserialize<_i31.User>(data['data']);
     }
     if (dataClassName == 'UserRole') {
+      return deserialize<_i32.UserRole>(data['data']);
       return deserialize<_i32.UserRole>(data['data']);
     }
     return super.deserializeByClassName(data);

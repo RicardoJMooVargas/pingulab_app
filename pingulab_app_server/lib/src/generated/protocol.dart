@@ -47,6 +47,36 @@ import 'package:pingulab_app_server/src/generated/filament.dart' as _i35;
 import 'package:pingulab_app_server/src/generated/printer.dart' as _i36;
 import 'package:pingulab_app_server/src/generated/shipping.dart' as _i37;
 import 'package:pingulab_app_server/src/generated/customer.dart' as _i38;
+import 'filament_catalog_item.dart' as _i9;
+import 'filament_inventory_match.dart' as _i10;
+import 'filament_usage.dart' as _i11;
+import 'import_result.dart' as _i12;
+import 'payment_status.dart' as _i13;
+import 'printer.dart' as _i14;
+import 'quote.dart' as _i15;
+import 'quote_category.dart' as _i16;
+import 'quote_details.dart' as _i17;
+import 'quote_extra_supply.dart' as _i18;
+import 'quote_filament.dart' as _i19;
+import 'quote_filament_detail.dart' as _i20;
+import 'quote_input.dart' as _i21;
+import 'quote_status.dart' as _i22;
+import 'quote_supply_detail.dart' as _i23;
+import 'quote_version.dart' as _i24;
+import 'quote_version_filament.dart' as _i25;
+import 'quote_version_supply.dart' as _i26;
+import 'sale.dart' as _i27;
+import 'sale_filament_consumption.dart' as _i28;
+import 'sale_status.dart' as _i29;
+import 'shipping.dart' as _i30;
+import 'supply_usage.dart' as _i31;
+import 'user.dart' as _i32;
+import 'user_role.dart' as _i33;
+import 'package:pingulab_app_server/src/generated/user.dart' as _i34;
+import 'package:pingulab_app_server/src/generated/filament.dart' as _i35;
+import 'package:pingulab_app_server/src/generated/printer.dart' as _i36;
+import 'package:pingulab_app_server/src/generated/shipping.dart' as _i37;
+import 'package:pingulab_app_server/src/generated/customer.dart' as _i38;
 import 'package:pingulab_app_server/src/generated/electricity_rate.dart'
     as _i39;
 import 'package:pingulab_app_server/src/generated/extra_supply.dart' as _i40;
@@ -60,6 +90,8 @@ export 'customer.dart';
 export 'electricity_rate.dart';
 export 'extra_supply.dart';
 export 'filament.dart';
+export 'filament_catalog_item.dart';
+export 'filament_inventory_match.dart';
 export 'filament_catalog_item.dart';
 export 'filament_inventory_match.dart';
 export 'filament_usage.dart';
@@ -79,6 +111,7 @@ export 'quote_version.dart';
 export 'quote_version_filament.dart';
 export 'quote_version_supply.dart';
 export 'sale.dart';
+export 'sale_filament_consumption.dart';
 export 'sale_filament_consumption.dart';
 export 'sale_status.dart';
 export 'shipping.dart';
@@ -330,6 +363,73 @@ class Protocol extends _i1.SerializationManagerServer {
       managed: true,
     ),
     _i2.TableDefinition(
+      name: 'filament_catalog_items',
+      dartName: 'FilamentCatalogItem',
+      schema: 'public',
+      module: 'pingulab_app',
+      columns: [
+        _i2.ColumnDefinition(
+          name: 'id',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'nextval(\'filament_catalog_items_id_seq\'::regclass)',
+        ),
+        _i2.ColumnDefinition(
+          name: 'materialType',
+          columnType: _i2.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _i2.ColumnDefinition(
+          name: 'color',
+          columnType: _i2.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _i2.ColumnDefinition(
+          name: 'active',
+          columnType: _i2.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+        ),
+      ],
+      foreignKeys: [],
+      indexes: [
+        _i2.IndexDefinition(
+          indexName: 'filament_catalog_items_pkey',
+          tableSpace: null,
+          elements: [
+            _i2.IndexElementDefinition(
+              type: _i2.IndexElementDefinitionType.column,
+              definition: 'id',
+            )
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: true,
+        ),
+        _i2.IndexDefinition(
+          indexName: 'material_color_unique',
+          tableSpace: null,
+          elements: [
+            _i2.IndexElementDefinition(
+              type: _i2.IndexElementDefinitionType.column,
+              definition: 'materialType',
+            ),
+            _i2.IndexElementDefinition(
+              type: _i2.IndexElementDefinitionType.column,
+              definition: 'color',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _i2.TableDefinition(
       name: 'filaments',
       dartName: 'Filament',
       schema: 'public',
@@ -374,6 +474,12 @@ class Protocol extends _i1.SerializationManagerServer {
         ),
         _i2.ColumnDefinition(
           name: 'spoolCost',
+          columnType: _i2.ColumnType.doublePrecision,
+          isNullable: false,
+          dartType: 'double',
+        ),
+        _i2.ColumnDefinition(
+          name: 'remainingGrams',
           columnType: _i2.ColumnType.doublePrecision,
           isNullable: false,
           dartType: 'double',
@@ -1192,6 +1298,87 @@ class Protocol extends _i1.SerializationManagerServer {
       managed: true,
     ),
     _i2.TableDefinition(
+      name: 'sale_filament_consumptions',
+      dartName: 'SaleFilamentConsumption',
+      schema: 'public',
+      module: 'pingulab_app',
+      columns: [
+        _i2.ColumnDefinition(
+          name: 'id',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault:
+              'nextval(\'sale_filament_consumptions_id_seq\'::regclass)',
+        ),
+        _i2.ColumnDefinition(
+          name: 'saleId',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _i2.ColumnDefinition(
+          name: 'filamentId',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _i2.ColumnDefinition(
+          name: 'gramsConsumed',
+          columnType: _i2.ColumnType.doublePrecision,
+          isNullable: false,
+          dartType: 'double',
+        ),
+      ],
+      foreignKeys: [],
+      indexes: [
+        _i2.IndexDefinition(
+          indexName: 'sale_filament_consumptions_pkey',
+          tableSpace: null,
+          elements: [
+            _i2.IndexElementDefinition(
+              type: _i2.IndexElementDefinitionType.column,
+              definition: 'id',
+            )
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: true,
+        ),
+        _i2.IndexDefinition(
+          indexName: 'sale_filament_unique',
+          tableSpace: null,
+          elements: [
+            _i2.IndexElementDefinition(
+              type: _i2.IndexElementDefinitionType.column,
+              definition: 'saleId',
+            ),
+            _i2.IndexElementDefinition(
+              type: _i2.IndexElementDefinitionType.column,
+              definition: 'filamentId',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+        _i2.IndexDefinition(
+          indexName: 'sale_consumptions',
+          tableSpace: null,
+          elements: [
+            _i2.IndexElementDefinition(
+              type: _i2.IndexElementDefinitionType.column,
+              definition: 'saleId',
+            )
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _i2.TableDefinition(
       name: 'sales',
       dartName: 'Sale',
       schema: 'public',
@@ -1522,31 +1709,51 @@ class Protocol extends _i1.SerializationManagerServer {
     }
     if (t == _i9.FilamentCatalogItem) {
       return _i9.FilamentCatalogItem.fromJson(data) as T;
+    if (t == _i9.FilamentCatalogItem) {
+      return _i9.FilamentCatalogItem.fromJson(data) as T;
     }
+    if (t == _i10.FilamentInventoryMatch) {
+      return _i10.FilamentInventoryMatch.fromJson(data) as T;
     if (t == _i10.FilamentInventoryMatch) {
       return _i10.FilamentInventoryMatch.fromJson(data) as T;
     }
     if (t == _i11.FilamentUsage) {
       return _i11.FilamentUsage.fromJson(data) as T;
+    if (t == _i11.FilamentUsage) {
+      return _i11.FilamentUsage.fromJson(data) as T;
     }
+    if (t == _i12.ImportResult) {
+      return _i12.ImportResult.fromJson(data) as T;
     if (t == _i12.ImportResult) {
       return _i12.ImportResult.fromJson(data) as T;
     }
     if (t == _i13.PaymentStatus) {
       return _i13.PaymentStatus.fromJson(data) as T;
+    if (t == _i13.PaymentStatus) {
+      return _i13.PaymentStatus.fromJson(data) as T;
     }
+    if (t == _i14.Printer) {
+      return _i14.Printer.fromJson(data) as T;
     if (t == _i14.Printer) {
       return _i14.Printer.fromJson(data) as T;
     }
     if (t == _i15.Quote) {
       return _i15.Quote.fromJson(data) as T;
+    if (t == _i15.Quote) {
+      return _i15.Quote.fromJson(data) as T;
     }
+    if (t == _i16.QuoteCategory) {
+      return _i16.QuoteCategory.fromJson(data) as T;
     if (t == _i16.QuoteCategory) {
       return _i16.QuoteCategory.fromJson(data) as T;
     }
     if (t == _i17.QuoteDetails) {
       return _i17.QuoteDetails.fromJson(data) as T;
+    if (t == _i17.QuoteDetails) {
+      return _i17.QuoteDetails.fromJson(data) as T;
     }
+    if (t == _i18.QuoteExtraSupply) {
+      return _i18.QuoteExtraSupply.fromJson(data) as T;
     if (t == _i18.QuoteExtraSupply) {
       return _i18.QuoteExtraSupply.fromJson(data) as T;
     }
@@ -1558,22 +1765,42 @@ class Protocol extends _i1.SerializationManagerServer {
     }
     if (t == _i21.QuoteInput) {
       return _i21.QuoteInput.fromJson(data) as T;
+    if (t == _i19.QuoteFilament) {
+      return _i19.QuoteFilament.fromJson(data) as T;
     }
+    if (t == _i20.QuoteFilamentDetail) {
+      return _i20.QuoteFilamentDetail.fromJson(data) as T;
+    }
+    if (t == _i21.QuoteInput) {
+      return _i21.QuoteInput.fromJson(data) as T;
+    }
+    if (t == _i22.QuoteStatus) {
+      return _i22.QuoteStatus.fromJson(data) as T;
     if (t == _i22.QuoteStatus) {
       return _i22.QuoteStatus.fromJson(data) as T;
     }
     if (t == _i23.QuoteSupplyDetail) {
       return _i23.QuoteSupplyDetail.fromJson(data) as T;
+    if (t == _i23.QuoteSupplyDetail) {
+      return _i23.QuoteSupplyDetail.fromJson(data) as T;
     }
+    if (t == _i24.QuoteVersion) {
+      return _i24.QuoteVersion.fromJson(data) as T;
     if (t == _i24.QuoteVersion) {
       return _i24.QuoteVersion.fromJson(data) as T;
     }
     if (t == _i25.QuoteVersionFilament) {
       return _i25.QuoteVersionFilament.fromJson(data) as T;
+    if (t == _i25.QuoteVersionFilament) {
+      return _i25.QuoteVersionFilament.fromJson(data) as T;
     }
     if (t == _i26.QuoteVersionSupply) {
       return _i26.QuoteVersionSupply.fromJson(data) as T;
+    if (t == _i26.QuoteVersionSupply) {
+      return _i26.QuoteVersionSupply.fromJson(data) as T;
     }
+    if (t == _i27.Sale) {
+      return _i27.Sale.fromJson(data) as T;
     if (t == _i27.Sale) {
       return _i27.Sale.fromJson(data) as T;
     }
@@ -1582,16 +1809,29 @@ class Protocol extends _i1.SerializationManagerServer {
     }
     if (t == _i29.SaleStatus) {
       return _i29.SaleStatus.fromJson(data) as T;
+    if (t == _i28.SaleFilamentConsumption) {
+      return _i28.SaleFilamentConsumption.fromJson(data) as T;
     }
+    if (t == _i29.SaleStatus) {
+      return _i29.SaleStatus.fromJson(data) as T;
+    }
+    if (t == _i30.Shipping) {
+      return _i30.Shipping.fromJson(data) as T;
     if (t == _i30.Shipping) {
       return _i30.Shipping.fromJson(data) as T;
     }
     if (t == _i31.SupplyUsage) {
       return _i31.SupplyUsage.fromJson(data) as T;
+    if (t == _i31.SupplyUsage) {
+      return _i31.SupplyUsage.fromJson(data) as T;
     }
     if (t == _i32.User) {
       return _i32.User.fromJson(data) as T;
+    if (t == _i32.User) {
+      return _i32.User.fromJson(data) as T;
     }
+    if (t == _i33.UserRole) {
+      return _i33.UserRole.fromJson(data) as T;
     if (t == _i33.UserRole) {
       return _i33.UserRole.fromJson(data) as T;
     }
@@ -1623,55 +1863,97 @@ class Protocol extends _i1.SerializationManagerServer {
     }
     if (t == _i1.getType<_i11.FilamentUsage?>()) {
       return (data != null ? _i11.FilamentUsage.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i9.FilamentCatalogItem?>()) {
+      return (data != null ? _i9.FilamentCatalogItem.fromJson(data) : null)
+          as T;
     }
+    if (t == _i1.getType<_i10.FilamentInventoryMatch?>()) {
+      return (data != null ? _i10.FilamentInventoryMatch.fromJson(data) : null)
+          as T;
+    }
+    if (t == _i1.getType<_i11.FilamentUsage?>()) {
+      return (data != null ? _i11.FilamentUsage.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i12.ImportResult?>()) {
+      return (data != null ? _i12.ImportResult.fromJson(data) : null) as T;
     if (t == _i1.getType<_i12.ImportResult?>()) {
       return (data != null ? _i12.ImportResult.fromJson(data) : null) as T;
     }
     if (t == _i1.getType<_i13.PaymentStatus?>()) {
       return (data != null ? _i13.PaymentStatus.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i13.PaymentStatus?>()) {
+      return (data != null ? _i13.PaymentStatus.fromJson(data) : null) as T;
     }
+    if (t == _i1.getType<_i14.Printer?>()) {
+      return (data != null ? _i14.Printer.fromJson(data) : null) as T;
     if (t == _i1.getType<_i14.Printer?>()) {
       return (data != null ? _i14.Printer.fromJson(data) : null) as T;
     }
     if (t == _i1.getType<_i15.Quote?>()) {
       return (data != null ? _i15.Quote.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i15.Quote?>()) {
+      return (data != null ? _i15.Quote.fromJson(data) : null) as T;
     }
+    if (t == _i1.getType<_i16.QuoteCategory?>()) {
+      return (data != null ? _i16.QuoteCategory.fromJson(data) : null) as T;
     if (t == _i1.getType<_i16.QuoteCategory?>()) {
       return (data != null ? _i16.QuoteCategory.fromJson(data) : null) as T;
     }
     if (t == _i1.getType<_i17.QuoteDetails?>()) {
       return (data != null ? _i17.QuoteDetails.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i17.QuoteDetails?>()) {
+      return (data != null ? _i17.QuoteDetails.fromJson(data) : null) as T;
     }
+    if (t == _i1.getType<_i18.QuoteExtraSupply?>()) {
+      return (data != null ? _i18.QuoteExtraSupply.fromJson(data) : null) as T;
     if (t == _i1.getType<_i18.QuoteExtraSupply?>()) {
       return (data != null ? _i18.QuoteExtraSupply.fromJson(data) : null) as T;
     }
     if (t == _i1.getType<_i19.QuoteFilament?>()) {
       return (data != null ? _i19.QuoteFilament.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i19.QuoteFilament?>()) {
+      return (data != null ? _i19.QuoteFilament.fromJson(data) : null) as T;
     }
+    if (t == _i1.getType<_i20.QuoteFilamentDetail?>()) {
+      return (data != null ? _i20.QuoteFilamentDetail.fromJson(data) : null)
     if (t == _i1.getType<_i20.QuoteFilamentDetail?>()) {
       return (data != null ? _i20.QuoteFilamentDetail.fromJson(data) : null)
           as T;
     }
     if (t == _i1.getType<_i21.QuoteInput?>()) {
       return (data != null ? _i21.QuoteInput.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i21.QuoteInput?>()) {
+      return (data != null ? _i21.QuoteInput.fromJson(data) : null) as T;
     }
+    if (t == _i1.getType<_i22.QuoteStatus?>()) {
+      return (data != null ? _i22.QuoteStatus.fromJson(data) : null) as T;
     if (t == _i1.getType<_i22.QuoteStatus?>()) {
       return (data != null ? _i22.QuoteStatus.fromJson(data) : null) as T;
     }
     if (t == _i1.getType<_i23.QuoteSupplyDetail?>()) {
       return (data != null ? _i23.QuoteSupplyDetail.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i23.QuoteSupplyDetail?>()) {
+      return (data != null ? _i23.QuoteSupplyDetail.fromJson(data) : null) as T;
     }
     if (t == _i1.getType<_i24.QuoteVersion?>()) {
       return (data != null ? _i24.QuoteVersion.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i24.QuoteVersion?>()) {
+      return (data != null ? _i24.QuoteVersion.fromJson(data) : null) as T;
     }
+    if (t == _i1.getType<_i25.QuoteVersionFilament?>()) {
+      return (data != null ? _i25.QuoteVersionFilament.fromJson(data) : null)
     if (t == _i1.getType<_i25.QuoteVersionFilament?>()) {
       return (data != null ? _i25.QuoteVersionFilament.fromJson(data) : null)
           as T;
     }
     if (t == _i1.getType<_i26.QuoteVersionSupply?>()) {
       return (data != null ? _i26.QuoteVersionSupply.fromJson(data) : null)
+    if (t == _i1.getType<_i26.QuoteVersionSupply?>()) {
+      return (data != null ? _i26.QuoteVersionSupply.fromJson(data) : null)
           as T;
     }
+    if (t == _i1.getType<_i27.Sale?>()) {
+      return (data != null ? _i27.Sale.fromJson(data) : null) as T;
     if (t == _i1.getType<_i27.Sale?>()) {
       return (data != null ? _i27.Sale.fromJson(data) : null) as T;
     }
@@ -1681,16 +1963,30 @@ class Protocol extends _i1.SerializationManagerServer {
     }
     if (t == _i1.getType<_i29.SaleStatus?>()) {
       return (data != null ? _i29.SaleStatus.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i28.SaleFilamentConsumption?>()) {
+      return (data != null ? _i28.SaleFilamentConsumption.fromJson(data) : null)
+          as T;
     }
+    if (t == _i1.getType<_i29.SaleStatus?>()) {
+      return (data != null ? _i29.SaleStatus.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i30.Shipping?>()) {
+      return (data != null ? _i30.Shipping.fromJson(data) : null) as T;
     if (t == _i1.getType<_i30.Shipping?>()) {
       return (data != null ? _i30.Shipping.fromJson(data) : null) as T;
     }
     if (t == _i1.getType<_i31.SupplyUsage?>()) {
       return (data != null ? _i31.SupplyUsage.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i31.SupplyUsage?>()) {
+      return (data != null ? _i31.SupplyUsage.fromJson(data) : null) as T;
     }
     if (t == _i1.getType<_i32.User?>()) {
       return (data != null ? _i32.User.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i32.User?>()) {
+      return (data != null ? _i32.User.fromJson(data) : null) as T;
     }
+    if (t == _i1.getType<_i33.UserRole?>()) {
+      return (data != null ? _i33.UserRole.fromJson(data) : null) as T;
     if (t == _i1.getType<_i33.UserRole?>()) {
       return (data != null ? _i33.UserRole.fromJson(data) : null) as T;
     }
@@ -1698,28 +1994,36 @@ class Protocol extends _i1.SerializationManagerServer {
       return (data as List).map((e) => deserialize<String>(e)).toList() as T;
     }
     if (t == _i1.getType<List<_i20.QuoteFilamentDetail>?>()) {
+    if (t == _i1.getType<List<_i20.QuoteFilamentDetail>?>()) {
       return (data != null
           ? (data as List)
+              .map((e) => deserialize<_i20.QuoteFilamentDetail>(e))
               .map((e) => deserialize<_i20.QuoteFilamentDetail>(e))
               .toList()
           : null) as T;
     }
     if (t == _i1.getType<List<_i23.QuoteSupplyDetail>?>()) {
+    if (t == _i1.getType<List<_i23.QuoteSupplyDetail>?>()) {
       return (data != null
           ? (data as List)
+              .map((e) => deserialize<_i23.QuoteSupplyDetail>(e))
               .map((e) => deserialize<_i23.QuoteSupplyDetail>(e))
               .toList()
           : null) as T;
     }
     if (t == _i1.getType<List<_i11.FilamentUsage>?>()) {
+    if (t == _i1.getType<List<_i11.FilamentUsage>?>()) {
       return (data != null
           ? (data as List)
+              .map((e) => deserialize<_i11.FilamentUsage>(e))
               .map((e) => deserialize<_i11.FilamentUsage>(e))
               .toList()
           : null) as T;
     }
     if (t == _i1.getType<List<_i31.SupplyUsage>?>()) {
+    if (t == _i1.getType<List<_i31.SupplyUsage>?>()) {
       return (data != null
+          ? (data as List).map((e) => deserialize<_i31.SupplyUsage>(e)).toList()
           ? (data as List).map((e) => deserialize<_i31.SupplyUsage>(e)).toList()
           : null) as T;
     }
@@ -1732,36 +2036,52 @@ class Protocol extends _i1.SerializationManagerServer {
     }
     if (t == List<_i35.Filament>) {
       return (data as List).map((e) => deserialize<_i35.Filament>(e)).toList()
+    if (t == List<_i35.Filament>) {
+      return (data as List).map((e) => deserialize<_i35.Filament>(e)).toList()
           as T;
     }
+    if (t == List<_i36.Printer>) {
+      return (data as List).map((e) => deserialize<_i36.Printer>(e)).toList()
     if (t == List<_i36.Printer>) {
       return (data as List).map((e) => deserialize<_i36.Printer>(e)).toList()
           as T;
     }
     if (t == List<_i37.Shipping>) {
       return (data as List).map((e) => deserialize<_i37.Shipping>(e)).toList()
+    if (t == List<_i37.Shipping>) {
+      return (data as List).map((e) => deserialize<_i37.Shipping>(e)).toList()
           as T;
     }
+    if (t == List<_i38.Customer>) {
+      return (data as List).map((e) => deserialize<_i38.Customer>(e)).toList()
     if (t == List<_i38.Customer>) {
       return (data as List).map((e) => deserialize<_i38.Customer>(e)).toList()
           as T;
     }
     if (t == List<_i39.ElectricityRate>) {
+    if (t == List<_i39.ElectricityRate>) {
       return (data as List)
+          .map((e) => deserialize<_i39.ElectricityRate>(e))
           .map((e) => deserialize<_i39.ElectricityRate>(e))
           .toList() as T;
     }
     if (t == List<_i40.ExtraSupply>) {
+    if (t == List<_i40.ExtraSupply>) {
       return (data as List)
+          .map((e) => deserialize<_i40.ExtraSupply>(e))
           .map((e) => deserialize<_i40.ExtraSupply>(e))
           .toList() as T;
     }
     if (t == List<_i41.Quote>) {
       return (data as List).map((e) => deserialize<_i41.Quote>(e)).toList()
+    if (t == List<_i41.Quote>) {
+      return (data as List).map((e) => deserialize<_i41.Quote>(e)).toList()
           as T;
     }
     if (t == List<_i42.QuoteVersion>) {
+    if (t == List<_i42.QuoteVersion>) {
       return (data as List)
+          .map((e) => deserialize<_i42.QuoteVersion>(e))
           .map((e) => deserialize<_i42.QuoteVersion>(e))
           .toList() as T;
     }
@@ -1808,53 +2128,76 @@ class Protocol extends _i1.SerializationManagerServer {
       return 'FilamentInventoryMatch';
     }
     if (data is _i11.FilamentUsage) {
+    if (data is _i9.FilamentCatalogItem) {
+      return 'FilamentCatalogItem';
+    }
+    if (data is _i10.FilamentInventoryMatch) {
+      return 'FilamentInventoryMatch';
+    }
+    if (data is _i11.FilamentUsage) {
       return 'FilamentUsage';
     }
+    if (data is _i12.ImportResult) {
     if (data is _i12.ImportResult) {
       return 'ImportResult';
     }
     if (data is _i13.PaymentStatus) {
+    if (data is _i13.PaymentStatus) {
       return 'PaymentStatus';
     }
+    if (data is _i14.Printer) {
     if (data is _i14.Printer) {
       return 'Printer';
     }
     if (data is _i15.Quote) {
+    if (data is _i15.Quote) {
       return 'Quote';
     }
+    if (data is _i16.QuoteCategory) {
     if (data is _i16.QuoteCategory) {
       return 'QuoteCategory';
     }
     if (data is _i17.QuoteDetails) {
+    if (data is _i17.QuoteDetails) {
       return 'QuoteDetails';
     }
+    if (data is _i18.QuoteExtraSupply) {
     if (data is _i18.QuoteExtraSupply) {
       return 'QuoteExtraSupply';
     }
     if (data is _i19.QuoteFilament) {
+    if (data is _i19.QuoteFilament) {
       return 'QuoteFilament';
     }
+    if (data is _i20.QuoteFilamentDetail) {
     if (data is _i20.QuoteFilamentDetail) {
       return 'QuoteFilamentDetail';
     }
     if (data is _i21.QuoteInput) {
+    if (data is _i21.QuoteInput) {
       return 'QuoteInput';
     }
+    if (data is _i22.QuoteStatus) {
     if (data is _i22.QuoteStatus) {
       return 'QuoteStatus';
     }
     if (data is _i23.QuoteSupplyDetail) {
+    if (data is _i23.QuoteSupplyDetail) {
       return 'QuoteSupplyDetail';
     }
+    if (data is _i24.QuoteVersion) {
     if (data is _i24.QuoteVersion) {
       return 'QuoteVersion';
     }
     if (data is _i25.QuoteVersionFilament) {
+    if (data is _i25.QuoteVersionFilament) {
       return 'QuoteVersionFilament';
     }
     if (data is _i26.QuoteVersionSupply) {
+    if (data is _i26.QuoteVersionSupply) {
       return 'QuoteVersionSupply';
     }
+    if (data is _i27.Sale) {
     if (data is _i27.Sale) {
       return 'Sale';
     }
@@ -1862,17 +2205,25 @@ class Protocol extends _i1.SerializationManagerServer {
       return 'SaleFilamentConsumption';
     }
     if (data is _i29.SaleStatus) {
+    if (data is _i28.SaleFilamentConsumption) {
+      return 'SaleFilamentConsumption';
+    }
+    if (data is _i29.SaleStatus) {
       return 'SaleStatus';
     }
+    if (data is _i30.Shipping) {
     if (data is _i30.Shipping) {
       return 'Shipping';
     }
     if (data is _i31.SupplyUsage) {
+    if (data is _i31.SupplyUsage) {
       return 'SupplyUsage';
     }
     if (data is _i32.User) {
+    if (data is _i32.User) {
       return 'User';
     }
+    if (data is _i33.UserRole) {
     if (data is _i33.UserRole) {
       return 'UserRole';
     }
@@ -1913,52 +2264,74 @@ class Protocol extends _i1.SerializationManagerServer {
     if (dataClassName == 'FilamentInventoryMatch') {
       return deserialize<_i10.FilamentInventoryMatch>(data['data']);
     }
+    if (dataClassName == 'FilamentCatalogItem') {
+      return deserialize<_i9.FilamentCatalogItem>(data['data']);
+    }
+    if (dataClassName == 'FilamentInventoryMatch') {
+      return deserialize<_i10.FilamentInventoryMatch>(data['data']);
+    }
     if (dataClassName == 'FilamentUsage') {
+      return deserialize<_i11.FilamentUsage>(data['data']);
       return deserialize<_i11.FilamentUsage>(data['data']);
     }
     if (dataClassName == 'ImportResult') {
       return deserialize<_i12.ImportResult>(data['data']);
+      return deserialize<_i12.ImportResult>(data['data']);
     }
     if (dataClassName == 'PaymentStatus') {
+      return deserialize<_i13.PaymentStatus>(data['data']);
       return deserialize<_i13.PaymentStatus>(data['data']);
     }
     if (dataClassName == 'Printer') {
       return deserialize<_i14.Printer>(data['data']);
+      return deserialize<_i14.Printer>(data['data']);
     }
     if (dataClassName == 'Quote') {
+      return deserialize<_i15.Quote>(data['data']);
       return deserialize<_i15.Quote>(data['data']);
     }
     if (dataClassName == 'QuoteCategory') {
       return deserialize<_i16.QuoteCategory>(data['data']);
+      return deserialize<_i16.QuoteCategory>(data['data']);
     }
     if (dataClassName == 'QuoteDetails') {
+      return deserialize<_i17.QuoteDetails>(data['data']);
       return deserialize<_i17.QuoteDetails>(data['data']);
     }
     if (dataClassName == 'QuoteExtraSupply') {
       return deserialize<_i18.QuoteExtraSupply>(data['data']);
+      return deserialize<_i18.QuoteExtraSupply>(data['data']);
     }
     if (dataClassName == 'QuoteFilament') {
+      return deserialize<_i19.QuoteFilament>(data['data']);
       return deserialize<_i19.QuoteFilament>(data['data']);
     }
     if (dataClassName == 'QuoteFilamentDetail') {
       return deserialize<_i20.QuoteFilamentDetail>(data['data']);
+      return deserialize<_i20.QuoteFilamentDetail>(data['data']);
     }
     if (dataClassName == 'QuoteInput') {
+      return deserialize<_i21.QuoteInput>(data['data']);
       return deserialize<_i21.QuoteInput>(data['data']);
     }
     if (dataClassName == 'QuoteStatus') {
       return deserialize<_i22.QuoteStatus>(data['data']);
+      return deserialize<_i22.QuoteStatus>(data['data']);
     }
     if (dataClassName == 'QuoteSupplyDetail') {
+      return deserialize<_i23.QuoteSupplyDetail>(data['data']);
       return deserialize<_i23.QuoteSupplyDetail>(data['data']);
     }
     if (dataClassName == 'QuoteVersion') {
       return deserialize<_i24.QuoteVersion>(data['data']);
+      return deserialize<_i24.QuoteVersion>(data['data']);
     }
     if (dataClassName == 'QuoteVersionFilament') {
       return deserialize<_i25.QuoteVersionFilament>(data['data']);
+      return deserialize<_i25.QuoteVersionFilament>(data['data']);
     }
     if (dataClassName == 'QuoteVersionSupply') {
+      return deserialize<_i26.QuoteVersionSupply>(data['data']);
       return deserialize<_i26.QuoteVersionSupply>(data['data']);
     }
     if (dataClassName == 'Sale') {
@@ -1966,20 +2339,29 @@ class Protocol extends _i1.SerializationManagerServer {
     }
     if (dataClassName == 'SaleFilamentConsumption') {
       return deserialize<_i28.SaleFilamentConsumption>(data['data']);
+      return deserialize<_i27.Sale>(data['data']);
+    }
+    if (dataClassName == 'SaleFilamentConsumption') {
+      return deserialize<_i28.SaleFilamentConsumption>(data['data']);
     }
     if (dataClassName == 'SaleStatus') {
+      return deserialize<_i29.SaleStatus>(data['data']);
       return deserialize<_i29.SaleStatus>(data['data']);
     }
     if (dataClassName == 'Shipping') {
       return deserialize<_i30.Shipping>(data['data']);
+      return deserialize<_i30.Shipping>(data['data']);
     }
     if (dataClassName == 'SupplyUsage') {
+      return deserialize<_i31.SupplyUsage>(data['data']);
       return deserialize<_i31.SupplyUsage>(data['data']);
     }
     if (dataClassName == 'User') {
       return deserialize<_i32.User>(data['data']);
+      return deserialize<_i32.User>(data['data']);
     }
     if (dataClassName == 'UserRole') {
+      return deserialize<_i33.UserRole>(data['data']);
       return deserialize<_i33.UserRole>(data['data']);
     }
     if (dataClassName.startsWith('serverpod.')) {
@@ -2006,6 +2388,32 @@ class Protocol extends _i1.SerializationManagerServer {
         return _i7.ExtraSupply.t;
       case _i8.Filament:
         return _i8.Filament.t;
+      case _i9.FilamentCatalogItem:
+        return _i9.FilamentCatalogItem.t;
+      case _i14.Printer:
+        return _i14.Printer.t;
+      case _i15.Quote:
+        return _i15.Quote.t;
+      case _i16.QuoteCategory:
+        return _i16.QuoteCategory.t;
+      case _i18.QuoteExtraSupply:
+        return _i18.QuoteExtraSupply.t;
+      case _i19.QuoteFilament:
+        return _i19.QuoteFilament.t;
+      case _i24.QuoteVersion:
+        return _i24.QuoteVersion.t;
+      case _i25.QuoteVersionFilament:
+        return _i25.QuoteVersionFilament.t;
+      case _i26.QuoteVersionSupply:
+        return _i26.QuoteVersionSupply.t;
+      case _i27.Sale:
+        return _i27.Sale.t;
+      case _i28.SaleFilamentConsumption:
+        return _i28.SaleFilamentConsumption.t;
+      case _i30.Shipping:
+        return _i30.Shipping.t;
+      case _i32.User:
+        return _i32.User.t;
       case _i9.FilamentCatalogItem:
         return _i9.FilamentCatalogItem.t;
       case _i14.Printer:

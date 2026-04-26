@@ -4,6 +4,27 @@ import '../generated/protocol.dart';
 /// Endpoint for managing sales operations.
 /// Handles conversion from quotes to sales, status tracking, and payment management.
 class SalesEndpoint extends Endpoint {
+  Future<void> _applyInventoryForSale(Session session, Sale sale) async {
+    final quoteFilaments = await QuoteFilament.db.find(
+      session,
+      where: (t) => t.quoteId.equals(sale.quoteId),
+    );
+
+    for (final qf in quoteFilaments) {
+      final filament = await Filament.db.findById(session, qf.filamentId);
+      if (filament == null) continue;
+
+      if (filament.remainingGrams < qf.gramsUsed) {
+        final missing = qf.gramsUsed - filament.remainingGrams;
+        filament.remainingGrams += missing;
+      }
+
+      filament.remainingGrams =
+          (filament.remainingGrams - qf.gramsUsed).clamp(0.0, double.infinity);
+      await Filament.db.updateRow(session, filament);
+    }
+  }
+
   /// Get all sales with optional filtering by status
   Future<List<Sale>> getAllSales(
     Session session, {
@@ -135,6 +156,10 @@ class SalesEndpoint extends Endpoint {
     );
 
     final insertedSale = await Sale.db.insertRow(session, sale);
+
+    // Apply filament inventory impact automatically on sale creation.
+    await _applyInventoryForSale(session, insertedSale);
+
     return insertedSale;
   }
 
