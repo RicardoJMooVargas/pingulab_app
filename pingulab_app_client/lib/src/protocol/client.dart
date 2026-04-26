@@ -49,12 +49,12 @@ class EndpointAnalytics extends _i1.EndpointRef {
   /// - Gasto de filamento recuperado
   /// - Ganancia general
   /// - Ganancia por impresora
-  _i2.Future<Map<String, dynamic>> getFinancialSummaryByMonthRange({
+  _i2.Future<String> getFinancialSummaryByMonthRange({
     required int year,
     required int startMonth,
     required int endMonth,
   }) =>
-      caller.callServerEndpoint<Map<String, dynamic>>(
+      caller.callServerEndpoint<String>(
         'analytics',
         'getFinancialSummaryByMonthRange',
         {

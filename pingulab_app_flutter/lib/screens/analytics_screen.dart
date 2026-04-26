@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:intl/intl.dart';
 import 'dart:convert';
 import '../main.dart';
 
@@ -44,16 +45,25 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     });
 
     try {
-      final financialSummary = await client.analytics.getFinancialSummaryByMonthRange(
+      final financialSummaryJson = await client.analytics.getFinancialSummaryByMonthRange(
         year: _selectedYear,
         startMonth: _startMonth,
         endMonth: _endMonth,
       );
-      final sales = await client.analytics.getMonthlySalesData(monthsBack: 12);
-      final profit = await client.analytics.getNetProfitData(monthsBack: 12);
-      final depreciation = await client.analytics.getPrinterDepreciationData();
-      final analysis = await client.analytics.getSalesVsCostsAnalysis(monthsBack: 12);
-      final metrics = await client.analytics.getOverallMetrics();
+      final salesJson = await client.analytics.getMonthlySalesData(monthsBack: 12);
+      final profitJson = await client.analytics.getNetProfitData(monthsBack: 12);
+      final depreciationJson =
+          await client.analytics.getPrinterDepreciationData(depreciationYears: 5);
+      final analysisJson = await client.analytics.getSalesVsCostsAnalysis(monthsBack: 12);
+      final metricsJson = await client.analytics.getOverallMetrics();
+
+        final financialSummary =
+          jsonDecode(financialSummaryJson) as Map<String, dynamic>;
+      final sales = jsonDecode(salesJson) as Map<String, dynamic>;
+      final profit = jsonDecode(profitJson) as Map<String, dynamic>;
+      final depreciation = jsonDecode(depreciationJson) as Map<String, dynamic>;
+      final analysis = jsonDecode(analysisJson) as Map<String, dynamic>;
+      final metrics = jsonDecode(metricsJson) as Map<String, dynamic>;
 
       setState(() {
         _financialSummary = financialSummary;

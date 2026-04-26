@@ -208,7 +208,7 @@ class _AnalyticsEndpoint {
 
   final _i2.SerializationManager _serializationManager;
 
-  _i3.Future<Map<String, dynamic>> getFinancialSummaryByMonthRange(
+  _i3.Future<String> getFinancialSummaryByMonthRange(
     _i1.TestSessionBuilder sessionBuilder, {
     required int year,
     required int startMonth,
@@ -235,7 +235,7 @@ class _AnalyticsEndpoint {
         var _localReturnValue = await (_localCallContext.method.call(
           _localUniqueSession,
           _localCallContext.arguments,
-        ) as _i3.Future<Map<String, dynamic>>);
+        ) as _i3.Future<String>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();

@@ -321,10 +321,6 @@ class Protocol extends _i1.SerializationManager {
           ? (data as List).map((e) => deserialize<_i30.SupplyUsage>(e)).toList()
           : null) as T;
     }
-    if (t == Map<String, dynamic>) {
-      return (data as Map).map((k, v) =>
-          MapEntry(deserialize<String>(k), deserialize<dynamic>(v))) as T;
-    }
     if (t == List<_i33.User>) {
       return (data as List).map((e) => deserialize<_i33.User>(e)).toList() as T;
     }
@@ -375,6 +371,10 @@ class Protocol extends _i1.SerializationManager {
     }
     if (t == List<_i44.Sale>) {
       return (data as List).map((e) => deserialize<_i44.Sale>(e)).toList() as T;
+    }
+    if (t == Map<String, dynamic>) {
+      return (data as Map).map((k, v) =>
+          MapEntry(deserialize<String>(k), deserialize<dynamic>(v))) as T;
     }
     return super.deserialize<T>(data, t);
   }

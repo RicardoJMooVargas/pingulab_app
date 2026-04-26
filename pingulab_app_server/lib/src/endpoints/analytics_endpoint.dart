@@ -12,7 +12,7 @@ class AnalyticsEndpoint extends Endpoint {
   /// - Gasto de filamento recuperado
   /// - Ganancia general
   /// - Ganancia por impresora
-  Future<Map<String, dynamic>> getFinancialSummaryByMonthRange(
+  Future<String> getFinancialSummaryByMonthRange(
     Session session, {
     required int year,
     required int startMonth,
@@ -115,7 +115,7 @@ class AnalyticsEndpoint extends Endpoint {
       (a, b) => (b['totalProfit'] as num).compareTo(a['totalProfit'] as num),
     );
 
-    return {
+    return jsonEncode({
       'filters': {
         'year': year,
         'startMonth': fromMonth,
@@ -137,7 +137,7 @@ class AnalyticsEndpoint extends Endpoint {
         'postProcessing': totalPostProcessingCost,
         'shipping': totalShippingCost,
       },
-    };
+    });
   }
 
   /// Obtiene datos de ventas mensuales para la gráfica
