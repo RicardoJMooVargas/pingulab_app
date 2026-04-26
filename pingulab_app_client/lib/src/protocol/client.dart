@@ -41,6 +41,29 @@ class EndpointAnalytics extends _i1.EndpointRef {
   @override
   String get name => 'analytics';
 
+  /// Resumen financiero por rango de meses de un año.
+  ///
+  /// Incluye:
+  /// - Gastos totales
+  /// - Total ganado (ingresos)
+  /// - Gasto de filamento recuperado
+  /// - Ganancia general
+  /// - Ganancia por impresora
+  _i2.Future<Map<String, dynamic>> getFinancialSummaryByMonthRange({
+    required int year,
+    required int startMonth,
+    required int endMonth,
+  }) =>
+      caller.callServerEndpoint<Map<String, dynamic>>(
+        'analytics',
+        'getFinancialSummaryByMonthRange',
+        {
+          'year': year,
+          'startMonth': startMonth,
+          'endMonth': endMonth,
+        },
+      );
+
   /// Obtiene datos de ventas mensuales para la gráfica
   _i2.Future<String> getMonthlySalesData({required int monthsBack}) =>
       caller.callServerEndpoint<String>(
@@ -84,90 +107,6 @@ class EndpointAnalytics extends _i1.EndpointRef {
 
   /// Obtiene un resumen general de métricas clave
   _i2.Future<String> getOverallMetrics() => caller.callServerEndpoint<String>(
-        'analytics',
-        'getOverallMetrics',
-        {},
-      );
-}
-
-/// Endpoint para análisis de gráficas, ventas netas, amortización y ganancias
-/// {@category Endpoint}
-class EndpointAnalytics extends _i1.EndpointRef {
-  EndpointAnalytics(_i1.EndpointCaller caller) : super(caller);
-
-  @override
-  String get name => 'analytics';
-
-  /// Resumen financiero por rango de meses de un año.
-  ///
-  /// Incluye:
-  /// - Gastos totales
-  /// - Total ganado (ingresos)
-  /// - Gasto de filamento recuperado
-  /// - Ganancia general
-  /// - Ganancia por impresora
-  _i2.Future<Map<String, dynamic>> getFinancialSummaryByMonthRange({
-    required int year,
-    required int startMonth,
-    required int endMonth,
-  }) =>
-      caller.callServerEndpoint<Map<String, dynamic>>(
-        'analytics',
-        'getFinancialSummaryByMonthRange',
-        {
-          'year': year,
-          'startMonth': startMonth,
-          'endMonth': endMonth,
-        },
-      );
-
-  /// Obtiene datos de ventas mensuales para la gráfica
-  _i2.Future<Map<String, dynamic>> getMonthlySalesData(
-          {required int monthsBack}) =>
-      caller.callServerEndpoint<Map<String, dynamic>>(
-        'analytics',
-        'getMonthlySalesData',
-        {'monthsBack': monthsBack},
-      );
-
-  /// Obtiene datos de ganancias netas (ingresos - costos)
-  _i2.Future<Map<String, dynamic>> getNetProfitData(
-          {required int monthsBack}) =>
-      caller.callServerEndpoint<Map<String, dynamic>>(
-        'analytics',
-        'getNetProfitData',
-        {'monthsBack': monthsBack},
-      );
-
-  /// Obtiene datos de amortización de impresoras
-  _i2.Future<Map<String, dynamic>> getPrinterDepreciationData(
-          {required int depreciationYears}) =>
-      caller.callServerEndpoint<Map<String, dynamic>>(
-        'analytics',
-        'getPrinterDepreciationData',
-        {'depreciationYears': depreciationYears},
-      );
-
-  /// Obtiene datos de análisis comparativo: ventas vs costos
-  _i2.Future<Map<String, dynamic>> getSalesVsCostsAnalysis(
-          {required int monthsBack}) =>
-      caller.callServerEndpoint<Map<String, dynamic>>(
-        'analytics',
-        'getSalesVsCostsAnalysis',
-        {'monthsBack': monthsBack},
-      );
-
-  /// Obtiene datos de rentabilidad de categorías de cotización
-  _i2.Future<Map<String, dynamic>> getCategoryProfitabilityData() =>
-      caller.callServerEndpoint<Map<String, dynamic>>(
-        'analytics',
-        'getCategoryProfitabilityData',
-        {},
-      );
-
-  /// Obtiene un resumen general de métricas clave
-  _i2.Future<Map<String, dynamic>> getOverallMetrics() =>
-      caller.callServerEndpoint<Map<String, dynamic>>(
         'analytics',
         'getOverallMetrics',
         {},

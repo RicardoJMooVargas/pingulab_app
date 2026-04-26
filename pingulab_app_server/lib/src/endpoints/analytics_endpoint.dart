@@ -231,7 +231,8 @@ class AnalyticsEndpoint extends Endpoint {
     final sales = await Sale.db.find(session);
 
     final depreciationData = <Map<String, dynamic>>[];
-    double totalDepreciation = 0.0;
+    double totalPrinterInvestment = 0.0;
+    double totalAmortized = 0.0;
 
     for (var printer in printers) {
       // Calcular depreciación: costo / años de vida útil
@@ -380,7 +381,6 @@ class AnalyticsEndpoint extends Endpoint {
   Future<String> getCategoryProfitabilityData(Session session) async {
     final categories = await QuoteCategory.db.find(session);
     final categoryData = <Map<String, dynamic>>[];
-    final categoryData = <Map<String, dynamic>>[];
 
     for (var category in categories) {
       // Obtener quotes de esta categoría
@@ -511,7 +511,13 @@ class AnalyticsEndpoint extends Endpoint {
         'customers': totalCustomers.length,
         'quotes': totalQuotes.length,
       },
-    };
+    });
+  }
+
+  Future<int> _resolveMonthsBack(Session session, int monthsBack) async {
+    if (monthsBack <= 0) return 12;
+    if (monthsBack > 60) return 60;
+    return monthsBack;
   }
 
   bool _isDateInRange(DateTime date, DateTime startInclusive, DateTime endExclusive) {
