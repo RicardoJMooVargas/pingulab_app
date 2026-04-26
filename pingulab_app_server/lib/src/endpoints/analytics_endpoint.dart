@@ -3,6 +3,142 @@ import '../generated/protocol.dart';
 
 /// Endpoint para análisis de gráficas, ventas netas, amortización y ganancias
 class AnalyticsEndpoint extends Endpoint {
+  /// Resumen financiero por rango de meses de un año.
+  ///
+  /// Incluye:
+  /// - Gastos totales
+  /// - Total ganado (ingresos)
+  /// - Gasto de filamento recuperado
+  /// - Ganancia general
+  /// - Ganancia por impresora
+  Future<Map<String, dynamic>> getFinancialSummaryByMonthRange(
+    Session session, {
+    required int year,
+    required int startMonth,
+    required int endMonth,
+  }) async {
+    if (startMonth < 1 || startMonth > 12 || endMonth < 1 || endMonth > 12) {
+      throw Exception('Mes inválido. Debe estar entre 1 y 12.');
+    }
+
+    var fromMonth = startMonth;
+    var toMonth = endMonth;
+    if (fromMonth > toMonth) {
+      final temp = fromMonth;
+      fromMonth = toMonth;
+      toMonth = temp;
+    }
+
+    final startDate = DateTime(year, fromMonth, 1);
+    final endDateExclusive =
+        toMonth == 12 ? DateTime(year + 1, 1, 1) : DateTime(year, toMonth + 1, 1);
+
+    final sales = await Sale.db.find(
+      session,
+      orderBy: (t) => t.created,
+    );
+
+    double totalRevenue = 0.0;
+    double totalFilamentCost = 0.0;
+    double totalElectricityCost = 0.0;
+    double totalSuppliesCost = 0.0;
+    double totalDepreciationCost = 0.0;
+    double totalPostProcessingCost = 0.0;
+    double totalShippingCost = 0.0;
+
+    final printerRevenue = <int, double>{};
+    final printerCosts = <int, double>{};
+    final printerNames = <int, String>{};
+
+    for (final sale in sales) {
+      if (!_isDateInRange(sale.created, startDate, endDateExclusive)) continue;
+      totalRevenue += sale.totalAmount;
+
+      final quote = await Quote.db.findById(session, sale.quoteId);
+      if (quote == null) continue;
+
+      final filament = quote.filamentCost;
+      final electricity = quote.electricityCost;
+      final supplies = quote.suppliesCost;
+      final depreciation = quote.depreciationCost;
+      final postProcessing = quote.postProcessingCost ?? 0.0;
+      final shipping = quote.shippingCost ?? 0.0;
+
+      totalFilamentCost += filament;
+      totalElectricityCost += electricity;
+      totalSuppliesCost += supplies;
+      totalDepreciationCost += depreciation;
+      totalPostProcessingCost += postProcessing;
+      totalShippingCost += shipping;
+
+      if (quote.printerId != null) {
+        final printerId = quote.printerId!;
+
+        final printer = await Printer.db.findById(session, printerId);
+        printerNames[printerId] = printer?.name ?? 'Impresora #$printerId';
+
+        final quoteCost =
+            filament + electricity + supplies + depreciation + postProcessing + shipping;
+
+        printerRevenue[printerId] = (printerRevenue[printerId] ?? 0.0) + sale.totalAmount;
+        printerCosts[printerId] = (printerCosts[printerId] ?? 0.0) + quoteCost;
+      }
+    }
+
+    final totalExpenses = totalFilamentCost +
+        totalElectricityCost +
+        totalSuppliesCost +
+        totalDepreciationCost +
+        totalPostProcessingCost +
+        totalShippingCost;
+
+    final generalProfit = totalRevenue - totalExpenses;
+
+    final profitByPrinter = <Map<String, dynamic>>[];
+    for (final entry in printerRevenue.entries) {
+      final printerId = entry.key;
+      final revenue = entry.value;
+      final costs = printerCosts[printerId] ?? 0.0;
+      final profit = revenue - costs;
+
+      profitByPrinter.add({
+        'printerId': printerId,
+        'printerName': printerNames[printerId] ?? 'Impresora #$printerId',
+        'totalRevenue': revenue,
+        'totalExpenses': costs,
+        'totalProfit': profit,
+      });
+    }
+
+    profitByPrinter.sort(
+      (a, b) => (b['totalProfit'] as num).compareTo(a['totalProfit'] as num),
+    );
+
+    return {
+      'filters': {
+        'year': year,
+        'startMonth': fromMonth,
+        'endMonth': toMonth,
+      },
+      'totals': {
+        'salesCount': sales.length,
+        'totalGastos': totalExpenses,
+        'totalGanado': totalRevenue,
+        'totalGastoMaterialRecuperado': totalFilamentCost,
+        'totalGananciasGenerales': generalProfit,
+        'totalGananciasPorImpresora': profitByPrinter,
+      },
+      'expenseBreakdown': {
+        'filament': totalFilamentCost,
+        'electricity': totalElectricityCost,
+        'supplies': totalSuppliesCost,
+        'depreciation': totalDepreciationCost,
+        'postProcessing': totalPostProcessingCost,
+        'shipping': totalShippingCost,
+      },
+    };
+  }
+
   /// Obtiene datos de ventas mensuales para la gráfica
   Future<Map<String, dynamic>> getMonthlySalesData(
     Session session, {
@@ -12,10 +148,7 @@ class AnalyticsEndpoint extends Endpoint {
     final startDate = DateTime(now.year, now.month - monthsBack, now.day);
 
     // Obtener todas las ventas completadas en el rango
-    final sales = await Sale.db.find(
-      session,
-      where: (t) => t.created.afterOrEquals(startDate),
-    );
+    final sales = await Sale.db.find(session);
 
     // Agrupar por mes-año
     final monthlyData = <String, double>{};
@@ -27,6 +160,7 @@ class AnalyticsEndpoint extends Endpoint {
 
     // Sumar ventas por mes
     for (var sale in sales) {
+      if (sale.created.isBefore(startDate)) continue;
       final monthKey = '${sale.created.year}-${sale.created.month.toString().padLeft(2, '0')}';
       if (monthlyData.containsKey(monthKey)) {
         monthlyData[monthKey] = monthlyData[monthKey]! + sale.totalAmount;
@@ -49,10 +183,7 @@ class AnalyticsEndpoint extends Endpoint {
     final startDate = DateTime(now.year, now.month - monthsBack, now.day);
 
     // Obtener todas las ventas en el rango
-    final sales = await Sale.db.find(
-      session,
-      where: (t) => t.created.afterOrEquals(startDate),
-    );
+    final sales = await Sale.db.find(session);
 
     // Agrupar por mes-año y calcular ganancias
     final monthlyData = <String, double>{};
@@ -64,6 +195,7 @@ class AnalyticsEndpoint extends Endpoint {
 
     // Calcular ganancias por venta
     for (var sale in sales) {
+      if (sale.created.isBefore(startDate)) continue;
       final quote = await Quote.db.findById(session, sale.quoteId);
       if (quote != null) {
         final monthKey = '${sale.created.year}-${sale.created.month.toString().padLeft(2, '0')}';
@@ -94,7 +226,7 @@ class AnalyticsEndpoint extends Endpoint {
   }) async {
     final printers = await Printer.db.find(session);
 
-    final depreciationData = <String, dynamic>[];
+    final depreciationData = <Map<String, dynamic>>[];
     double totalDepreciation = 0.0;
 
     for (var printer in printers) {
@@ -144,10 +276,7 @@ class AnalyticsEndpoint extends Endpoint {
     final startDate = DateTime(now.year, now.month - monthsBack, now.day);
 
     // Obtener todas las ventas en el rango
-    final sales = await Sale.db.find(
-      session,
-      where: (t) => t.created.afterOrEquals(startDate),
-    );
+    final sales = await Sale.db.find(session);
 
     // Agrupar datos por mes
     final monthlyData = <String, Map<String, double>>{};
@@ -166,6 +295,7 @@ class AnalyticsEndpoint extends Endpoint {
 
     // Procesar cada venta
     for (var sale in sales) {
+      if (sale.created.isBefore(startDate)) continue;
       final quote = await Quote.db.findById(session, sale.quoteId);
       if (quote != null) {
         final monthKey = '${sale.created.year}-${sale.created.month.toString().padLeft(2, '0')}';
@@ -231,7 +361,7 @@ class AnalyticsEndpoint extends Endpoint {
   /// Obtiene datos de rentabilidad de categorías de cotización
   Future<Map<String, dynamic>> getCategoryProfitabilityData(Session session) async {
     final categories = await QuoteCategory.db.find(session);
-    final categoryData = <String, dynamic>[];
+    final categoryData = <Map<String, dynamic>>[];
 
     for (var category in categories) {
       // Obtener quotes de esta categoría
@@ -282,21 +412,21 @@ class AnalyticsEndpoint extends Endpoint {
     final now = DateTime.now();
     final thisMonthStart = DateTime(now.year, now.month, 1);
     final lastMonthStart = DateTime(now.year, now.month - 1, 1);
-    final lastMonthEnd = DateTime(now.year, now.month, 0);
-
     // Ventas este mes
-    final thisMonthSales = await Sale.db.find(
-      session,
-      where: (t) => t.created.afterOrEquals(thisMonthStart),
-    );
+    final allSales = await Sale.db.find(session);
+    final thisMonthSales = allSales
+        .where((s) => !s.created.isBefore(thisMonthStart))
+        .toList();
 
     // Ventas mes pasado
-    final lastMonthSales = await Sale.db.find(
-      session,
-      where: (t) =>
-          t.created.afterOrEquals(lastMonthStart) &
-          t.created.before(DateTime(now.year, now.month + 1, 1)),
-    );
+    final lastMonthEndExclusive = DateTime(now.year, now.month, 1);
+    final lastMonthSales = allSales
+      .where(
+        (s) =>
+          !s.created.isBefore(lastMonthStart) &&
+          s.created.isBefore(lastMonthEndExclusive),
+      )
+      .toList();
 
     // Calcular ingresos
     double thisMonthRevenue = 0;
@@ -363,5 +493,9 @@ class AnalyticsEndpoint extends Endpoint {
         'quotes': totalQuotes.length,
       },
     };
+  }
+
+  bool _isDateInRange(DateTime date, DateTime startInclusive, DateTime endExclusive) {
+    return !date.isBefore(startInclusive) && date.isBefore(endExclusive);
   }
 }

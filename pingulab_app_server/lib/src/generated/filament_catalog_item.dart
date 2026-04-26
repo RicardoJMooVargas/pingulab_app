@@ -11,91 +11,63 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod/serverpod.dart' as _i1;
 
-abstract class Filament
+abstract class FilamentCatalogItem
     implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
-  Filament._({
+  FilamentCatalogItem._({
     this.id,
-    required this.name,
-    required this.brand,
     required this.materialType,
     required this.color,
-    required this.spoolWeightKg,
-    required this.spoolCost,
-    required this.remainingGrams,
+    required this.active,
   });
 
-  factory Filament({
+  factory FilamentCatalogItem({
     int? id,
-    required String name,
-    required String brand,
     required String materialType,
     required String color,
-    required double spoolWeightKg,
-    required double spoolCost,
-    required double remainingGrams,
-  }) = _FilamentImpl;
+    required bool active,
+  }) = _FilamentCatalogItemImpl;
 
-  factory Filament.fromJson(Map<String, dynamic> jsonSerialization) {
-    return Filament(
+  factory FilamentCatalogItem.fromJson(Map<String, dynamic> jsonSerialization) {
+    return FilamentCatalogItem(
       id: jsonSerialization['id'] as int?,
-      name: jsonSerialization['name'] as String,
-      brand: jsonSerialization['brand'] as String,
       materialType: jsonSerialization['materialType'] as String,
       color: jsonSerialization['color'] as String,
-      spoolWeightKg: (jsonSerialization['spoolWeightKg'] as num).toDouble(),
-      spoolCost: (jsonSerialization['spoolCost'] as num).toDouble(),
-      remainingGrams: (jsonSerialization['remainingGrams'] as num).toDouble(),
+      active: jsonSerialization['active'] as bool,
     );
   }
 
-  static final t = FilamentTable();
+  static final t = FilamentCatalogItemTable();
 
-  static const db = FilamentRepository._();
+  static const db = FilamentCatalogItemRepository._();
 
   @override
   int? id;
-
-  String name;
-
-  String brand;
 
   String materialType;
 
   String color;
 
-  double spoolWeightKg;
-
-  double spoolCost;
-
-  double remainingGrams;
+  bool active;
 
   @override
   _i1.Table<int?> get table => t;
 
-  /// Returns a shallow copy of this [Filament]
+  /// Returns a shallow copy of this [FilamentCatalogItem]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
-  Filament copyWith({
+  FilamentCatalogItem copyWith({
     int? id,
-    String? name,
-    String? brand,
     String? materialType,
     String? color,
-    double? spoolWeightKg,
-    double? spoolCost,
-    double? remainingGrams,
+    bool? active,
   });
   @override
   Map<String, dynamic> toJson() {
     return {
       if (id != null) 'id': id,
-      'name': name,
-      'brand': brand,
       'materialType': materialType,
       'color': color,
-      'spoolWeightKg': spoolWeightKg,
-      'spoolCost': spoolCost,
-      'remainingGrams': remainingGrams,
+      'active': active,
     };
   }
 
@@ -103,36 +75,32 @@ abstract class Filament
   Map<String, dynamic> toJsonForProtocol() {
     return {
       if (id != null) 'id': id,
-      'name': name,
-      'brand': brand,
       'materialType': materialType,
       'color': color,
-      'spoolWeightKg': spoolWeightKg,
-      'spoolCost': spoolCost,
-      'remainingGrams': remainingGrams,
+      'active': active,
     };
   }
 
-  static FilamentInclude include() {
-    return FilamentInclude._();
+  static FilamentCatalogItemInclude include() {
+    return FilamentCatalogItemInclude._();
   }
 
-  static FilamentIncludeList includeList({
-    _i1.WhereExpressionBuilder<FilamentTable>? where,
+  static FilamentCatalogItemIncludeList includeList({
+    _i1.WhereExpressionBuilder<FilamentCatalogItemTable>? where,
     int? limit,
     int? offset,
-    _i1.OrderByBuilder<FilamentTable>? orderBy,
+    _i1.OrderByBuilder<FilamentCatalogItemTable>? orderBy,
     bool orderDescending = false,
-    _i1.OrderByListBuilder<FilamentTable>? orderByList,
-    FilamentInclude? include,
+    _i1.OrderByListBuilder<FilamentCatalogItemTable>? orderByList,
+    FilamentCatalogItemInclude? include,
   }) {
-    return FilamentIncludeList._(
+    return FilamentCatalogItemIncludeList._(
       where: where,
       limit: limit,
       offset: offset,
-      orderBy: orderBy?.call(Filament.t),
+      orderBy: orderBy?.call(FilamentCatalogItem.t),
       orderDescending: orderDescending,
-      orderByList: orderByList?.call(Filament.t),
+      orderByList: orderByList?.call(FilamentCatalogItem.t),
       include: include,
     );
   }
@@ -145,64 +113,41 @@ abstract class Filament
 
 class _Undefined {}
 
-class _FilamentImpl extends Filament {
-  _FilamentImpl({
+class _FilamentCatalogItemImpl extends FilamentCatalogItem {
+  _FilamentCatalogItemImpl({
     int? id,
-    required String name,
-    required String brand,
     required String materialType,
     required String color,
-    required double spoolWeightKg,
-    required double spoolCost,
-    required double remainingGrams,
+    required bool active,
   }) : super._(
           id: id,
-          name: name,
-          brand: brand,
           materialType: materialType,
           color: color,
-          spoolWeightKg: spoolWeightKg,
-          spoolCost: spoolCost,
-          remainingGrams: remainingGrams,
+          active: active,
         );
 
-  /// Returns a shallow copy of this [Filament]
+  /// Returns a shallow copy of this [FilamentCatalogItem]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
   @override
-  Filament copyWith({
+  FilamentCatalogItem copyWith({
     Object? id = _Undefined,
-    String? name,
-    String? brand,
     String? materialType,
     String? color,
-    double? spoolWeightKg,
-    double? spoolCost,
-    double? remainingGrams,
+    bool? active,
   }) {
-    return Filament(
+    return FilamentCatalogItem(
       id: id is int? ? id : this.id,
-      name: name ?? this.name,
-      brand: brand ?? this.brand,
       materialType: materialType ?? this.materialType,
       color: color ?? this.color,
-      spoolWeightKg: spoolWeightKg ?? this.spoolWeightKg,
-      spoolCost: spoolCost ?? this.spoolCost,
-      remainingGrams: remainingGrams ?? this.remainingGrams,
+      active: active ?? this.active,
     );
   }
 }
 
-class FilamentTable extends _i1.Table<int?> {
-  FilamentTable({super.tableRelation}) : super(tableName: 'filaments') {
-    name = _i1.ColumnString(
-      'name',
-      this,
-    );
-    brand = _i1.ColumnString(
-      'brand',
-      this,
-    );
+class FilamentCatalogItemTable extends _i1.Table<int?> {
+  FilamentCatalogItemTable({super.tableRelation})
+      : super(tableName: 'filament_catalog_items') {
     materialType = _i1.ColumnString(
       'materialType',
       this,
@@ -211,60 +156,40 @@ class FilamentTable extends _i1.Table<int?> {
       'color',
       this,
     );
-    spoolWeightKg = _i1.ColumnDouble(
-      'spoolWeightKg',
-      this,
-    );
-    spoolCost = _i1.ColumnDouble(
-      'spoolCost',
-      this,
-    );
-    remainingGrams = _i1.ColumnDouble(
-      'remainingGrams',
+    active = _i1.ColumnBool(
+      'active',
       this,
     );
   }
-
-  late final _i1.ColumnString name;
-
-  late final _i1.ColumnString brand;
 
   late final _i1.ColumnString materialType;
 
   late final _i1.ColumnString color;
 
-  late final _i1.ColumnDouble spoolWeightKg;
-
-  late final _i1.ColumnDouble spoolCost;
-
-  late final _i1.ColumnDouble remainingGrams;
+  late final _i1.ColumnBool active;
 
   @override
   List<_i1.Column> get columns => [
         id,
-        name,
-        brand,
         materialType,
         color,
-        spoolWeightKg,
-        spoolCost,
-        remainingGrams,
+        active,
       ];
 }
 
-class FilamentInclude extends _i1.IncludeObject {
-  FilamentInclude._();
+class FilamentCatalogItemInclude extends _i1.IncludeObject {
+  FilamentCatalogItemInclude._();
 
   @override
   Map<String, _i1.Include?> get includes => {};
 
   @override
-  _i1.Table<int?> get table => Filament.t;
+  _i1.Table<int?> get table => FilamentCatalogItem.t;
 }
 
-class FilamentIncludeList extends _i1.IncludeList {
-  FilamentIncludeList._({
-    _i1.WhereExpressionBuilder<FilamentTable>? where,
+class FilamentCatalogItemIncludeList extends _i1.IncludeList {
+  FilamentCatalogItemIncludeList._({
+    _i1.WhereExpressionBuilder<FilamentCatalogItemTable>? where,
     super.limit,
     super.offset,
     super.orderBy,
@@ -272,20 +197,20 @@ class FilamentIncludeList extends _i1.IncludeList {
     super.orderByList,
     super.include,
   }) {
-    super.where = where?.call(Filament.t);
+    super.where = where?.call(FilamentCatalogItem.t);
   }
 
   @override
   Map<String, _i1.Include?> get includes => include?.includes ?? {};
 
   @override
-  _i1.Table<int?> get table => Filament.t;
+  _i1.Table<int?> get table => FilamentCatalogItem.t;
 }
 
-class FilamentRepository {
-  const FilamentRepository._();
+class FilamentCatalogItemRepository {
+  const FilamentCatalogItemRepository._();
 
-  /// Returns a list of [Filament]s matching the given query parameters.
+  /// Returns a list of [FilamentCatalogItem]s matching the given query parameters.
   ///
   /// Use [where] to specify which items to include in the return value.
   /// If none is specified, all items will be returned.
@@ -307,20 +232,20 @@ class FilamentRepository {
   ///   limit: 100,
   /// );
   /// ```
-  Future<List<Filament>> find(
+  Future<List<FilamentCatalogItem>> find(
     _i1.Session session, {
-    _i1.WhereExpressionBuilder<FilamentTable>? where,
+    _i1.WhereExpressionBuilder<FilamentCatalogItemTable>? where,
     int? limit,
     int? offset,
-    _i1.OrderByBuilder<FilamentTable>? orderBy,
+    _i1.OrderByBuilder<FilamentCatalogItemTable>? orderBy,
     bool orderDescending = false,
-    _i1.OrderByListBuilder<FilamentTable>? orderByList,
+    _i1.OrderByListBuilder<FilamentCatalogItemTable>? orderByList,
     _i1.Transaction? transaction,
   }) async {
-    return session.db.find<Filament>(
-      where: where?.call(Filament.t),
-      orderBy: orderBy?.call(Filament.t),
-      orderByList: orderByList?.call(Filament.t),
+    return session.db.find<FilamentCatalogItem>(
+      where: where?.call(FilamentCatalogItem.t),
+      orderBy: orderBy?.call(FilamentCatalogItem.t),
+      orderByList: orderByList?.call(FilamentCatalogItem.t),
       orderDescending: orderDescending,
       limit: limit,
       offset: offset,
@@ -328,7 +253,7 @@ class FilamentRepository {
     );
   }
 
-  /// Returns the first matching [Filament] matching the given query parameters.
+  /// Returns the first matching [FilamentCatalogItem] matching the given query parameters.
   ///
   /// Use [where] to specify which items to include in the return value.
   /// If none is specified, all items will be returned.
@@ -345,136 +270,136 @@ class FilamentRepository {
   ///   orderBy: (t) => t.age,
   /// );
   /// ```
-  Future<Filament?> findFirstRow(
+  Future<FilamentCatalogItem?> findFirstRow(
     _i1.Session session, {
-    _i1.WhereExpressionBuilder<FilamentTable>? where,
+    _i1.WhereExpressionBuilder<FilamentCatalogItemTable>? where,
     int? offset,
-    _i1.OrderByBuilder<FilamentTable>? orderBy,
+    _i1.OrderByBuilder<FilamentCatalogItemTable>? orderBy,
     bool orderDescending = false,
-    _i1.OrderByListBuilder<FilamentTable>? orderByList,
+    _i1.OrderByListBuilder<FilamentCatalogItemTable>? orderByList,
     _i1.Transaction? transaction,
   }) async {
-    return session.db.findFirstRow<Filament>(
-      where: where?.call(Filament.t),
-      orderBy: orderBy?.call(Filament.t),
-      orderByList: orderByList?.call(Filament.t),
+    return session.db.findFirstRow<FilamentCatalogItem>(
+      where: where?.call(FilamentCatalogItem.t),
+      orderBy: orderBy?.call(FilamentCatalogItem.t),
+      orderByList: orderByList?.call(FilamentCatalogItem.t),
       orderDescending: orderDescending,
       offset: offset,
       transaction: transaction,
     );
   }
 
-  /// Finds a single [Filament] by its [id] or null if no such row exists.
-  Future<Filament?> findById(
+  /// Finds a single [FilamentCatalogItem] by its [id] or null if no such row exists.
+  Future<FilamentCatalogItem?> findById(
     _i1.Session session,
     int id, {
     _i1.Transaction? transaction,
   }) async {
-    return session.db.findById<Filament>(
+    return session.db.findById<FilamentCatalogItem>(
       id,
       transaction: transaction,
     );
   }
 
-  /// Inserts all [Filament]s in the list and returns the inserted rows.
+  /// Inserts all [FilamentCatalogItem]s in the list and returns the inserted rows.
   ///
-  /// The returned [Filament]s will have their `id` fields set.
+  /// The returned [FilamentCatalogItem]s will have their `id` fields set.
   ///
   /// This is an atomic operation, meaning that if one of the rows fails to
   /// insert, none of the rows will be inserted.
-  Future<List<Filament>> insert(
+  Future<List<FilamentCatalogItem>> insert(
     _i1.Session session,
-    List<Filament> rows, {
+    List<FilamentCatalogItem> rows, {
     _i1.Transaction? transaction,
   }) async {
-    return session.db.insert<Filament>(
+    return session.db.insert<FilamentCatalogItem>(
       rows,
       transaction: transaction,
     );
   }
 
-  /// Inserts a single [Filament] and returns the inserted row.
+  /// Inserts a single [FilamentCatalogItem] and returns the inserted row.
   ///
-  /// The returned [Filament] will have its `id` field set.
-  Future<Filament> insertRow(
+  /// The returned [FilamentCatalogItem] will have its `id` field set.
+  Future<FilamentCatalogItem> insertRow(
     _i1.Session session,
-    Filament row, {
+    FilamentCatalogItem row, {
     _i1.Transaction? transaction,
   }) async {
-    return session.db.insertRow<Filament>(
+    return session.db.insertRow<FilamentCatalogItem>(
       row,
       transaction: transaction,
     );
   }
 
-  /// Updates all [Filament]s in the list and returns the updated rows. If
+  /// Updates all [FilamentCatalogItem]s in the list and returns the updated rows. If
   /// [columns] is provided, only those columns will be updated. Defaults to
   /// all columns.
   /// This is an atomic operation, meaning that if one of the rows fails to
   /// update, none of the rows will be updated.
-  Future<List<Filament>> update(
+  Future<List<FilamentCatalogItem>> update(
     _i1.Session session,
-    List<Filament> rows, {
-    _i1.ColumnSelections<FilamentTable>? columns,
+    List<FilamentCatalogItem> rows, {
+    _i1.ColumnSelections<FilamentCatalogItemTable>? columns,
     _i1.Transaction? transaction,
   }) async {
-    return session.db.update<Filament>(
+    return session.db.update<FilamentCatalogItem>(
       rows,
-      columns: columns?.call(Filament.t),
+      columns: columns?.call(FilamentCatalogItem.t),
       transaction: transaction,
     );
   }
 
-  /// Updates a single [Filament]. The row needs to have its id set.
+  /// Updates a single [FilamentCatalogItem]. The row needs to have its id set.
   /// Optionally, a list of [columns] can be provided to only update those
   /// columns. Defaults to all columns.
-  Future<Filament> updateRow(
+  Future<FilamentCatalogItem> updateRow(
     _i1.Session session,
-    Filament row, {
-    _i1.ColumnSelections<FilamentTable>? columns,
+    FilamentCatalogItem row, {
+    _i1.ColumnSelections<FilamentCatalogItemTable>? columns,
     _i1.Transaction? transaction,
   }) async {
-    return session.db.updateRow<Filament>(
+    return session.db.updateRow<FilamentCatalogItem>(
       row,
-      columns: columns?.call(Filament.t),
+      columns: columns?.call(FilamentCatalogItem.t),
       transaction: transaction,
     );
   }
 
-  /// Deletes all [Filament]s in the list and returns the deleted rows.
+  /// Deletes all [FilamentCatalogItem]s in the list and returns the deleted rows.
   /// This is an atomic operation, meaning that if one of the rows fail to
   /// be deleted, none of the rows will be deleted.
-  Future<List<Filament>> delete(
+  Future<List<FilamentCatalogItem>> delete(
     _i1.Session session,
-    List<Filament> rows, {
+    List<FilamentCatalogItem> rows, {
     _i1.Transaction? transaction,
   }) async {
-    return session.db.delete<Filament>(
+    return session.db.delete<FilamentCatalogItem>(
       rows,
       transaction: transaction,
     );
   }
 
-  /// Deletes a single [Filament].
-  Future<Filament> deleteRow(
+  /// Deletes a single [FilamentCatalogItem].
+  Future<FilamentCatalogItem> deleteRow(
     _i1.Session session,
-    Filament row, {
+    FilamentCatalogItem row, {
     _i1.Transaction? transaction,
   }) async {
-    return session.db.deleteRow<Filament>(
+    return session.db.deleteRow<FilamentCatalogItem>(
       row,
       transaction: transaction,
     );
   }
 
   /// Deletes all rows matching the [where] expression.
-  Future<List<Filament>> deleteWhere(
+  Future<List<FilamentCatalogItem>> deleteWhere(
     _i1.Session session, {
-    required _i1.WhereExpressionBuilder<FilamentTable> where,
+    required _i1.WhereExpressionBuilder<FilamentCatalogItemTable> where,
     _i1.Transaction? transaction,
   }) async {
-    return session.db.deleteWhere<Filament>(
-      where: where(Filament.t),
+    return session.db.deleteWhere<FilamentCatalogItem>(
+      where: where(FilamentCatalogItem.t),
       transaction: transaction,
     );
   }
@@ -483,12 +408,12 @@ class FilamentRepository {
   /// will return the count of all rows in the table.
   Future<int> count(
     _i1.Session session, {
-    _i1.WhereExpressionBuilder<FilamentTable>? where,
+    _i1.WhereExpressionBuilder<FilamentCatalogItemTable>? where,
     int? limit,
     _i1.Transaction? transaction,
   }) async {
-    return session.db.count<Filament>(
-      where: where?.call(Filament.t),
+    return session.db.count<FilamentCatalogItem>(
+      where: where?.call(FilamentCatalogItem.t),
       limit: limit,
       transaction: transaction,
     );

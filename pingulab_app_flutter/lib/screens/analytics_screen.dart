@@ -13,6 +13,11 @@ class AnalyticsScreen extends StatefulWidget {
 class _AnalyticsScreenState extends State<AnalyticsScreen> {
   bool _isLoading = false;
   String? _error;
+  late final List<int> _yearOptions;
+  int _selectedYear = DateTime.now().year;
+  int _startMonth = 1;
+  int _endMonth = DateTime.now().month;
+  Map<String, dynamic>? _financialSummary;
   Map<String, dynamic>? _salesData;
   Map<String, dynamic>? _profitData;
   Map<String, dynamic>? _depreciationData;
@@ -22,6 +27,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   @override
   void initState() {
     super.initState();
+    final currentYear = DateTime.now().year;
+    _yearOptions = List.generate(6, (index) => currentYear - index);
     _loadAnalyticsData();
   }
 
@@ -32,6 +39,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     });
 
     try {
+      final financialSummary = await client.analytics.getFinancialSummaryByMonthRange(
+        year: _selectedYear,
+        startMonth: _startMonth,
+        endMonth: _endMonth,
+      );
       final sales = await client.analytics.getMonthlySalesData(monthsBack: 12);
       final profit = await client.analytics.getNetProfitData(monthsBack: 12);
       final depreciation = await client.analytics.getPrinterDepreciationData();
@@ -39,6 +51,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
       final metrics = await client.analytics.getOverallMetrics();
 
       setState(() {
+        _financialSummary = financialSummary;
         _salesData = sales;
         _profitData = profit;
         _depreciationData = depreciation;
@@ -89,6 +102,12 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        _buildFiltersCard(),
+                        const SizedBox(height: 16),
+
+                        if (_financialSummary != null) _buildFinancialTables(),
+                        const SizedBox(height: 24),
+
                         // Métricas generales
                         if (_metrics != null) _buildMetricsCards(),
                         const SizedBox(height: 24),
@@ -112,6 +131,251 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                     ),
                   ),
                 ),
+    );
+  }
+
+  Widget _buildFiltersCard() {
+    return Card(
+      elevation: 3,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Filtro por Rango de Meses',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: DropdownButtonFormField<int>(
+                    value: _selectedYear,
+                    decoration: const InputDecoration(
+                      labelText: 'Año',
+                      border: OutlineInputBorder(),
+                      isDense: true,
+                    ),
+                    items: _yearOptions
+                        .map(
+                          (year) => DropdownMenuItem<int>(
+                            value: year,
+                            child: Text(year.toString()),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (value) {
+                      if (value == null) return;
+                      setState(() => _selectedYear = value);
+                    },
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: DropdownButtonFormField<int>(
+                    value: _startMonth,
+                    decoration: const InputDecoration(
+                      labelText: 'Mes inicio',
+                      border: OutlineInputBorder(),
+                      isDense: true,
+                    ),
+                    items: List.generate(12, (index) => index + 1)
+                        .map(
+                          (month) => DropdownMenuItem<int>(
+                            value: month,
+                            child: Text(_monthLabel(month)),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (value) {
+                      if (value == null) return;
+                      setState(() => _startMonth = value);
+                    },
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: DropdownButtonFormField<int>(
+                    value: _endMonth,
+                    decoration: const InputDecoration(
+                      labelText: 'Mes fin',
+                      border: OutlineInputBorder(),
+                      isDense: true,
+                    ),
+                    items: List.generate(12, (index) => index + 1)
+                        .map(
+                          (month) => DropdownMenuItem<int>(
+                            value: month,
+                            child: Text(_monthLabel(month)),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (value) {
+                      if (value == null) return;
+                      setState(() => _endMonth = value);
+                    },
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: _isLoading ? null : _loadAnalyticsData,
+                    icon: const Icon(Icons.filter_alt),
+                    label: const Text('Aplicar filtro'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFinancialTables() {
+    final totals = _financialSummary!['totals'] as Map<String, dynamic>;
+    final expenseBreakdown = _financialSummary!['expenseBreakdown'] as Map<String, dynamic>;
+    final profitByPrinter =
+        (totals['totalGananciasPorImpresora'] as List).cast<Map<String, dynamic>>();
+    final filters = _financialSummary!['filters'] as Map<String, dynamic>;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Tabla Financiera (Rango Seleccionado)',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Periodo: ${_monthLabel(filters['startMonth'] as int)} a ${_monthLabel(filters['endMonth'] as int)} de ${filters['year']}',
+          style: TextStyle(color: Colors.grey.shade700),
+        ),
+        const SizedBox(height: 12),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: DataTable(
+                columns: const [
+                  DataColumn(label: Text('Concepto')),
+                  DataColumn(label: Text('Monto')),
+                ],
+                rows: [
+                  DataRow(cells: [
+                    const DataCell(Text('Gastos Totales')),
+                    DataCell(Text(_currency((totals['totalGastos'] as num).toDouble()))),
+                  ]),
+                  DataRow(cells: [
+                    const DataCell(Text('Total Ganado')),
+                    DataCell(Text(_currency((totals['totalGanado'] as num).toDouble()))),
+                  ]),
+                  DataRow(cells: [
+                    const DataCell(Text('Total Gastos de Material (Filamento) Recuperado')),
+                    DataCell(
+                      Text(_currency((totals['totalGastoMaterialRecuperado'] as num).toDouble())),
+                    ),
+                  ]),
+                  DataRow(cells: [
+                    const DataCell(Text('Total Ganancias Generales')),
+                    DataCell(
+                      Text(
+                        _currency((totals['totalGananciasGenerales'] as num).toDouble()),
+                        style: TextStyle(
+                          color: (totals['totalGananciasGenerales'] as num).toDouble() >= 0
+                              ? Colors.green
+                              : Colors.red,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ]),
+                ],
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Desglose de Gastos',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                _buildStatRow('Filamento', _currency((expenseBreakdown['filament'] as num).toDouble())),
+                _buildStatRow('Electricidad', _currency((expenseBreakdown['electricity'] as num).toDouble())),
+                _buildStatRow('Suministros', _currency((expenseBreakdown['supplies'] as num).toDouble())),
+                _buildStatRow('Depreciación', _currency((expenseBreakdown['depreciation'] as num).toDouble())),
+                _buildStatRow(
+                  'Post-procesado',
+                  _currency((expenseBreakdown['postProcessing'] as num).toDouble()),
+                ),
+                _buildStatRow('Envío', _currency((expenseBreakdown['shipping'] as num).toDouble())),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Total de Ganancias por Impresora',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: DataTable(
+                    columns: const [
+                      DataColumn(label: Text('Impresora')),
+                      DataColumn(label: Text('Total Ganado')),
+                      DataColumn(label: Text('Total Gastos')),
+                      DataColumn(label: Text('Ganancia')),
+                    ],
+                    rows: profitByPrinter
+                        .map(
+                          (row) => DataRow(
+                            cells: [
+                              DataCell(Text(row['printerName'] as String? ?? 'Sin nombre')),
+                              DataCell(Text(_currency((row['totalRevenue'] as num).toDouble()))),
+                              DataCell(Text(_currency((row['totalExpenses'] as num).toDouble()))),
+                              DataCell(
+                                Text(
+                                  _currency((row['totalProfit'] as num).toDouble()),
+                                  style: TextStyle(
+                                    color: (row['totalProfit'] as num).toDouble() >= 0
+                                        ? Colors.green
+                                        : Colors.red,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                        .toList(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -628,6 +892,20 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     if (percentage < 50) return Colors.lightGreen;
     if (percentage < 75) return Colors.orange;
     return Colors.red;
+  }
+
+  String _monthLabel(int month) {
+    final date = DateTime(2000, month, 1);
+    return DateFormat('MMMM', 'es').format(date);
+  }
+
+  String _currency(double value) {
+    final format = NumberFormat.currency(
+      locale: 'es_MX',
+      symbol: r'$',
+      decimalDigits: 2,
+    );
+    return format.format(value);
   }
 }
 

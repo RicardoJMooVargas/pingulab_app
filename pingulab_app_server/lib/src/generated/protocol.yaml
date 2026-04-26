@@ -1,3 +1,11 @@
+analytics:
+  - getFinancialSummaryByMonthRange:
+  - getMonthlySalesData:
+  - getNetProfitData:
+  - getPrinterDepreciationData:
+  - getSalesVsCostsAnalysis:
+  - getCategoryProfitabilityData:
+  - getOverallMetrics:
 auth:
   - register:
   - login:

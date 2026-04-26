@@ -26,6 +26,7 @@ class CatalogsEndpoint extends Endpoint {
       color: color,
       spoolWeightKg: spoolWeightKg,
       spoolCost: spoolCost,
+      remainingGrams: spoolWeightKg * 1000,
     );
     return await Filament.db.insertRow(session, filament);
   }
