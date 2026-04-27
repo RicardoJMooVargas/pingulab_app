@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:intl/intl.dart';
 import 'dart:convert';
 import '../main.dart';
 
@@ -57,13 +56,12 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
       final analysisJson = await client.analytics.getSalesVsCostsAnalysis(monthsBack: 12);
       final metricsJson = await client.analytics.getOverallMetrics();
 
-        final financialSummary =
-          jsonDecode(financialSummaryJson) as Map<String, dynamic>;
-      final sales = jsonDecode(salesJson) as Map<String, dynamic>;
-      final profit = jsonDecode(profitJson) as Map<String, dynamic>;
-      final depreciation = jsonDecode(depreciationJson) as Map<String, dynamic>;
-      final analysis = jsonDecode(analysisJson) as Map<String, dynamic>;
-      final metrics = jsonDecode(metricsJson) as Map<String, dynamic>;
+          final financialSummary = _toMap(jsonDecode(financialSummaryJson));
+          final sales = _toMap(jsonDecode(salesJson));
+          final profit = _toMap(jsonDecode(profitJson));
+          final depreciation = _toMap(jsonDecode(depreciationJson));
+          final analysis = _toMap(jsonDecode(analysisJson));
+          final metrics = _toMap(jsonDecode(metricsJson));
 
       setState(() {
         _financialSummary = financialSummary;
@@ -922,17 +920,47 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   }
 
   String _monthLabel(int month) {
-    final date = DateTime(2000, month, 1);
-    return DateFormat('MMMM', 'es').format(date);
+    const months = [
+      'Enero',
+      'Febrero',
+      'Marzo',
+      'Abril',
+      'Mayo',
+      'Junio',
+      'Julio',
+      'Agosto',
+      'Septiembre',
+      'Octubre',
+      'Noviembre',
+      'Diciembre',
+    ];
+    if (month < 1 || month > 12) return month.toString();
+    return months[month - 1];
   }
 
   String _currency(double value) {
-    final format = NumberFormat.currency(
-      locale: 'es_MX',
-      symbol: r'$',
-      decimalDigits: 2,
-    );
-    return format.format(value);
+    final sign = value < 0 ? '-' : '';
+    final abs = value.abs();
+    final parts = abs.toStringAsFixed(2).split('.');
+    final integerPart = parts[0];
+    final decimalPart = parts[1];
+
+    final buffer = StringBuffer();
+    for (var i = 0; i < integerPart.length; i++) {
+      final reverseIndex = integerPart.length - i;
+      buffer.write(integerPart[i]);
+      if (reverseIndex > 1 && reverseIndex % 3 == 1) {
+        buffer.write(',');
+      }
+    }
+
+    return '$sign\$$buffer.$decimalPart';
+  }
+
+  Map<String, dynamic> _toMap(dynamic value) {
+    if (value is Map<String, dynamic>) return value;
+    if (value is Map) return value.map((k, v) => MapEntry('$k', v));
+    return <String, dynamic>{};
   }
 }
 
